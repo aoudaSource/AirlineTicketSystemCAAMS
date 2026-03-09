@@ -1,0 +1,26 @@
+﻿@page
+@model CAAMSAirlineWebApp.Pages.TestBookingModel
+@{
+    ViewData["Title"] = "Test Booking";
+}
+
+<h2>Book a Flight (Test)</h2>
+
+<form method="post">
+    <div>
+        <label>Flight:</label>
+        <select asp-for="SelectedFlightId" asp-items="Model.FlightOptions"></select>
+    </div>
+
+    <div>
+        <label>Seat:</label>
+        <select asp-for="SelectedSeatId" asp-items="Model.SeatOptions"></select>
+    </div>
+
+    <div>
+        <label>Customer ID (existing customer):</label>
+        <input asp-for="CustomerId" />
+    </div>
+
+    <button type="submit">Book</button>
+</form>

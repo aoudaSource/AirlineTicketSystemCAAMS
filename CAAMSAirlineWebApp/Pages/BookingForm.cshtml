@@ -1,0 +1,136 @@
+@page
+@model CAAMSAirlineWebApp.Pages.BookingFormModel
+@{
+    ViewData["Title"] = "Passenger Details";
+}
+
+<h2 class="mb-4">Passenger Details</h2>
+
+@* ── FLIGHT SUMMARY ── *@
+<div class="card mb-4 shadow-sm border-primary">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-2">
+                <span class="fw-bold fs-5">@Model.FlightNumber</span>
+            </div>
+            <div class="col-md-5 text-center">
+                <div class="d-flex align-items-center justify-content-center gap-3">
+                    <div>
+                        <div class="fs-5 fw-bold">@Model.DepartureCode</div>
+                        <div class="text-muted small">@Model.DepartureCity</div>
+                        <div class="fw-semibold">@Model.DepartureTime.ToString("hh:mm tt")</div>
+                    </div>
+                    <div class="text-center text-muted px-2">
+                        <div>────✈────</div>
+                        <div class="small">@Model.DepartureTime.ToString("MMM dd, yyyy")</div>
+                    </div>
+                    <div>
+                        <div class="fs-5 fw-bold">@Model.ArrivalCode</div>
+                        <div class="text-muted small">@Model.ArrivalCity</div>
+                        <div class="fw-semibold">@Model.ArrivalTime.ToString("hh:mm tt")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="text-muted small">Base Price</div>
+                <div class="fw-bold fs-5">$@Model.BasePrice.ToString("F2")</div>
+            </div>
+            <div class="col-md-3 text-end">
+                <span class="badge bg-primary">Selected</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ── BOOKING FORM ── *@
+<form method="post" novalidate>
+    <input type="hidden" asp-for="Input.FlightId" />
+    <input type="hidden" asp-for="Input.PassengerCount" />
+
+    <div class="mb-4" style="max-width:220px;">
+        <label class="form-label fw-semibold">Ticket Class</label>
+        <select asp-for="Input.TicketClass" class="form-select" id="ticketClassSelect">
+            <option value="">-- Select Class --</option>
+            <option value="Economy">Economy (base price)</option>
+            <option value="Business">Business (1.5×)</option>
+            <option value="First">First Class (2×)</option>
+        </select>
+        <span asp-validation-for="Input.TicketClass" class="text-danger small"></span>
+    </div>
+
+    <hr />
+
+    @for (int i = 0; i < Model.Input.PassengerCount; i++)
+    {
+        <h5 class="mt-3">Passenger @(i + 1)</h5>
+        <div class="row g-3 mb-3">
+            <div class="col-md-3">
+                <label class="form-label">First Name</label>
+                <input asp-for="Input.Passengers[i].FirstName" class="form-control" />
+                <span asp-validation-for="Input.Passengers[i].FirstName" class="text-danger small"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Last Name</label>
+                <input asp-for="Input.Passengers[i].LastName" class="form-control" />
+                <span asp-validation-for="Input.Passengers[i].LastName" class="text-danger small"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Passport Number</label>
+                <input asp-for="Input.Passengers[i].PassportNumber" class="form-control" />
+                <span asp-validation-for="Input.Passengers[i].PassportNumber" class="text-danger small"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Date of Birth</label>
+                <input asp-for="Input.Passengers[i].DOB" type="date" class="form-control" />
+                <span asp-validation-for="Input.Passengers[i].DOB" class="text-danger small"></span>
+            </div>
+        </div>
+    }
+
+    <hr />
+
+    @if (Model.EstimatedTotal > 0)
+    {
+        <p class="fs-5 mb-3">Estimated Total: <strong class="text-success">$@Model.EstimatedTotal.ToString("F2")</strong></p>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-lg">Confirm Booking</button>
+        <a asp-page="/BookFlight" class="btn btn-outline-secondary btn-lg">Back to Search</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        // Live estimated total calculation
+        const ticketClassSelect = document.getElementById('ticketClassSelect');
+        const passengerCount = @Model.Input.PassengerCount;
+        const basePrice = @Model.BasePrice;
+
+        function updateTotal() {
+            const multipliers = { 'Economy': 1, 'Business': 1.5, 'First': 2 };
+            const cls = ticketClassSelect ? ticketClassSelect.value : '';
+            const multiplier = multipliers[cls] || 0;
+            const total = passengerCount * basePrice * multiplier;
+
+            let totalEl = document.getElementById('liveTotal');
+            if (!totalEl) {
+                totalEl = document.createElement('p');
+                totalEl.id = 'liveTotal';
+                totalEl.className = 'fs-5 mb-3';
+                ticketClassSelect.closest('.mb-4').insertAdjacentElement('afterend', totalEl);
+            }
+            if (multiplier > 0) {
+                totalEl.innerHTML = 'Estimated Total: <strong class="text-success">$' + total.toFixed(2) + '</strong>';
+            } else {
+                totalEl.innerHTML = '';
+            }
+        }
+
+        if (ticketClassSelect) {
+            ticketClassSelect.addEventListener('change', updateTotal);
+        }
+    </script>
+}

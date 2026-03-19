@@ -1,0 +1,142 @@
+@page
+@model CAAMSAirlineWebApp.Pages.BookFlightModel
+@{
+    ViewData["Title"] = "Book a Flight";
+}
+
+<h2 class="mb-4">Book a Flight</h2>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+@* ── STEP 1: SEARCH FORM ── *@
+@if (Model.PageStep == "search" || Model.PageStep == "results")
+{
+    <div class="card p-4 mb-4 shadow-sm">
+        <form method="get" novalidate>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">From</label>
+                    <input asp-for="Search.Origin" class="form-control" placeholder="City or airport code" />
+                    <span asp-validation-for="Search.Origin" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">To</label>
+                    <input asp-for="Search.Destination" class="form-control" placeholder="City or airport code" />
+                    <span asp-validation-for="Search.Destination" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Trip Type</label>
+                    <select asp-for="Search.TripType" class="form-select" id="tripTypeSelect">
+                        <option value="OneWay">One-Way</option>
+                        <option value="RoundTrip">Round Trip</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Departure</label>
+                    <input asp-for="Search.DepartureDate" type="date" class="form-control" />
+                    <span asp-validation-for="Search.DepartureDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2" id="returnDateGroup">
+                    <label class="form-label fw-semibold">Return</label>
+                    <input asp-for="Search.ReturnDate" type="date" class="form-control" />
+                    <span asp-validation-for="Search.ReturnDate" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Passengers</label>
+                    <select asp-for="Search.PassengerCount" class="form-select">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <option value="@i">@i Passenger@(i > 1 ? "s" : "")</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Search Flights</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+}
+
+@* ── STEP 2: RESULTS ── *@
+@if (Model.PageStep == "results")
+{
+    <h5 class="mb-3">
+        @Model.SearchResults.Count flight(s) found &mdash;
+        <span class="text-muted fw-normal">@Model.Search.Origin → @Model.Search.Destination on @Model.Search.DepartureDate?.ToString("MMM dd, yyyy")</span>
+    </h5>
+
+    @if (!Model.SearchResults.Any())
+    {
+        <div class="alert alert-info">No flights found for your search. Try a different date or location.</div>
+    }
+    else
+    {
+        @foreach (var flight in Model.SearchResults)
+        {
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <span class="fw-bold fs-5">@flight.FlightNumber</span>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <div>
+                                    <div class="fw-bold">@flight.DepartureCode</div>
+                                    <div class="text-muted small">@flight.DepartureCity</div>
+                                </div>
+                                <span class="text-muted">──→</span>
+                                <div>
+                                    <div class="fw-bold">@flight.ArrivalCode</div>
+                                    <div class="text-muted small">@flight.ArrivalCity</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center text-muted small">
+                            @flight.DepartureTime.ToString("hh:mm tt") &ndash; @flight.ArrivalTime.ToString("hh:mm tt")
+                            <br />@flight.DepartureTime.ToString("MMM dd, yyyy")
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="text-muted small">from</div>
+                            <div class="fw-bold fs-5">$@flight.BasePrice.ToString("F2")</div>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <a asp-page="/BookingForm"
+                               asp-route-flightId="@flight.FlightId"
+                               asp-route-passengerCount="@Model.Search.PassengerCount"
+                               class="btn btn-success btn-sm">Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}
+
+
+@section Scripts {
+    <script>
+        // Show/hide return date based on trip type
+        const tripTypeSelect = document.getElementById('tripTypeSelect');
+        const returnDateGroup = document.getElementById('returnDateGroup');
+
+        function toggleReturnDate() {
+            if (tripTypeSelect && returnDateGroup) {
+                returnDateGroup.style.display = tripTypeSelect.value === 'RoundTrip' ? '' : 'none';
+            }
+        }
+
+        if (tripTypeSelect) {
+            tripTypeSelect.addEventListener('change', toggleReturnDate);
+            toggleReturnDate(); // apply on page load
+        }
+    </script>
+}

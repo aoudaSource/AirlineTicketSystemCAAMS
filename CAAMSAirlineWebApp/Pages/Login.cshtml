@@ -1,0 +1,32 @@
+﻿@page
+@model CAAMSAirlineWebApp.Pages.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h2>Login</h2>
+
+<form method="post" novalidate>
+    <div>
+        <label asp-for="Input.Username"></label>
+        <input asp-for="Input.Username" />
+        <span asp-validation-for="Input.Username" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="Input.Password"></label>
+        <input asp-for="Input.Password" type="password" />
+        <span asp-validation-for="Input.Password" class="text-danger"></span>
+    </div>
+
+    <button type="submit">Login</button>
+</form>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <p style="color:red">@Model.ErrorMessage</p>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

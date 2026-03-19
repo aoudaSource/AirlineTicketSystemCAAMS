@@ -1,33 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
 
 namespace CAAMSAirlineWebApp.Models
 {
     public class Seat
     {
-        [Key] // Primary key
         public int SeatId { get; set; }
+        public int AircraftId { get; set; }
+        public string SeatNumber { get; set; } = null!;
+        public string SeatClass { get; set; } = null!;
 
-        [Required]
-        public int AircraftId { get; set; } // Foreign key to Aircraft
-        [ForeignKey("AircraftId")]
-        public required Aircraft Aircraft { get; set; } // Navigation property
-
-        // Link seat to a flight
-        [Required]
-        public int FlightId { get; set; } // new foreign key to Flight
-        [ForeignKey("FlightId")]
-        public required Flight Flight { get; set; }
-
-        [Required]
-        [MaxLength(10)]
-        public required string SeatNumber { get; set; }
-
-        [MaxLength(20)]
-        public required string SeatClass { get; set; } // Economy, Business, etc.
-
-        public bool IsBooked { get; set; } // Track if booked
-
+        // Navigation properties
+        public Aircraft Aircraft { get; set; } = null!;
+        public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
     }
 }

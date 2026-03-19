@@ -1,0 +1,149 @@
+@page
+@model CAAMSAirlineWebApp.Pages.PaymentModel
+@{
+    ViewData["Title"] = "Payment";
+}
+
+<h2 class="mb-4">Payment</h2>
+
+@* ── ORDER SUMMARY ── *@
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light fw-semibold">Order Summary</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="text-muted small">Booking Reference</div>
+                <div class="fw-bold fs-5">#@Model.BookingId.ToString("D6")</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">Flight</div>
+                <div class="fw-semibold">@Model.FlightNumber &nbsp;|&nbsp; @Model.Route</div>
+                <div class="text-muted small">@Model.DepartureTime</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">Passengers / Class</div>
+                <div class="fw-semibold">@Model.PassengerCount passenger(s) &mdash; @Model.TicketClass</div>
+            </div>
+            <div class="col-md-3 text-end">
+                <div class="text-muted small">Total Due</div>
+                <div class="fw-bold fs-4 text-success">$@Model.TotalAmount.ToString("F2")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ── PAYMENT FORM ── *@
+<div class="card shadow-sm" style="max-width:560px;">
+    <div class="card-header bg-light fw-semibold">Payment Details</div>
+    <div class="card-body">
+        <form method="post" novalidate>
+            <input type="hidden" asp-for="Input.BookingId" />
+
+            @* Payment Method *@
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Payment Method</label>
+                <div class="d-flex gap-3" id="methodGroup">
+                    @foreach (var method in new[] { "Credit Card", "Debit Card", "PayPal" })
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio"
+                                   name="Input.PaymentMethod" id="method_@method.Replace(" ", "")"
+                                   value="@method"
+                                   @(Model.Input.PaymentMethod == method ? "checked" : "") />
+                            <label class="form-check-label" for="method_@method.Replace(" ", "")">@method</label>
+                        </div>
+                    }
+                </div>
+                <span asp-validation-for="Input.PaymentMethod" class="text-danger small"></span>
+            </div>
+
+            @* Card Fields *@
+            <div id="cardFields">
+                <div class="mb-3">
+                    <label class="form-label">Card Holder Name</label>
+                    <input asp-for="Input.CardHolderName" class="form-control" placeholder="Name on card" autocomplete="cc-name" />
+                    <span asp-validation-for="Input.CardHolderName" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Card Number</label>
+                    <input asp-for="Input.CardNumber" class="form-control" placeholder="1234 5678 9012 3456"
+                           maxlength="19" id="cardNumberInput" autocomplete="cc-number" />
+                    <span asp-validation-for="Input.CardNumber" class="text-danger small"></span>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Expiry Date</label>
+                        <input asp-for="Input.ExpiryDate" class="form-control" placeholder="MM/YY"
+                               maxlength="5" id="expiryInput" autocomplete="cc-exp" />
+                        <span asp-validation-for="Input.ExpiryDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">CVV</label>
+                        <input asp-for="Input.CVV" class="form-control" placeholder="123"
+                               maxlength="4" autocomplete="cc-csc" />
+                        <span asp-validation-for="Input.CVV" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            @* PayPal Fields *@
+            <div id="paypalFields" style="display:none;">
+                <div class="mb-3">
+                    <label class="form-label">PayPal Email</label>
+                    <input asp-for="Input.PayPalEmail" class="form-control" placeholder="you@example.com" type="email" />
+                    <span asp-validation-for="Input.PayPalEmail" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <span class="text-muted small">&#128274; Secure payment</span>
+                <button type="submit" class="btn btn-success btn-lg px-5">
+                    Pay $@Model.TotalAmount.ToString("F2")
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const radios = document.querySelectorAll('input[name="Input.PaymentMethod"]');
+        const cardFields = document.getElementById('cardFields');
+        const paypalFields = document.getElementById('paypalFields');
+
+        function toggleFields() {
+            const selected = document.querySelector('input[name="Input.PaymentMethod"]:checked')?.value ?? '';
+            if (selected === 'PayPal') {
+                cardFields.style.display = 'none';
+                paypalFields.style.display = '';
+            } else {
+                cardFields.style.display = '';
+                paypalFields.style.display = 'none';
+            }
+        }
+
+        radios.forEach(r => r.addEventListener('change', toggleFields));
+        toggleFields(); // apply on load (handles server-side re-render after validation)
+
+        // Auto-format card number with spaces
+        const cardInput = document.getElementById('cardNumberInput');
+        if (cardInput) {
+            cardInput.addEventListener('input', function () {
+                let v = this.value.replace(/\D/g, '').substring(0, 16);
+                this.value = v.match(/.{1,4}/g)?.join(' ') ?? v;
+            });
+        }
+
+        // Auto-format expiry MM/YY
+        const expiryInput = document.getElementById('expiryInput');
+        if (expiryInput) {
+            expiryInput.addEventListener('input', function () {
+                let v = this.value.replace(/\D/g, '').substring(0, 4);
+                if (v.length >= 3) v = v.substring(0, 2) + '/' + v.substring(2);
+                this.value = v;
+            });
+        }
+    </script>
+}

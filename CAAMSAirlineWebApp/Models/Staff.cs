@@ -1,22 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 
 namespace CAAMSAirlineWebApp.Models
 {
     public class Staff
     {
-        [Key] // Primary key
         public int StaffId { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
+        public string Role { get; set; } = null!;
+        public string Username { get; set; } = null!;
 
-        [Required]
-        [MaxLength(50)]
-        public required string FirstName { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public required string LastName { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public required string Role { get; set; }
+        // Navigation properties
+        public AppUser AppUser { get; set; } = null!;
+        public ICollection<FlightStaff> FlightStaffs { get; set; } = new List<FlightStaff>();
     }
 }

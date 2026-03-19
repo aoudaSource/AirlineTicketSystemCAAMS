@@ -1,0 +1,107 @@
+@page
+@model CAAMSAirlineWebApp.Pages.BookingConfirmationModel
+@{
+    ViewData["Title"] = "Booking Confirmed";
+}
+
+<div class="mb-4">
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <span style="font-size:1.4rem;">&#10003;</span>
+        <div>
+            <strong>Booking Confirmed!</strong> Your booking reference is
+            <strong>#@Model.Booking.BookingId.ToString("D6")</strong>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="text-muted small">Booking Reference</div>
+                    <div class="fw-bold fs-5">#@Model.Booking.BookingId.ToString("D6")</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-muted small">Booking Date</div>
+                    <div class="fw-semibold">@Model.Booking.BookingDate.ToString("MMM dd, yyyy hh:mm tt")</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-muted small">Total Paid</div>
+                    <div class="fw-bold fs-5 text-success">$@Model.Booking.TotalPrice.ToString("F2")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@foreach (var passenger in Model.Booking.Passengers.OrderBy(p => p.PassengerId))
+{
+    <div class="card shadow-sm mb-4" style="border-left: 4px solid #0d6efd;">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <span class="fw-bold">
+                @passenger.FirstName @passenger.LastName
+            </span>
+            <span class="text-muted small">Passport: @passenger.PassportNumber &nbsp;|&nbsp; DOB: @passenger.DOB.ToString("MMM dd, yyyy")</span>
+        </div>
+
+        <div class="card-body p-0">
+            @foreach (var ticket in passenger.Tickets.OrderBy(t => t.FlightLeg.LegNumber))
+            {
+                var leg = ticket.FlightLeg;
+                var dep = leg.DepartureAirportNavigation;
+                var arr = leg.ArrivalAirportNavigation;
+
+                <div class="p-3 border-bottom">
+                    <div class="row align-items-center">
+
+                        <div class="col-md-1 text-center text-muted small">
+                            <div>Ticket</div>
+                            <div class="fw-bold text-dark">#@ticket.TicketId.ToString("D6")</div>
+                        </div>
+
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold">@leg.Flight.FlightNumber</div>
+                            <div>
+                                <span class="badge bg-secondary">@ticket.TicketClass</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <div class="d-flex align-items-center justify-content-center gap-3">
+                                <div class="text-center">
+                                    <div class="fs-5 fw-bold">@leg.DepartureAirport</div>
+                                    <div class="text-muted small">@dep.City</div>
+                                    <div class="fw-semibold">@leg.DepartureTime.ToString("hh:mm tt")</div>
+                                </div>
+                                <div class="text-center text-muted px-2">
+                                    <div>────✈────</div>
+                                    <div class="small">@leg.DepartureTime.ToString("MMM dd")</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fs-5 fw-bold">@leg.ArrivalAirport</div>
+                                    <div class="text-muted small">@arr.City</div>
+                                    <div class="fw-semibold">@leg.ArrivalTime.ToString("hh:mm tt")</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 text-center">
+                            <div class="text-muted small">Seat</div>
+                            <div class="fw-semibold">@(ticket.Seat != null ? ticket.Seat.SeatNumber : "Not assigned")</div>
+                        </div>
+
+                        <div class="col-md-2 text-end">
+                            <div class="text-muted small">Price</div>
+                            <div class="fw-bold">$@ticket.Price.ToString("F2")</div>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<div class="mt-3 d-flex gap-2">
+    <a asp-page="/BookFlight" class="btn btn-primary">Book Another Flight</a>
+    <a asp-page="/Index" class="btn btn-outline-secondary">Home</a>
+</div>

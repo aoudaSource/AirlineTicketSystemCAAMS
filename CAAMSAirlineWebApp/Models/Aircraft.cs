@@ -1,20 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 
 namespace CAAMSAirlineWebApp.Models
 {
     public class Aircraft
     {
-        [Key] // Primary key
         public int AircraftId { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public required string Model { get; set; }
-
-        [MaxLength(50)]
-        public required string Manufacturer { get; set; }
-
-        [Required]
+        public string Model { get; set; } = null!;
+        public string? Manufacturer { get; set; }
         public int Capacity { get; set; }
+
+        // Navigation properties
+        public ICollection<Flight> Flights { get; set; } = new List<Flight>();
+        public ICollection<Seat> Seats { get; set; } = new List<Seat>();
     }
 }

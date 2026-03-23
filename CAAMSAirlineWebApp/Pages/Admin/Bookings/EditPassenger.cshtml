@@ -1,0 +1,49 @@
+@page
+@model CAAMSAirlineWebApp.Pages.Admin.Bookings.EditPassengerModel
+@{
+    ViewData["Title"] = "Edit Passenger Info";
+}
+
+<h2 class="mb-1">Edit Passenger Info</h2>
+<a asp-page="/Admin/Bookings/Details"
+   asp-route-bookingId="@Model.BookingId"
+   class="text-muted small mb-4 d-inline-block">&larr; Back to Booking #@Model.BookingId</a>
+
+<p class="text-muted">Editing passport details for <strong>@Model.PassengerFullName</strong>.</p>
+
+<div class="card shadow-sm" style="max-width:480px;">
+    <div class="card-body">
+        <form method="post">
+            <input type="hidden" asp-for="Input.PassengerId" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.PassportNumber" class="form-label"></label>
+                <input asp-for="Input.PassportNumber"
+                       class="form-control font-monospace text-uppercase"
+                       placeholder="e.g. A12345678"
+                       maxlength="9" />
+                <div class="form-text">6–9 letters and digits only. Enter exactly as printed on the passport.</div>
+                <span asp-validation-for="Input.PassportNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Input.DOB" class="form-label"></label>
+                <input asp-for="Input.DOB" class="form-control" type="date" />
+                <span asp-validation-for="Input.DOB" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-warning">Save Changes</button>
+                <a asp-page="/Admin/Bookings/Details"
+                   asp-route-bookingId="@Model.BookingId"
+                   class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,80 @@
+@page
+@model CAAMSAirlineWebApp.Pages.Admin.Flights.IndexModel
+@{
+    ViewData["Title"] = "Manage Flights";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Manage Flights</h2>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-page="/Admin/Flights/Create" class="btn btn-primary">+ Add New Flight</a>
+    }
+</div>
+
+<a asp-page="/Admin/Index" class="text-muted small mb-3 d-inline-block">&larr; Back to Dashboard</a>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.SuccessMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Flights.Any())
+{
+    <div class="alert alert-info">No flights found. <a asp-page="/Admin/Flights/Create">Add one now.</a></div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Flight #</th>
+                    <th>Aircraft</th>
+                    <th>Route</th>
+                    <th>Departure</th>
+                    <th>Arrival</th>
+                    <th>Base Price (MYR)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model.Flights)
+                {
+                    <tr>
+                        <td><strong>@f.FlightNumber</strong></td>
+                        <td>@f.Aircraft</td>
+                        <td>
+                            @f.Route<br />
+                            <small class="text-muted">@f.DepartureCity → @f.ArrivalCity</small>
+                        </td>
+                        <td>@f.DepartureTime.ToString("dd MMM yyyy HH:mm")</td>
+                        <td>@f.ArrivalTime.ToString("dd MMM yyyy HH:mm")</td>
+                        <td>@f.BasePrice.ToString("N2")</td>
+                        <td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-page="/Admin/Flights/Edit"
+                                   asp-route-flightId="@f.FlightId"
+                                   asp-route-legId="@f.LegId"
+                                   class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <form method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete flight @f.FlightNumber? This cannot be undone.');">
+                                    <input type="hidden" name="flightId" value="@f.FlightId" />
+                                    <button type="submit" asp-page-handler="Delete" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">View only</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

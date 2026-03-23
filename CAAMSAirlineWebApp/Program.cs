@@ -50,4 +50,11 @@ app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
 
+// Seed the database on startup
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<CAAMSAirlineWebApp.Data.ApplicationDbContext>();
+    CAAMSAirlineWebApp.Data.DbInitializer.Seed(context);
+}
+
 app.Run();

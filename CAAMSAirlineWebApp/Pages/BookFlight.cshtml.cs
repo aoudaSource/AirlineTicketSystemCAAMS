@@ -32,7 +32,8 @@ namespace CAAMSAirlineWebApp.Pages
         {
             bool hasSearch = !string.IsNullOrWhiteSpace(Search.Origin)
                           && !string.IsNullOrWhiteSpace(Search.Destination)
-                          && Search.DepartureDate.HasValue;
+                          && Search.DepartureDate.HasValue
+                          && Search.DepartureDate.Value > DateTime.MinValue;
 
             if (!hasSearch)
             {

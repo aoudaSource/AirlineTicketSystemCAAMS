@@ -1,0 +1,66 @@
+@page
+@model CAAMSAirlineWebApp.Pages.Admin.Reports.RouteProfitabilityModel
+@{
+    ViewData["Title"] = "Route Profitability";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-1">
+    <h2>Route Profitability</h2>
+</div>
+<a asp-page="/Admin/Index" class="text-muted small mb-4 d-inline-block">&larr; Back to Dashboard</a>
+
+<p class="text-muted">Load factor = tickets sold ÷ total seats across all scheduled legs. Green ≥ 70%, Yellow ≥ 40%, Red &lt; 40%.</p>
+
+@if (!Model.Routes.Any())
+{
+    <div class="alert alert-info">No flight data yet. Add flights and bookings to see this report.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Route</th>
+                    <th class="text-center">Scheduled Legs</th>
+                    <th class="text-center">Total Seats</th>
+                    <th class="text-center">Tickets Sold</th>
+                    <th class="text-center">Load Factor</th>
+                    <th class="text-end">Total Revenue (MYR)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Routes)
+                {
+                    <tr>
+                        <td>
+                            <span class="fw-semibold">@r.DepartureCode → @r.ArrivalCode</span><br />
+                            <small class="text-muted">@r.DepartureCity → @r.ArrivalCity</small>
+                        </td>
+                        <td class="text-center">@r.TotalLegs</td>
+                        <td class="text-center">@r.TotalSeatsAvailable</td>
+                        <td class="text-center">@r.TicketsSold</td>
+                        <td class="text-center">
+                            <span class="badge bg-@r.LoadFactorBadge fs-6 px-3">@r.LoadFactor%</span>
+                            <div class="progress mt-1" style="height:6px;">
+                                <div class="progress-bar bg-@r.LoadFactorBadge"
+                                     style="width:@r.LoadFactor%"></div>
+                            </div>
+                        </td>
+                        <td class="text-end fw-semibold">@r.TotalRevenue.ToString("N2")</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot class="table-light fw-semibold">
+                <tr>
+                    <td>Total</td>
+                    <td class="text-center">@Model.Routes.Sum(r => r.TotalLegs)</td>
+                    <td class="text-center">@Model.Routes.Sum(r => r.TotalSeatsAvailable)</td>
+                    <td class="text-center">@Model.Routes.Sum(r => r.TicketsSold)</td>
+                    <td></td>
+                    <td class="text-end">@Model.Routes.Sum(r => r.TotalRevenue).ToString("N2")</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}

@@ -81,8 +81,11 @@
             </div>
             <div class="col-md-3">
                 <label class="form-label">Date of Birth</label>
-                <input asp-for="Input.Passengers[i].DOB" type="date" class="form-control" />
+                <input asp-for="Input.Passengers[i].DOB" type="date" class="form-control dob-input" />
                 <span asp-validation-for="Input.Passengers[i].DOB" class="text-danger small"></span>
+                <span class="text-danger small minor-age-warning" style="display:none;">
+                    Passengers aged 14 or under must be accompanied by an adult and cannot book independently.
+                </span>
             </div>
         </div>
     }
@@ -132,5 +135,30 @@
         if (ticketClassSelect) {
             ticketClassSelect.addEventListener('change', updateTotal);
         }
+
+        // Minor age warning — only show if no adult exists among all passengers
+        function calcAge(dob) {
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const m = today.getMonth() - dob.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+            return age;
+        }
+
+        function updateMinorWarnings() {
+            const inputs = Array.from(document.querySelectorAll('.dob-input'));
+            const ages = inputs.map(i => i.value ? calcAge(new Date(i.value)) : null);
+            const hasAdult = ages.some(a => a !== null && a > 14);
+
+            inputs.forEach(function (input, idx) {
+                const warning = input.closest('.col-md-3').querySelector('.minor-age-warning');
+                const age = ages[idx];
+                warning.style.display = (age !== null && age >= 2 && age <= 14 && !hasAdult) ? '' : 'none';
+            });
+        }
+
+        document.querySelectorAll('.dob-input').forEach(function (input) {
+            input.addEventListener('change', updateMinorWarnings);
+        });
     </script>
 }

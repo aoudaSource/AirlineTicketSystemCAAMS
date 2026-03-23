@@ -1,53 +1,109 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CAAMSAirlineWebApp</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - CAAMS Airline</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CAAMSAirlineWebApp.styles.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* 1. CRITICAL: Force the page to fill the screen exactly */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Stops side-scrolling */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 2. Push footer to bottom */
+        main {
+            flex: 1 0 auto;
+        }
+
+        .navbar-nav .nav-link, .navbar-brand {
+            font-family: 'Geologica', sans-serif !important;
+            font-variation-settings: "slnt" 0;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+
+        .footer-custom {
+            background-color: #3c81bd;
+            color: white !important;
+            border-top: none !important;
+            flex-shrink: 0; /* Prevents footer from squishing */
+            width: 100%;
+        }
+
+        .footer-logo {
+            height: 80px;
+            width: auto;
+            margin: 10px;
+        }
+
+        .footer-quote {
+            font-family: 'Geologica', sans-serif;
+            font-style: italic;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">CAAMSAirlineWebApp</a>
+        <nav class="navbar navbar-expand-sm navbar-white p-0" style="background-color: #3c81bd; height: 85px;">
+            <div class="container-fluid p-0">
+                <a class="navbar-brand p-2" asp-page="/Index">
+                    <img src="~/photos/logo3.png" alt="CAAMS Logo" style="height: 85px; display: block;" />
+                </a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link text-white mx-3" asp-area="" asp-page="/Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white fw-semibold mx-3" asp-area="" asp-page="/Admin/Index">Admin Panel</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - CAAMSAirlineWebApp - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    <main role="main" class="container">
+        @RenderBody()
+    </main>
+
+    <footer class="footer-custom">
+        <div class="container-fluid px-5">
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="footer-quote py-3">
+                    &copy; 2026 - CAAMS Airlines | "Once you have tasted flight, you will forever walk the earth with your eyes turned skyward."
+                </p>
+                <img src="~/photos/logo2.png" class="footer-logo" alt="CAAMS Logo" />
+            </div>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

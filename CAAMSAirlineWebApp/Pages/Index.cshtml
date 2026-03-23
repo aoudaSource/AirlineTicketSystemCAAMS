@@ -1,24 +1,126 @@
 @page
 @model IndexModel
 @{
-    ViewData["Title"] = "Welcome";
+    ViewData["Title"] = "Home";
 }
 
-<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; text-align:center;">
-    <h1>Welcome to CAAMS Airline</h1>
-    <p class="text-muted mb-4">Book flights, manage your trips, and more.</p>
+<style>
+    body {
+        overflow: hidden;
+        background-color: white;
+    }
 
-    <div style="display:flex; gap:2rem; margin-top:1rem;">
-        <div class="card" style="width:220px; padding:2rem;">
-            <h4>Have an account?</h4>
-            <p class="text-muted">Sign in to book flights and manage your bookings.</p>
-            <a asp-page="/Login" class="btn btn-primary w-100">Login</a>
+    /* Apply Geologica to the headline */
+    .hero-text-section {
+        font-family: 'Geologica', sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 10px;
+        height: 500px; /* Adjust height as needed */
+    }
+
+    .hero-title {
+        font-family: 'Geological', sans-serif;
+        font-weight: 800;
+        font-size: 3.5rem;
+        line-height: 1.1;
+        color: #0c206d; /* Your airline blue */
+        margin-bottom: 20px;
+        margin-top: -10px;
+        text-align: center;
+    }
+
+    .hero-subtitle {
+        font-family: 'Geological', sans-serif;
+        font-weight: 300;
+        font-size: 1.5rem;
+        color: #00a4a4;
+        text-align: center;
+    }
+
+    .btn-custom-blue {
+        background-color: #0c206d !important;
+        color: white !important;
+        padding: 15px 45px;
+        font-family: 'Geologica', sans-serif;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.3s;
+        border-radius: 30px 30px 30px 30px;
+    }
+
+        .btn-custom-blue:hover {
+            background-color: #08164d !important;
+            transform: scale(1.05);
+        }
+
+
+    /* Style the Carousel */
+    .carousel-item img {
+        height: 500px;
+        object-fit: cover; /* Prevents stretching */
+        border-radius: 0 !important;
+    }
+
+    /* Make arrows transparent until hover */
+    .carousel-control-prev, .carousel-control-next {
+        opacity: 0.3;
+        transition: opacity 0.3s;
+    }
+
+        .carousel-control-prev:hover, .carousel-control-next:hover {
+            opacity: 0.8;
+        }
+</style>
+
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <div class="col-md-6 hero-text-section bg-light">
+            <h1 class="hero-title">Welcome To CAAMS Airlines</h1>
+            <p class="hero-subtitle">
+                Your gateway to the skies. Adventure is calling, we'll take you there.
+            </p>
+            <div class="mt-4">
+                <a asp-page="/Register" class="btn btn-custom-blue ">Start Your Journey</a>
+            </div>
         </div>
 
-        <div class="card" style="width:220px; padding:2rem;">
-            <h4>New here?</h4>
-            <p class="text-muted">Create a free account to get started.</p>
-            <a asp-page="/Register" class="btn btn-success w-100">Create Account</a>
+        <div class="col-md-6">
+            <div id="destinationCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="~/photos/destination1.jpg" class="d-block w-100" alt="Beautiful Beach">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="~/photos/destination2.jpg" class="d-block w-100" alt="Mountain View">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="~/photos/destination3.jpg" class="d-block w-100" alt="City Lights">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="~/photos/destination6.jpg" class="d-block w-100" alt="City Lights">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="~/photos/destination7.jpg" class="d-block w-100" alt="City Lights">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="~/photos/destination8.jpg" class="d-block w-100" alt="City Lights">
+                    </div>
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#destinationCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#destinationCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
         </div>
+
     </div>
 </div>

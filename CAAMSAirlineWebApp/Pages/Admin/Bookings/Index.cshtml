@@ -1,0 +1,62 @@
+@page
+@model CAAMSAirlineWebApp.Pages.Admin.Bookings.IndexModel
+@{
+    ViewData["Title"] = "Manage Bookings";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-1">
+    <h2>Manage Bookings</h2>
+</div>
+<a asp-page="/Admin/Index" class="text-muted small mb-4 d-inline-block">&larr; Back to Dashboard</a>
+
+<form method="get" class="d-flex gap-2 mb-4" style="max-width:520px;">
+    <input type="text" name="Query" value="@Model.Query"
+           class="form-control" placeholder="Search by booking ID, customer name, or passport number" />
+    <button type="submit" class="btn btn-primary px-4">Search</button>
+    @if (!string.IsNullOrEmpty(Model.Query))
+    {
+        <a asp-page="/Admin/Bookings/Index" class="btn btn-outline-secondary">Clear</a>
+    }
+</form>
+
+@if (!Model.Bookings.Any())
+{
+    <div class="alert alert-info">
+        @(string.IsNullOrEmpty(Model.Query) ? "No bookings found." : "No bookings match your search.")
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Customer</th>
+                    <th>Booking Date</th>
+                    <th class="text-center">Passengers</th>
+                    <th class="text-end">Total (MYR)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in Model.Bookings)
+                {
+                    <tr>
+                        <td class="text-muted small">@b.BookingId</td>
+                        <td class="fw-semibold">@b.CustomerName</td>
+                        <td>@b.BookingDate.ToString("dd MMM yyyy HH:mm")</td>
+                        <td class="text-center">@b.PassengerCount</td>
+                        <td class="text-end">@b.TotalPrice.ToString("N2")</td>
+                        <td>
+                            <a asp-page="/Admin/Bookings/Details"
+                               asp-route-bookingId="@b.BookingId"
+                               class="btn btn-sm btn-outline-primary">View / Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="text-muted small">Showing up to 100 most recent results.</p>
+}

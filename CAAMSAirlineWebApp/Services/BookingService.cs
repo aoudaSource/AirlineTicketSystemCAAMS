@@ -15,13 +15,19 @@ public class BookingService
 
     public async Task<int> CreateBookingAsync(CreateBookingRequest request)
     {
-        // 1. Get flight + legs
+        // 1. Get flight + legs + aircraft seats
         var flight = await _context.Flights
             .Include(f => f.FlightLegs)
             .FirstOrDefaultAsync(f => f.FlightId == request.FlightId);
 
         if (flight == null)
             throw new Exception("Flight not found");
+
+        // Pre-load all seats for this aircraft grouped by class
+        var allSeats = await _context.Seats
+            .Where(s => s.AircraftId == flight.AircraftId && s.SeatClass == request.TicketClass)
+            .OrderBy(s => s.SeatNumber)
+            .ToListAsync();
 
         // 2. Create booking
         var booking = new Booking
@@ -54,27 +60,43 @@ public class BookingService
         _context.Passengers.AddRange(passengers);
         await _context.SaveChangesAsync();
 
-        // 4. Create tickets + calculate price
+        // 4. Create tickets + assign seats + calculate price
         decimal totalPrice = 0;
 
-        foreach (var passenger in passengers)
+        foreach (var leg in flight.FlightLegs)
         {
-            foreach (var leg in flight.FlightLegs)
+            // Find seat IDs already taken on this leg
+            var takenSeatIds = await _context.Tickets
+                .Where(t => t.LegId == leg.LegId && t.SeatId != null)
+                .Select(t => t.SeatId!.Value)
+                .ToListAsync();
+
+            // Track seats assigned within this booking so far (avoid double-assigning)
+            var assignedThisBooking = new HashSet<int>();
+
+            foreach (var passenger in passengers)
             {
                 var price = CalculatePrice(flight.BasePrice, request.TicketClass);
 
-                var ticket = new Ticket
+                var availableSeat = allSeats.FirstOrDefault(
+                    s => !takenSeatIds.Contains(s.SeatId) && !assignedThisBooking.Contains(s.SeatId));
+
+                if (availableSeat == null)
+                    throw new Exception($"No available {request.TicketClass} seats on flight {flight.FlightNumber}. Please choose a different class.");
+
+                assignedThisBooking.Add(availableSeat.SeatId);
+
+                _context.Tickets.Add(new Ticket
                 {
                     PassengerId = passenger.PassengerId,
                     BookingId = booking.BookingId,
                     LegId = leg.LegId,
+                    SeatId = availableSeat.SeatId,
                     TicketClass = request.TicketClass,
                     Price = price
-                };
+                });
 
                 totalPrice += price;
-
-                _context.Tickets.Add(ticket);
             }
         }
 

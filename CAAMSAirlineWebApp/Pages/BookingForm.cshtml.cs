@@ -67,6 +67,33 @@ namespace CAAMSAirlineWebApp.Pages
             if (!ModelState.IsValid)
                 return Page();
 
+            // Check if any minor (≤14) exists without an accompanying adult
+            var today = DateTime.Today;
+            static int CalcAge(DateTime dob)
+            {
+                var today = DateTime.Today;
+                int age = today.Year - dob.Year;
+                if (dob > today.AddYears(-age)) age--;
+                return age;
+            }
+
+            bool hasAdult = Input.Passengers.Any(p => p.DOB.HasValue && CalcAge(p.DOB.Value) > 14);
+            bool hasMinor = Input.Passengers.Any(p => p.DOB.HasValue && CalcAge(p.DOB.Value) <= 14);
+
+            if (hasMinor && !hasAdult)
+            {
+                ModelState.AddModelError(string.Empty, "Passengers aged 14 or under must be accompanied by an adult. Please add an adult passenger to complete this booking.");
+                return Page();
+            }
+
+            // Check for duplicate passport numbers within this booking
+            var passports = Input.Passengers.Select(p => p.PassportNumber?.Trim().ToUpper()).ToList();
+            if (passports.Count != passports.Distinct().Count())
+            {
+                ModelState.AddModelError(string.Empty, "Each passenger must have a unique passport number.");
+                return Page();
+            }
+
             var username = User.Identity?.Name;
             var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Username == username);
 

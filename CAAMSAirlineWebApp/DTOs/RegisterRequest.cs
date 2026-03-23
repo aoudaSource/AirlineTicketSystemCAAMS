@@ -24,6 +24,7 @@ namespace CAAMSAirlineWebApp.DTOs
         public string Email { get; set; } = string.Empty;
 
         [Phone]
+        [MaxLength(11, ErrorMessage = "Phone number cannot exceed 11 characters.")]
         public string? Phone { get; set; }
 
         [Required]

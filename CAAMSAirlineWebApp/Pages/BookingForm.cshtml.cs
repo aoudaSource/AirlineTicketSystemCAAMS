@@ -36,16 +36,25 @@ namespace CAAMSAirlineWebApp.Pages
         [BindProperty]
         public CreateBookingRequest Input { get; set; } = new();
 
-        public async Task<IActionResult> OnGetAsync(int flightId, int passengerCount)
+        public async Task<IActionResult> OnGetAsync(int flightId, int passengerCount, string cabinClass = "Economy")
         {
             if (!await LoadFlightAsync(flightId))
                 return NotFound();
 
             Input.FlightId = flightId;
             Input.PassengerCount = passengerCount;
+            Input.TicketClass = cabinClass;
 
             for (int i = 0; i < passengerCount; i++)
                 Input.Passengers.Add(new PassengerInput());
+
+            var multiplier = cabinClass switch
+            {
+                "Business" => 1.5m,
+                "First" => 2m,
+                _ => 1m
+            };
+            EstimatedTotal = passengerCount * BasePrice * multiplier;
 
             return Page();
         }

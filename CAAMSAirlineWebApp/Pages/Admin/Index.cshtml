@@ -48,19 +48,19 @@
     <div class="col-md-6">
         <h4 class="mb-3">Bookings</h4>
         <div class="list-group mb-4">
-            <a asp-page="/Admin/Bookings/Index" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                <span>🎫</span> Manage Bookings &amp; Passengers
+            <a asp-page="/Admin/Bookings/Index" class="list-group-item list-group-item-action">
+                Manage Bookings &amp; Passengers
             </a>
         </div>
         <h4 class="mb-3">Flight Management</h4>
         <div class="list-group mb-4">
-            <a asp-page="/Admin/Flights/Index" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                <span>✈</span> @(User.IsInRole("Admin") ? "Manage Flights" : "View Flights")
+            <a asp-page="/Admin/Flights/Index" class="list-group-item list-group-item-action">
+                @(User.IsInRole("Admin") ? "Manage Flights" : "View Flights")
             </a>
             @if (User.IsInRole("Admin"))
             {
-                <a asp-page="/Admin/Flights/Create" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                    <span>+</span> Add New Flight
+                <a asp-page="/Admin/Flights/Create" class="list-group-item list-group-item-action">
+                    Add New Flight
                 </a>
             }
         </div>
@@ -68,11 +68,11 @@
         {
             <h4 class="mb-3">Fleet &amp; Infrastructure</h4>
             <div class="list-group">
-                <a asp-page="/Admin/Airports/Index" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                    <span>🏢</span> Manage Airports
+                <a asp-page="/Admin/Airports/Index" class="list-group-item list-group-item-action">
+                    Manage Airports
                 </a>
-                <a asp-page="/Admin/Aircrafts/Index" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                    <span>🛩</span> Manage Aircrafts
+                <a asp-page="/Admin/Aircrafts/Index" class="list-group-item list-group-item-action">
+                    Manage Aircrafts
                 </a>
             </div>
         }
@@ -80,14 +80,17 @@
     <div class="col-md-6">
         <h4 class="mb-3">Reports</h4>
         <div class="list-group">
-            <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                <span>📊</span> Route Profitability
+            <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action">
+                Route Profitability
             </a>
-            <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                <span>⭐</span> Customer Loyalty (Top 10%)
+            <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action">
+                Customer Loyalty (Top 10%)
             </a>
-            <a asp-page="/Admin/Reports/DailyRevenue" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                <span>💰</span> Daily Revenue (Last 24h)
+            <a asp-page="/Admin/Reports/DailyRevenue" class="list-group-item list-group-item-action">
+                Daily Revenue (Last 24h)
+            </a>
+            <a asp-page="/Admin/Reports/MostBookedFlights" class="list-group-item list-group-item-action">
+                Most Popular Destinations
             </a>
         </div>
     </div>

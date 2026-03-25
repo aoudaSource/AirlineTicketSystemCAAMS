@@ -63,14 +63,7 @@ else
                 {
                     <tr class="@(c.Rank == 1 ? "table-warning" : "")">
                         <td class="text-center">
-                            @if (c.Rank == 1)
-                            {
-                                <span title="Top spender">🥇</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted">#@c.Rank</span>
-                            }
+                            <span class="@(c.Rank == 1 ? "fw-bold" : "text-muted")">#@c.Rank</span>
                         </td>
                         <td class="fw-semibold">@c.FullName</td>
                         <td>

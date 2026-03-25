@@ -36,7 +36,7 @@
                 <div class="fw-bold fs-5">$@Model.BasePrice.ToString("F2")</div>
             </div>
             <div class="col-md-3 text-end">
-                <span class="badge bg-primary">Selected</span>
+                <span class="badge bg-primary">@Model.Input.TicketClass</span>
             </div>
         </div>
     </div>
@@ -47,16 +47,7 @@
     <input type="hidden" asp-for="Input.FlightId" />
     <input type="hidden" asp-for="Input.PassengerCount" />
 
-    <div class="mb-4" style="max-width:220px;">
-        <label class="form-label fw-semibold">Ticket Class</label>
-        <select asp-for="Input.TicketClass" class="form-select" id="ticketClassSelect">
-            <option value="">-- Select Class --</option>
-            <option value="Economy">Economy (base price)</option>
-            <option value="Business">Business (1.5×)</option>
-            <option value="First">First Class (2×)</option>
-        </select>
-        <span asp-validation-for="Input.TicketClass" class="text-danger small"></span>
-    </div>
+    <input type="hidden" asp-for="Input.TicketClass" />
 
     <hr />
 
@@ -107,35 +98,6 @@
 
 @section Scripts {
     <script>
-        // Live estimated total calculation
-        const ticketClassSelect = document.getElementById('ticketClassSelect');
-        const passengerCount = @Model.Input.PassengerCount;
-        const basePrice = @Model.BasePrice;
-
-        function updateTotal() {
-            const multipliers = { 'Economy': 1, 'Business': 1.5, 'First': 2 };
-            const cls = ticketClassSelect ? ticketClassSelect.value : '';
-            const multiplier = multipliers[cls] || 0;
-            const total = passengerCount * basePrice * multiplier;
-
-            let totalEl = document.getElementById('liveTotal');
-            if (!totalEl) {
-                totalEl = document.createElement('p');
-                totalEl.id = 'liveTotal';
-                totalEl.className = 'fs-5 mb-3';
-                ticketClassSelect.closest('.mb-4').insertAdjacentElement('afterend', totalEl);
-            }
-            if (multiplier > 0) {
-                totalEl.innerHTML = 'Estimated Total: <strong class="text-success">$' + total.toFixed(2) + '</strong>';
-            } else {
-                totalEl.innerHTML = '';
-            }
-        }
-
-        if (ticketClassSelect) {
-            ticketClassSelect.addEventListener('change', updateTotal);
-        }
-
         // Minor age warning — only show if no adult exists among all passengers
         function calcAge(dob) {
             const today = new Date();

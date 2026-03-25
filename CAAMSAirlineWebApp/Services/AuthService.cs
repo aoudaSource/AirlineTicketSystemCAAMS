@@ -46,7 +46,7 @@ namespace CAAMSAirlineWebApp.Services
                 Role = "Customer",
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                DOB = request.DOB,
+                DOB = request.DOB!.Value,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -57,7 +57,7 @@ namespace CAAMSAirlineWebApp.Services
                 LastName = request.LastName,
                 Email = request.Email,
                 Phone = request.Phone,
-                DOB = request.DOB
+                DOB = request.DOB!.Value
             };
 
             _context.AppUsers.Add(appUser);

@@ -105,4 +105,16 @@
 </div>
 
 @section Scripts {
+    <script>
+        document.getElementById('Input_DOB').addEventListener('input', function () {
+            const val = this.value; // format: YYYY-MM-DD
+            if (!val) return;
+            const parts = val.split('-');
+            if (parts[0] && parts[0].length > 4) {
+                parts[0] = parts[0].slice(0, 4);
+                this.value = parts.join('-');
+            }
+        });
+    </script>
 }
+

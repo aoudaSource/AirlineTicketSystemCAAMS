@@ -4,56 +4,137 @@
     ViewData["Title"] = "Manage Airports";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Manage Airports</h2>
-    <a asp-page="/Admin/Airports/Create" class="btn btn-primary">+ Add Airport</a>
-</div>
-<a asp-page="/Admin/Index" class="text-muted small mb-3 d-inline-block">&larr; Back to Dashboard</a>
+<style>
+    /* Premium Branding Typography */
+    .report-header, .table thead th, .airport-code-badge {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d;
+        font-weight: 800;
+    }
 
-@if (!string.IsNullOrEmpty(Model.SuccessMessage))
-{
-    <div class="alert alert-success alert-dismissible fade show">
-        @Model.SuccessMessage
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
+
+    /* Primary Action Button */
+    .btn-airline-add {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        font-family: 'Geologica', sans-serif;
+        font-weight: 600;
+        transition: 0.3s;
+        padding: 8px 20px;
+    }
+
+        .btn-airline-add:hover {
+            background-color: #08164d !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    /* Airport Code Badge */
+    .airport-code-badge {
+        background-color: #f0f2f9; /* Soft blue-grey */
+        color: #0c206d;
+        border: 1px solid #0c206d;
+        padding: 5px 10px;
+        border-radius: 6px;
+        letter-spacing: 1px;
+    }
+
+    /* Custom Back Link */
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+        .airline-back-link:hover {
+            text-decoration: underline;
+        }
+
+    /* Table Styling */
+    .table-custom {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+
+        .table-custom thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #0c206d;
+        }
+
+    /* Spacing for footer */
+    .management-container {
+        padding-bottom: 120px;
+    }
+</style>
+
+<div class="container management-container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="report-header text-uppercase">Airport Directory</h2>
+        <a asp-page="/Admin/Airports/Create" class="btn btn-airline-add">+ Add Airport</a>
     </div>
-}
 
-<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">&larr; Back to Dashboard</a>
 
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>Code</th>
-                <th>Airport Name</th>
-                <th>City</th>
-                <th>State</th>
-                <th>Country</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var a in Model.Airports)
-            {
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show geologica-text shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @Model.SuccessMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger geologica-text small"></div>
+
+    <div class="table-responsive table-custom shadow-sm">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
                 <tr>
-                    <td><span class="badge bg-secondary font-monospace fs-6">@a.AirportCode</span></td>
-                    <td>@a.AirportName</td>
-                    <td>@a.City</td>
-                    <td class="text-muted">@(a.State ?? "—")</td>
-                    <td>@a.Country</td>
-                    <td>
-                        <a asp-page="/Admin/Airports/Edit"
-                           asp-route-airportCode="@a.AirportCode"
-                           class="btn btn-sm btn-outline-secondary">Edit</a>
-                        <form method="post" class="d-inline"
-                              onsubmit="return confirm('Delete airport @a.AirportCode (@a.City)? This cannot be undone.');">
-                            <input type="hidden" name="airportCode" value="@a.AirportCode" />
-                            <button type="submit" asp-page-handler="Delete"
-                                    class="btn btn-sm btn-outline-danger">Delete</button>
-                        </form>
-                    </td>
+                    <th style="width: 120px;">Code</th>
+                    <th>Airport Name</th>
+                    <th>City</th>
+                    <th>State/Province</th>
+                    <th>Country</th>
+                    <th class="text-center">Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="geologica-text">
+                @foreach (var a in Model.Airports)
+                {
+                    <tr>
+                        <td>
+                            <span class="airport-code-badge">@a.AirportCode</span>
+                        </td>
+                        <td class="fw-bold" style="color: #0c206d;">@a.AirportName</td>
+                        <td>@a.City</td>
+                        <td class="text-muted">@(a.State ?? "—")</td>
+                        <td>
+                            <span class="small text-uppercase fw-semibold">@a.Country</span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <a asp-page="/Admin/Airports/Edit"
+                                   asp-route-airportCode="@a.AirportCode"
+                                   class="btn btn-sm btn-outline-secondary px-3">Edit</a>
+
+                                <form method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete airport @a.AirportCode (@a.City)? This cannot be undone.');">
+                                    <input type="hidden" name="airportCode" value="@a.AirportCode" />
+                                    <button type="submit" asp-page-handler="Delete"
+                                            class="btn btn-sm btn-outline-danger px-3">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

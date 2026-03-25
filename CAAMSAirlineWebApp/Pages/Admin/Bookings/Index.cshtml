@@ -4,59 +4,159 @@
     ViewData["Title"] = "Manage Bookings";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-1">
-    <h2>Manage Bookings</h2>
-</div>
-<a asp-page="/Admin/Index" class="text-muted small mb-4 d-inline-block">&larr; Back to Dashboard</a>
-
-<form method="get" class="d-flex gap-2 mb-4" style="max-width:520px;">
-    <input type="text" name="Query" value="@Model.Query"
-           class="form-control" placeholder="Search by booking ID, customer name, or passport number" />
-    <button type="submit" class="btn btn-primary px-4">Search</button>
-    @if (!string.IsNullOrEmpty(Model.Query))
-    {
-        <a asp-page="/Admin/Bookings/Index" class="btn btn-outline-secondary">Clear</a>
+<style>
+    /* Premium Branding Typography */
+    .report-header, .table thead th, .booking-id-text {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d;
+        font-weight: 800;
     }
-</form>
 
-@if (!Model.Bookings.Any())
-{
-    <div class="alert alert-info">
-        @(string.IsNullOrEmpty(Model.Query) ? "No bookings found." : "No bookings match your search.")
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
+
+    /* Search Bar Styling */
+    .search-input:focus {
+        border-color: #3c81bd;
+        box-shadow: 0 0 0 0.25rem rgba(60, 129, 189, 0.15);
+    }
+
+    .btn-airline-search {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        font-weight: 600;
+    }
+
+    /* Table & Row Styling */
+    .table-custom {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #eee;
+        background: white;
+    }
+
+        .table-custom thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #0c206d;
+        }
+
+    .booking-id-badge {
+        font-family: 'Courier New', monospace;
+        background-color: #eef1f7;
+        color: #0c206d;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    .passenger-pill {
+        background-color: #f0f2f9;
+        color: #0c206d;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* Custom Back Link */
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+        .airline-back-link:hover {
+            text-decoration: underline;
+        }
+
+    .container-bookings {
+        padding-bottom: 100px;
+    }
+</style>
+
+<div class="container container-bookings mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <h2 class="report-header text-uppercase">Booking Manifest</h2>
     </div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Customer</th>
-                    <th>Booking Date</th>
-                    <th class="text-center">Passengers</th>
-                    <th class="text-end">Total (MYR)</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var b in Model.Bookings)
-                {
+    <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">&larr; Back to Dashboard</a>
+
+    <div class="card border-0 shadow-sm mb-4 p-3 bg-light">
+        <form method="get" class="d-flex gap-2" style="max-width:600px;">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search" style="color:#0c206d;"></i></span>
+                <input type="text" name="Query" value="@Model.Query"
+                       class="form-control border-start-0 search-input geologica-text"
+                       placeholder="Search Booking ID, Customer, or Passport..." />
+            </div>
+            <button type="submit" class="btn btn-airline-search px-4 shadow-sm">Search</button>
+            @if (!string.IsNullOrEmpty(Model.Query))
+            {
+                <a asp-page="/Admin/Bookings/Index" class="btn btn-outline-secondary geologica-text">Clear</a>
+            }
+        </form>
+    </div>
+
+    @if (!Model.Bookings.Any())
+    {
+        <div class="alert alert-info border-0 shadow-sm geologica-text">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            @(string.IsNullOrEmpty(Model.Query) ? "No bookings found." : "No matching travel records found.")
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive table-custom shadow-sm">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
                     <tr>
-                        <td class="text-muted small">@b.BookingId</td>
-                        <td class="fw-semibold">@b.CustomerName</td>
-                        <td>@b.BookingDate.ToString("dd MMM yyyy HH:mm")</td>
-                        <td class="text-center">@b.PassengerCount</td>
-                        <td class="text-end">@b.TotalPrice.ToString("N2")</td>
-                        <td>
-                            <a asp-page="/Admin/Bookings/Details"
-                               asp-route-bookingId="@b.BookingId"
-                               class="btn btn-sm btn-outline-primary">View / Edit</a>
-                        </td>
+                        <th class="ps-3">ID</th>
+                        <th>Customer Name</th>
+                        <th>Transaction Date</th>
+                        <th class="text-center">Travelers</th>
+                        <th class="text-end">Total Amount</th>
+                        <th class="text-center">Action</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    <p class="text-muted small">Showing up to 100 most recent results.</p>
-}
+                </thead>
+                <tbody class="geologica-text">
+                    @foreach (var b in Model.Bookings)
+                    {
+                        <tr>
+                            <td class="ps-3">
+                                <span class="booking-id-badge">#@b.BookingId</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold" style="color: #0c206d;">@b.CustomerName</div>
+                            </td>
+                            <td class="small">
+                                <i class="bi bi-calendar3 me-1 text-muted"></i> @b.BookingDate.ToString("dd MMM yyyy")
+                                <span class="text-muted ms-1">@b.BookingDate.ToString("HH:mm")</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="passenger-pill">
+                                    <i class="bi bi-person-fill small"></i> @b.PassengerCount
+                                </span>
+                            </td>
+                            <td class="text-end fw-bold pe-3">
+                                <small class="text-muted fw-normal">MYR</small> @b.TotalPrice.ToString("N2")
+                            </td>
+                            <td class="text-center">
+                                <a asp-page="/Admin/Bookings/Details"
+                                   asp-route-bookingId="@b.BookingId"
+                                   class="btn btn-sm btn-outline-primary px-3 rounded-pill fw-bold">
+                                    Review
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between mt-3 px-2">
+            <p class="text-muted small geologica-text">Displaying up to 100 most recent records.</p>
+            <p class="text-muted small geologica-text">All times are local (SGT/MYT).</p>
+        </div>
+    }
+</div>

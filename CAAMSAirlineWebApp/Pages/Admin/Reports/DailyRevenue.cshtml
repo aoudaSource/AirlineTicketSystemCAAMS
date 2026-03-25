@@ -4,59 +4,122 @@
     ViewData["Title"] = "Daily Revenue";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-1">
-    <h2>Daily Revenue</h2>
-    <span class="text-muted small">Last 24 hours as of @DateTime.Now.ToString("dd MMM yyyy HH:mm")</span>
-</div>
-<a asp-page="/Admin/Index" class="text-muted small mb-4 d-inline-block">&larr; Back to Dashboard</a>
+<style>
+    /* Premium Branding Typography */
+    .report-header, .card-label, .card-header {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d; /* Your Dark Blue */
+        font-weight: 800;
+    }
 
-<div class="row g-3 mb-4">
-    <div class="col-sm-4">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <div class="small">Total Revenue (24h)</div>
-                <div class="fs-4 fw-bold">MYR @Model.TotalRevenue.ToString("N2")</div>
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
+
+    /* Top Stats Cards - Matching Dashboard */
+    .card-revenue-stats {
+        background-color: #00a4a4 !important;
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+
+    .card-label {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Chart Card Styling */
+    .chart-card {
+        border-radius: 12px;
+        border: 1px solid #eee;
+    }
+
+        .chart-card .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #eee;
+            padding: 1.25rem;
+        }
+
+    /* Custom Back Link */
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+        .airline-back-link:hover {
+            text-decoration: underline;
+        }
+
+    /* Padding for bottom to avoid footer */
+    .report-container {
+        padding-bottom: 100px;
+    }
+</style>
+
+<div class="container report-container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <h2 class="report-header text-uppercase">Daily Revenue</h2>
+        <span class="text-muted small geologica-text">Last 24 hours as of @DateTime.Now.ToString("dd MMM yyyy HH:mm")</span>
+    </div>
+
+    <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">
+        &larr; Back to Dashboard
+    </a>
+
+    <div class="row g-3 mb-5">
+        <div class="col-sm-4">
+            <div class="card card-revenue-stats shadow-sm">
+                <div class="card-body">
+                    <div class="card-label mb-1">Total Revenue (24h)</div>
+                    <div class="fs-4 fw-bold geologica-text">MYR @Model.TotalRevenue.ToString("N2")</div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-sm-4">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <div class="small">Tickets Sold (24h)</div>
-                <div class="fs-4 fw-bold">@Model.TotalTickets</div>
+        <div class="col-sm-4">
+            <div class="card card-revenue-stats shadow-sm">
+                <div class="card-body">
+                    <div class="card-label mb-1">Tickets Sold (24h)</div>
+                    <div class="fs-4 fw-bold geologica-text">@Model.TotalTickets</div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-sm-4">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <div class="small">Peak Hour</div>
-                <div class="fs-4 fw-bold">
-                    @if (Model.TotalRevenue > 0)
-                    {
-                        <span>@Model.PeakHour:00 (MYR @Model.PeakRevenue.ToString("N0"))</span>
-                    }
-                    else
-                    {
-                        <span>—</span>
-                    }
+        <div class="col-sm-4">
+            <div class="card card-revenue-stats shadow-sm">
+                <div class="card-body">
+                    <div class="card-label mb-1">Peak Hour</div>
+                    <div class="fs-4 fw-bold geologica-text">
+                        @if (Model.TotalRevenue > 0)
+                        {
+                            <span>@Model.PeakHour:00 (MYR @Model.PeakRevenue.ToString("N0"))</span>
+                        }
+                        else
+                        {
+                            <span>—</span>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-header fw-semibold">Revenue by Hour (MYR)</div>
-    <div class="card-body">
-        <canvas id="revenueChart" height="100"></canvas>
+    <div class="card chart-card shadow-sm mb-4">
+        <div class="card-header fw-bold text-uppercase">Revenue by Hour (MYR)</div>
+        <div class="card-body">
+            <canvas id="revenueChart" height="100"></canvas>
+        </div>
     </div>
-</div>
 
-<div class="card shadow-sm">
-    <div class="card-header fw-semibold">Tickets Sold by Hour</div>
-    <div class="card-body">
-        <canvas id="ticketChart" height="80"></canvas>
+    <div class="card chart-card shadow-sm">
+        <div class="card-header fw-bold text-uppercase">Tickets Sold by Hour</div>
+        <div class="card-body">
+            <canvas id="ticketChart" height="80"></canvas>
+        </div>
     </div>
 </div>
 
@@ -67,6 +130,12 @@
         const revenueData = @Html.Raw(Model.RevenueDataJson);
         const ticketData = @Html.Raw(Model.TicketCountDataJson);
 
+        // Geologica font setting for charts
+        const chartFont = {
+            family: "'Geologica', sans-serif",
+            weight: '600'
+        };
+
         new Chart(document.getElementById('revenueChart'), {
             type: 'bar',
             data: {
@@ -74,37 +143,41 @@
                 datasets: [{
                     label: 'Revenue (MYR)',
                     data: revenueData,
-                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4
+                    backgroundColor: '#0c206d', // Your Dark Blue
+                    borderRadius: 6
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
                         ticks: {
+                            font: chartFont,
                             callback: v => 'MYR ' + v.toLocaleString()
                         }
-                    }
+                    },
+                    x: { ticks: { font: chartFont } }
                 }
             }
         });
 
         new Chart(document.getElementById('ticketChart'), {
-            type: 'bar',
+            type: 'line', // Changed to line chart for visual variety in the report
             data: {
                 labels,
                 datasets: [{
                     label: 'Tickets Sold',
                     data: ticketData,
-                    backgroundColor: 'rgba(25, 135, 84, 0.7)',
-                    borderColor: 'rgba(25, 135, 84, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4
+                    borderColor: '#0c206d',
+                    backgroundColor: 'rgba(12, 32, 109, 0.1)',
+                    fill: true,
+                    tension: 0.4, // Smooth curve
+                    pointRadius: 4,
+                    pointBackgroundColor: '#0c206d'
                 }]
             },
             options: {
@@ -113,8 +186,9 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: { stepSize: 1 }
-                    }
+                        ticks: { font: chartFont, stepSize: 1 }
+                    },
+                    x: { ticks: { font: chartFont } }
                 }
             }
         });

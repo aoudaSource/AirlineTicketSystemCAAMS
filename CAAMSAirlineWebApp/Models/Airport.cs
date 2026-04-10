@@ -1,25 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+
 namespace CAAMSAirlineWebApp.Models
 {
     public class Airport
     {
-        [Key] // Primary key
-        [MaxLength(3)]
-        public required string AirportCode { get; set; } // CHAR(3)
+        public string AirportCode { get; set; } = null!;
+        public string AirportName { get; set; } = null!;
+        public string City { get; set; } = null!;
+        public string? State { get; set; }
+        public string Country { get; set; } = null!;
 
-        [Required]
-        [MaxLength(100)]
-        public required string AirportName { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public required string City { get; set; }
-
-        [MaxLength(50)]
-        public required string State { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public required string Country { get; set; }
+        // Navigation properties
+        public ICollection<FlightLeg> DepartureFlightLegs { get; set; } = new List<FlightLeg>();
+        public ICollection<FlightLeg> ArrivalFlightLegs { get; set; } = new List<FlightLeg>();
     }
 }

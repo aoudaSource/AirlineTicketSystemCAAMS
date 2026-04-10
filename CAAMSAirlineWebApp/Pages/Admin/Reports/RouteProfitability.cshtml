@@ -1,0 +1,131 @@
+@page
+@model CAAMSAirlineWebApp.Pages.Admin.Reports.RouteProfitabilityModel
+@{
+    ViewData["Title"] = "Route Profitability";
+}
+
+<style>
+    /* Premium Branding Typography */
+    .report-header, .table thead th, .footer-total {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d; /* Your Dark Blue */
+        font-weight: 800;
+    }
+
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
+
+    /* Custom Back Link */
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+        .airline-back-link:hover {
+            text-decoration: underline;
+        }
+
+    /* Table Styling */
+    .table-custom {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+
+        .table-custom thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #0c206d;
+        }
+
+    /* Padding for the bottom so it doesn't touch the footer */
+    .report-container {
+        padding-bottom: 120px;
+    }
+
+    /* Custom progress bar height */
+    .progress-thin {
+        height: 8px;
+        border-radius: 4px;
+        background-color: #e9ecef;
+    }
+</style>
+
+<div class="container report-container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <h2 class="report-header text-uppercase">Route Profitability</h2>
+    </div>
+
+    <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">
+        &larr; Back to Dashboard
+    </a>
+
+    <div class="alert alert-light border shadow-sm geologica-text small mb-4">
+        <strong>Business Intelligence:</strong> Load factor = tickets sold ÷ total seats.
+        <span class="ms-md-3"><span class="badge bg-success">High ≥ 70%</span></span>
+        <span class="ms-1"><span class="badge bg-warning text-dark">Mid ≥ 40%</span></span>
+        <span class="ms-1"><span class="badge bg-danger">Low < 40%</span></span>
+    </div>
+
+    @if (!Model.Routes.Any())
+    {
+        <div class="alert alert-info geologica-text">No flight data yet. Add flights and bookings to see this report.</div>
+    }
+    else
+    {
+        <div class="table-responsive table-custom shadow-sm">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="min-width: 200px;">Route Details</th>
+                        <th class="text-center">Legs</th>
+                        <th class="text-center">Capacity</th>
+                        <th class="text-center">Sold</th>
+                        <th class="text-center" style="width: 200px;">Load Factor</th>
+                        <th class="text-end">Revenue (MYR)</th>
+                    </tr>
+                </thead>
+                <tbody class="geologica-text">
+                    @foreach (var r in Model.Routes)
+                    {
+                        <tr>
+                            <td>
+                                <span class="fw-bold" style="color: #0c206d;">@r.DepartureCode → @r.ArrivalCode</span><br />
+                                <small class="text-muted">@r.DepartureCity to @r.ArrivalCity</small>
+                            </td>
+                            <td class="text-center">@r.TotalLegs</td>
+                            <td class="text-center">@r.TotalSeatsAvailable</td>
+                            <td class="text-center">@r.TicketsSold</td>
+                            <td class="text-center">
+                                <span class="fw-bold text-@r.LoadFactorBadge small">@r.LoadFactor%</span>
+                                <div class="progress progress-thin mt-1">
+                                    <div class="progress-bar bg-@r.LoadFactorBadge"
+                                         role="progressbar"
+                                         style="width:@r.LoadFactor%"
+                                         aria-valuenow="@r.LoadFactor"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"></div>
+                                </div>
+                            </td>
+                            <td class="text-end fw-bold" style="color: #0c206d;">@r.TotalRevenue.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="table-light footer-total">
+                    <tr>
+                        <td>TOTAL FLEET PERFORMANCE</td>
+                        <td class="text-center">@Model.Routes.Sum(r => r.TotalLegs)</td>
+                        <td class="text-center">@Model.Routes.Sum(r => r.TotalSeatsAvailable)</td>
+                        <td class="text-center">@Model.Routes.Sum(r => r.TicketsSold)</td>
+                        <td></td>
+                        <td class="text-end fw-extrabold" style="font-size: 1.1rem;">
+                            @Model.Routes.Sum(r => r.TotalRevenue).ToString("N2")
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+</div>

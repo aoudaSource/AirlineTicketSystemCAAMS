@@ -1,23 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CAAMSAirlineWebApp.Models
 {
     public class Flight
     {
-        [Key] // Primary key
         public int FlightId { get; set; }
+        public string FlightNumber { get; set; } = null!;
+        public int AircraftId { get; set; }
+        public decimal BasePrice { get; set; }
 
-        [Required]
-        [MaxLength(10)]
-        public required string FlightNumber { get; set; }
-
-        [Required]
-        public int AircraftId { get; set; } // Foreign key
-
-        [ForeignKey("AircraftId")]
-        public Aircraft? Aircraft { get; set; } // Navigation property
-        public ICollection<Seat> Seats { get; set; } = new List<Seat>(); //This lets EF Core know that one flight can have many seats.
+        // Navigation properties
+        public Aircraft Aircraft { get; set; } = null!;
+        public ICollection<FlightLeg> FlightLegs { get; set; } = new List<FlightLeg>();
+        public ICollection<FlightStaff> FlightStaffs { get; set; } = new List<FlightStaff>();
+        public ICollection<FlightStatus> FlightStatuses { get; set; } = new List<FlightStatus>();
     }
 }

@@ -1,24 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CAAMSAirlineWebApp.Models
 {
     public class Booking
     {
-        [Key] // Primary key
         public int BookingId { get; set; }
-
-        [Required]
-        public int CustomerId { get; set; } // Foreign key to Customer
-
-        [ForeignKey("CustomerId")]
-        public required Customer Customer { get; set; } // Navigation property
-
-        [Required]
+        public int CustomerId { get; set; }
         public DateTime BookingDate { get; set; }
+        public decimal TotalPrice { get; set; }
 
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal? TotalPrice { get; set; } // Optional field
-        public int FlightId { get; internal set; }
+        // Navigation properties
+        public Customer Customer { get; set; } = null!;
+        public ICollection<Passenger> Passengers { get; set; } = new List<Passenger>();
+        public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }
 }

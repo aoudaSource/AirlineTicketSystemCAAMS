@@ -1,0 +1,129 @@
+@page
+@model CAAMSAirlineWebApp.Pages.Admin.Airports.CreateModel
+@{
+    ViewData["Title"] = "Add Airport";
+}
+
+<style>
+    /* Premium Branding Typography */
+    .create-header, .form-label, .btn-airline-add {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d;
+        font-weight: 700;
+    }
+
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
+
+    /* Form Card Styling */
+    .create-card {
+        border: none;
+        border-radius: 12px;
+        background-color: #ffffff;
+    }
+
+    /* Input Focus Effects */
+    .form-control:focus {
+        border-color: #3c81bd;
+        box-shadow: 0 0 0 0.25rem rgba(60, 129, 189, 0.15);
+    }
+
+    /* Primary Action Button */
+    .btn-airline-add {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        padding: 10px 25px;
+        transition: 0.3s;
+        font-weight: 600;
+    }
+
+        .btn-airline-add:hover {
+            background-color: #08164d !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    /* Custom Back Link */
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+        .airline-back-link:hover {
+            text-decoration: underline;
+        }
+
+    /* IATA Code Special Styling */
+    .iata-input {
+        letter-spacing: 2px;
+        font-weight: bold;
+        background-color: #f0f2f9 !important;
+    }
+
+    /* Spacing for footer */
+    .create-container {
+        padding-bottom: 120px;
+    }
+</style>
+
+<div class="container create-container mt-5">
+    <h2 class="create-header text-uppercase mb-1">Register New Airport</h2>
+    <a asp-page="/Admin/Airports/Index" class="airline-back-link small mb-4 d-inline-block">&larr; Back to Directory</a>
+
+    <div class="card create-card shadow-sm" style="max-width:650px;">
+        <div class="card-body p-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 geologica-text small mb-4"></div>
+
+                <div class="row g-4">
+                    <div class="col-sm-4">
+                        <label asp-for="Input.AirportCode" class="form-label text-uppercase small">IATA Code</label>
+                        <input asp-for="Input.AirportCode" class="form-control text-uppercase font-monospace iata-input"
+                               placeholder="KUL" maxlength="3" />
+                        <span asp-validation-for="Input.AirportCode" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <label asp-for="Input.AirportName" class="form-label text-uppercase small">Full Airport Name</label>
+                        <input asp-for="Input.AirportName" class="form-control geologica-text"
+                               placeholder="e.g. Kuala Lumpur International Airport" />
+                        <span asp-validation-for="Input.AirportName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label asp-for="Input.City" class="form-label text-uppercase small">City</label>
+                        <input asp-for="Input.City" class="form-control geologica-text" placeholder="e.g. Sepang" />
+                        <span asp-validation-for="Input.City" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label asp-for="Input.State" class="form-label text-uppercase small">
+                            State/Province <span class="text-muted fw-normal lowercase">(Optional)</span>
+                        </label>
+                        <input asp-for="Input.State" class="form-control geologica-text" placeholder="e.g. Selangor" />
+                        <span asp-validation-for="Input.State" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Input.Country" class="form-label text-uppercase small">Country</label>
+                        <input asp-for="Input.Country" class="form-control geologica-text" placeholder="e.g. Malaysia" />
+                        <span asp-validation-for="Input.Country" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mt-5 d-flex gap-3">
+                    <button type="submit" class="btn btn-airline-add shadow-sm">Add to Directory</button>
+                    <a asp-page="/Admin/Airports/Index" class="btn btn-outline-secondary geologica-text px-4" style="padding-top:10px;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

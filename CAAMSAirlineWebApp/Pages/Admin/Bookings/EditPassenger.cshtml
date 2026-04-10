@@ -1,0 +1,130 @@
+@page
+@model CAAMSAirlineWebApp.Pages.Admin.Bookings.EditPassengerModel
+@{
+    ViewData["Title"] = "Edit Passenger Info";
+}
+
+<style>
+    /* Premium Branding Typography */
+    .edit-header, .form-label, .btn-airline-update {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d;
+        font-weight: 700;
+    }
+
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
+
+    /* Form Card Styling */
+    .passenger-card {
+        border: none;
+        border-radius: 12px;
+        background-color: #ffffff;
+    }
+
+    /* Passport Input Styling */
+    .passport-input {
+        letter-spacing: 2px;
+        font-weight: bold;
+        background-color: #f8faff !important;
+        border: 1.5px solid #0c206d;
+    }
+
+    /* Primary Action Button */
+    .btn-airline-update {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        padding: 10px 25px;
+        transition: 0.3s;
+        font-weight: 600;
+    }
+
+        .btn-airline-update:hover {
+            background-color: #08164d !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    /* Custom Back Link */
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+        .airline-back-link:hover {
+            text-decoration: underline;
+        }
+
+    .verification-note {
+        background-color: #fff9db;
+        border-left: 4px solid #fcc419;
+        padding: 10px;
+        font-size: 0.85rem;
+        border-radius: 4px;
+    }
+
+    .edit-container {
+        padding-bottom: 120px;
+    }
+</style>
+
+<div class="container edit-container mt-5">
+    <h2 class="edit-header text-uppercase mb-1">Verify Travel Documents</h2>
+    <a asp-page="/Admin/Bookings/Details"
+       asp-route-bookingId="@Model.BookingId"
+       class="airline-back-link small mb-4 d-inline-block">&larr; Return to Booking #@Model.BookingId</a>
+
+    <div class="mb-4">
+        <p class="geologica-text mb-0">Modifying details for:</p>
+        <h4 class="fw-bold" style="color: #0c206d;">@Model.PassengerFullName</h4>
+    </div>
+
+    <div class="card passenger-card shadow-sm" style="max-width:520px;">
+        <div class="card-body p-4">
+            <form method="post">
+                <input type="hidden" asp-for="Input.PassengerId" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 geologica-text small mb-4"></div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.PassportNumber" class="form-label">Passport Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-person-badge" style="color:#0c206d;"></i></span>
+                        <input asp-for="Input.PassportNumber"
+                               class="form-control font-monospace text-uppercase passport-input"
+                               placeholder="A12345678"
+                               maxlength="9" />
+                    </div>
+                    <div class="form-text small mt-2">6–9 alphanumeric characters. Ensure accuracy for immigration clearance.</div>
+                    <span asp-validation-for="Input.PassportNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.DOB" class="form-label">Date of Birth</label>
+                    <input asp-for="Input.DOB" class="form-control geologica-text" type="date" />
+                    <span asp-validation-for="Input.DOB" class="text-danger small"></span>
+                </div>
+
+                <div class="verification-note mb-4 geologica-text">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Important:</strong> Passport details must exactly match the MRZ of the passenger's travel document.
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-airline-update shadow-sm px-4">Save Changes</button>
+                    <a asp-page="/Admin/Bookings/Details"
+                       asp-route-bookingId="@Model.BookingId"
+                       class="btn btn-outline-secondary geologica-text px-4" style="padding-top:10px;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

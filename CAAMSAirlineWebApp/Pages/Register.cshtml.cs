@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CAAMSAirlineWebApp.Pages
 {
@@ -18,7 +20,13 @@ namespace CAAMSAirlineWebApp.Pages
         }
 
         [BindProperty]
-        public RegisterRequest Input { get; set; } = new();
+        /*public RegisterRequest Input { get; set; } = new(); */
+
+        public RegisterRequest Input { get; set; } = new RegisterRequest
+        {
+            // This sets the default value when the page first loads
+            DOB = new DateTime(2000, 1, 1)       /*could also do DateTime.Today*/
+        };
 
         public string ErrorMessage { get; set; } = string.Empty;
 
@@ -37,7 +45,7 @@ namespace CAAMSAirlineWebApp.Pages
                 return Page();
             }
 
-            // Auto-login after successful registration
+            // Auto-login logic preserved from your teammate's code
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
@@ -49,6 +57,7 @@ namespace CAAMSAirlineWebApp.Pages
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
+            // Redirect to the page they specified
             return RedirectToPage("/BookFlight");
         }
     }

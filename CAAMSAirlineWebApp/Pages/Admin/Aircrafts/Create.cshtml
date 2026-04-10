@@ -4,44 +4,111 @@
     ViewData["Title"] = "Add Aircraft";
 }
 
-<h2 class="mb-1">Add Aircraft</h2>
-<a asp-page="/Admin/Aircrafts/Index" class="text-muted small mb-4 d-inline-block">&larr; Back to Aircrafts</a>
+<style>
+    /* Premium Branding Typography */
+    .create-header, .form-label, .btn-airline-add {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d;
+        font-weight: 700;
+    }
 
-<div class="card shadow-sm" style="max-width:440px;">
-    <div class="card-body">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-            <div class="row g-3">
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
 
-                <div class="col-12">
-                    <label asp-for="Input.Model" class="form-label"></label>
-                    <input asp-for="Input.Model" class="form-control"
-                           placeholder="e.g. Boeing 737-800" />
-                    <span asp-validation-for="Input.Model" class="text-danger small"></span>
+    /* Form Card Styling */
+    .create-card {
+        border: none;
+        border-radius: 12px;
+        background-color: #ffffff;
+    }
+
+    /* Input Focus Effects */
+    .form-control:focus {
+        border-color: #3c81bd;
+        box-shadow: 0 0 0 0.25rem rgba(60, 129, 189, 0.15);
+    }
+
+    /* Primary Action Button */
+    .btn-airline-add {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        padding: 10px 25px;
+        transition: 0.3s;
+        font-weight: 600;
+    }
+
+        .btn-airline-add:hover {
+            background-color: #08164d !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    /* Custom Back Link */
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+        .airline-back-link:hover {
+            text-decoration: underline;
+        }
+
+    /* Spacing for footer */
+    .create-container {
+        padding-bottom: 120px;
+    }
+</style>
+
+<div class="container create-container mt-5">
+    <h2 class="create-header text-uppercase mb-1">Register New Aircraft</h2>
+    <a asp-page="/Admin/Aircrafts/Index" class="airline-back-link small mb-4 d-inline-block">&larr; Back to Fleet</a>
+
+    <div class="card create-card shadow-sm" style="max-width:500px;">
+        <div class="card-body p-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 geologica-text small"></div>
+
+                <div class="row g-4">
+                    <div class="col-12">
+                        <label asp-for="Input.Model" class="form-label">Model Designation</label>
+                        <input asp-for="Input.Model" class="form-control geologica-text"
+                               placeholder="e.g. Boeing 787-9 Dreamliner" />
+                        <span asp-validation-for="Input.Model" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Input.Manufacturer" class="form-label">
+                            Manufacturer <span class="text-muted fw-normal small">(Optional)</span>
+                        </label>
+                        <input asp-for="Input.Manufacturer" class="form-control geologica-text"
+                               placeholder="e.g. Airbus" />
+                        <span asp-validation-for="Input.Manufacturer" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <label asp-for="Input.Capacity" class="form-label">Configuration (Total Seats)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-people-fill" style="color:#0c206d;"></i>
+                            </span>
+                            <input asp-for="Input.Capacity" class="form-control geologica-text"
+                                   type="number" min="1" max="1000" placeholder="000" />
+                        </div>
+                        <span asp-validation-for="Input.Capacity" class="text-danger small"></span>
+                    </div>
                 </div>
 
-                <div class="col-12">
-                    <label asp-for="Input.Manufacturer" class="form-label">
-                        Manufacturer <span class="text-muted fw-normal">(optional)</span>
-                    </label>
-                    <input asp-for="Input.Manufacturer" class="form-control"
-                           placeholder="e.g. Boeing" />
-                    <span asp-validation-for="Input.Manufacturer" class="text-danger small"></span>
+                <div class="mt-5 d-flex gap-3">
+                    <button type="submit" class="btn btn-airline-add shadow-sm">Add to Fleet</button>
+                    <a asp-page="/Admin/Aircrafts/Index" class="btn btn-outline-secondary geologica-text px-4"
+                       style="padding-top:10px;">Cancel</a>
                 </div>
-
-                <div class="col-sm-6">
-                    <label asp-for="Input.Capacity" class="form-label"></label>
-                    <input asp-for="Input.Capacity" class="form-control" type="number" min="1" max="1000" />
-                    <span asp-validation-for="Input.Capacity" class="text-danger small"></span>
-                </div>
-
-            </div>
-
-            <div class="mt-4 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Add Aircraft</button>
-                <a asp-page="/Admin/Aircrafts/Index" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 

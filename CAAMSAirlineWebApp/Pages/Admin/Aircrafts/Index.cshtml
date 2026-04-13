@@ -4,52 +4,132 @@
     ViewData["Title"] = "Manage Aircrafts";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Manage Aircrafts</h2>
-    <a asp-page="/Admin/Aircrafts/Create" class="btn btn-primary">+ Add Aircraft</a>
-</div>
-<a asp-page="/Admin/Index" class="text-muted small mb-3 d-inline-block">&larr; Back to Dashboard</a>
+<style>
+    /* Premium Branding Typography */
+    .report-header, .table thead th, .aircraft-model {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d;
+        font-weight: 800;
+    }
 
-@if (!string.IsNullOrEmpty(Model.SuccessMessage))
-{
-    <div class="alert alert-success alert-dismissible fade show">
-        @Model.SuccessMessage
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
+
+    /* Primary Action Button */
+    .btn-airline-add {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        font-family: 'Geologica', sans-serif;
+        font-weight: 600;
+        transition: 0.3s;
+        padding: 8px 20px;
+    }
+
+        .btn-airline-add:hover {
+            background-color: #08164d !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    /* Custom Back Link */
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+        .airline-back-link:hover {
+            text-decoration: underline;
+        }
+
+    /* Table Styling */
+    .table-custom {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+
+        .table-custom thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #0c206d;
+        }
+
+    .capacity-badge {
+        background-color: #eef1f7;
+        color: #0c206d;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    /* Spacing for footer */
+    .management-container {
+        padding-bottom: 120px;
+    }
+</style>
+
+<div class="container management-container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="report-header text-uppercase">Fleet Management</h2>
+        <a asp-page="/Admin/Aircrafts/Create" class="btn btn-airline-add">+ Add Aircraft</a>
     </div>
-}
 
-<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">&larr; Back to Dashboard</a>
 
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>Model</th>
-                <th>Manufacturer</th>
-                <th class="text-center">Capacity</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var a in Model.Aircrafts)
-            {
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show geologica-text shadow-sm" role="alert">
+            <strong>Update Successful:</strong> @Model.SuccessMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger geologica-text small"></div>
+
+    <div class="table-responsive table-custom shadow-sm">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
                 <tr>
-                    <td class="fw-semibold">@a.Model</td>
-                    <td>@(a.Manufacturer ?? "—")</td>
-                    <td class="text-center">@a.Capacity</td>
-                    <td>
-                        <a asp-page="/Admin/Aircrafts/Edit"
-                           asp-route-aircraftId="@a.AircraftId"
-                           class="btn btn-sm btn-outline-secondary">Edit</a>
-                        <form method="post" class="d-inline"
-                              onsubmit="return confirm('Delete @a.Model? This cannot be undone.');">
-                            <input type="hidden" name="aircraftId" value="@a.AircraftId" />
-                            <button type="submit" asp-page-handler="Delete"
-                                    class="btn btn-sm btn-outline-danger">Delete</button>
-                        </form>
-                    </td>
+                    <th>Model Designation</th>
+                    <th>Manufacturer</th>
+                    <th class="text-center">Seat Capacity</th>
+                    <th class="text-center">Operations</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="geologica-text">
+                @foreach (var a in Model.Aircrafts)
+                {
+                    <tr>
+                        <td class="aircraft-model">@a.Model</td>
+                        <td class="text-muted text-uppercase small fw-bold">@(a.Manufacturer ?? "—")</td>
+                        <td class="text-center">
+                            <span class="capacity-badge">
+                                <i class="bi bi-people-fill me-1"></i> @a.Capacity Seats
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <a asp-page="/Admin/Aircrafts/Edit"
+                                   asp-route-aircraftId="@a.AircraftId"
+                                   class="btn btn-sm btn-outline-secondary px-3">Edit</a>
+
+                                <form method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete @a.Model? This cannot be undone.');">
+                                    <input type="hidden" name="aircraftId" value="@a.AircraftId" />
+                                    <button type="submit" asp-page-handler="Delete"
+                                            class="btn btn-sm btn-outline-danger px-3">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

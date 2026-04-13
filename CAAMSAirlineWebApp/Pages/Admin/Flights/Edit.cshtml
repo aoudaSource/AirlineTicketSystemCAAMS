@@ -4,81 +4,138 @@
     ViewData["Title"] = "Edit Flight";
 }
 
-<h2 class="mb-1">Edit Flight</h2>
-<a asp-page="/Admin/Flights/Index" class="text-muted small mb-4 d-inline-block">&larr; Back to Flights</a>
+<style>
+    /* Premium Branding Typography */
+    .edit-header, .form-label, .btn-airline-save {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d;
+        font-weight: 700;
+    }
 
-<div class="card shadow-sm" style="max-width:640px;">
-    <div class="card-body">
-        <form method="post">
-            <input type="hidden" asp-for="Input.FlightId" />
-            <input type="hidden" asp-for="Input.LegId" />
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
 
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    /* Form Card Styling */
+    .edit-card {
+        border: none;
+        border-radius: 12px;
+        background-color: #ffffff;
+    }
 
-            <div class="row g-3">
+    /* Input Focus Effects */
+    .form-control:focus, .form-select:focus {
+        border-color: #3c81bd;
+        box-shadow: 0 0 0 0.25rem rgba(60, 129, 189, 0.25);
+    }
 
-                <div class="col-sm-6">
-                    <label asp-for="Input.FlightNumber" class="form-label"></label>
-                    <input asp-for="Input.FlightNumber" class="form-control text-uppercase"
-                           placeholder="e.g. MH999" />
-                    <span asp-validation-for="Input.FlightNumber" class="text-danger small"></span>
-                </div>
+    /* Primary Action Button */
+    .btn-airline-save {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        padding: 10px 25px;
+        transition: 0.3s;
+    }
 
-                <div class="col-sm-6">
-                    <label asp-for="Input.BasePrice" class="form-label"></label>
-                    <div class="input-group">
-                        <span class="input-group-text">MYR</span>
-                        <input asp-for="Input.BasePrice" class="form-control" type="number" min="1" step="0.01" />
+        .btn-airline-save:hover {
+            background-color: #08164d !important;
+            transform: translateY(-1px);
+        }
+
+    /* Custom Back Link */
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+        .airline-back-link:hover {
+            text-decoration: underline;
+        }
+
+    /* Spacing for footer */
+    .edit-container {
+        padding-bottom: 120px;
+    }
+</style>
+
+<div class="container edit-container mt-5">
+    <h2 class="edit-header text-uppercase mb-1">Edit Flight Details</h2>
+    <a asp-page="/Admin/Flights/Index" class="airline-back-link small mb-4 d-inline-block">&larr; Back to Flights</a>
+
+    <div class="card edit-card shadow-sm" style="max-width:700px;">
+        <div class="card-body p-4">
+            <form method="post">
+                <input type="hidden" asp-for="Input.FlightId" />
+                <input type="hidden" asp-for="Input.LegId" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 geologica-text small"></div>
+
+                <div class="row g-4">
+                    <div class="col-sm-6">
+                        <label asp-for="Input.FlightNumber" class="form-label">Flight Number</label>
+                        <input asp-for="Input.FlightNumber" class="form-control text-uppercase geologica-text"
+                               placeholder="e.g. CA123" />
+                        <span asp-validation-for="Input.FlightNumber" class="text-danger small"></span>
                     </div>
-                    <span asp-validation-for="Input.BasePrice" class="text-danger small"></span>
+
+                    <div class="col-sm-6">
+                        <label asp-for="Input.BasePrice" class="form-label">Base Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light fw-bold" style="color:#0c206d;">MYR</span>
+                            <input asp-for="Input.BasePrice" class="form-control geologica-text" type="number" min="1" step="0.01" />
+                        </div>
+                        <span asp-validation-for="Input.BasePrice" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Input.AircraftId" class="form-label">Assigned Aircraft</label>
+                        <select asp-for="Input.AircraftId" asp-items="Model.AircraftOptions"
+                                class="form-select geologica-text">
+                            <option value="">-- Choose Aircraft --</option>
+                        </select>
+                        <span asp-validation-for="Input.AircraftId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label asp-for="Input.DepartureAirport" class="form-label">Departure Airport</label>
+                        <select asp-for="Input.DepartureAirport" asp-items="Model.AirportOptions"
+                                class="form-select geologica-text">
+                            <option value="">-- Select Origin --</option>
+                        </select>
+                        <span asp-validation-for="Input.DepartureAirport" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label asp-for="Input.ArrivalAirport" class="form-label">Arrival Airport</label>
+                        <select asp-for="Input.ArrivalAirport" asp-items="Model.AirportOptions"
+                                class="form-select geologica-text">
+                            <option value="">-- Select Destination --</option>
+                        </select>
+                        <span asp-validation-for="Input.ArrivalAirport" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label asp-for="Input.DepartureTime" class="form-label">Departure Schedule</label>
+                        <input asp-for="Input.DepartureTime" class="form-control geologica-text" type="datetime-local" />
+                        <span asp-validation-for="Input.DepartureTime" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label asp-for="Input.ArrivalTime" class="form-label">Arrival Schedule</label>
+                        <input asp-for="Input.ArrivalTime" class="form-control geologica-text" type="datetime-local" />
+                        <span asp-validation-for="Input.ArrivalTime" class="text-danger small"></span>
+                    </div>
                 </div>
 
-                <div class="col-12">
-                    <label asp-for="Input.AircraftId" class="form-label"></label>
-                    <select asp-for="Input.AircraftId" asp-items="Model.AircraftOptions"
-                            class="form-select">
-                        <option value="">-- Select Aircraft --</option>
-                    </select>
-                    <span asp-validation-for="Input.AircraftId" class="text-danger small"></span>
+                <div class="mt-5 d-flex gap-3">
+                    <button type="submit" class="btn btn-airline-save shadow-sm">Update Flight</button>
+                    <a asp-page="/Admin/Flights/Index" class="btn btn-outline-secondary geologica-text px-4" style="padding-top:10px;">Cancel</a>
                 </div>
-
-                <div class="col-sm-6">
-                    <label asp-for="Input.DepartureAirport" class="form-label"></label>
-                    <select asp-for="Input.DepartureAirport" asp-items="Model.AirportOptions"
-                            class="form-select">
-                        <option value="">-- Select Airport --</option>
-                    </select>
-                    <span asp-validation-for="Input.DepartureAirport" class="text-danger small"></span>
-                </div>
-
-                <div class="col-sm-6">
-                    <label asp-for="Input.ArrivalAirport" class="form-label"></label>
-                    <select asp-for="Input.ArrivalAirport" asp-items="Model.AirportOptions"
-                            class="form-select">
-                        <option value="">-- Select Airport --</option>
-                    </select>
-                    <span asp-validation-for="Input.ArrivalAirport" class="text-danger small"></span>
-                </div>
-
-                <div class="col-sm-6">
-                    <label asp-for="Input.DepartureTime" class="form-label"></label>
-                    <input asp-for="Input.DepartureTime" class="form-control" type="datetime-local" />
-                    <span asp-validation-for="Input.DepartureTime" class="text-danger small"></span>
-                </div>
-
-                <div class="col-sm-6">
-                    <label asp-for="Input.ArrivalTime" class="form-label"></label>
-                    <input asp-for="Input.ArrivalTime" class="form-control" type="datetime-local" />
-                    <span asp-validation-for="Input.ArrivalTime" class="text-danger small"></span>
-                </div>
-
-            </div>
-
-            <div class="mt-4 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a asp-page="/Admin/Flights/Index" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 

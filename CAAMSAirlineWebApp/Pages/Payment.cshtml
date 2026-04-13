@@ -4,106 +4,179 @@
     ViewData["Title"] = "Payment";
 }
 
-<h2 class="mb-4">Payment</h2>
+<style>
+    /* Premium Branding Typography */
+    .payment-header, .form-label, .btn-airline, .summary-label {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d;
+    }
 
-@* ── ORDER SUMMARY ── *@
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-light fw-semibold">Order Summary</div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="text-muted small">Booking Reference</div>
-                <div class="fw-bold fs-5">#@Model.BookingId.ToString("D6")</div>
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
+
+    /* Order Summary Receipt Style */
+    .receipt-card {
+        border: 2px solid #eef1f7;
+        border-radius: 12px;
+        background-color: #f8faff;
+    }
+
+    .receipt-header {
+        background-color: #0c206d;
+        color: white;
+        border-radius: 10px 10px 0 0;
+        padding: 15px 20px;
+    }
+
+    /* Payment Form Container */
+    .payment-container {
+        max-width: 600px;
+        margin: 0 auto; /* Centers the form on the page */
+    }
+
+    /* Modern Method Selection */
+    .method-option {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 10px 15px;
+        cursor: pointer;
+        background: white;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .form-check-input:checked + .method-option {
+        border-color: #0c206d;
+        background-color: #f0f4ff;
+        font-weight: bold;
+    }
+
+    .btn-airline {
+        background-color: #0c206d !important;
+        border: none !important;
+        color: white !important;
+        font-weight: 600;
+        padding: 12px 40px;
+        border-radius: 8px;
+    }
+
+        .btn-airline:hover {
+            background-color: #08164d !important;
+            opacity: 0.9;
+        }
+</style>
+
+<div class="container mt-5 pb-5">
+    <div class="payment-container">
+        <h2 class="payment-header text-uppercase mb-4 text-center">Checkout</h2>
+
+        @* ── ORDER SUMMARY ── *@
+        <div class="card receipt-card shadow-sm mb-4">
+            <div class="receipt-header text-center">
+                <span class="fw-bold">Booking Reference: #@Model.BookingId.ToString("D6")</span>
             </div>
-            <div class="col-md-3">
-                <div class="text-muted small">Flight</div>
-                <div class="fw-semibold">@Model.FlightNumber &nbsp;|&nbsp; @Model.Route</div>
-                <div class="text-muted small">@Model.DepartureTime</div>
-            </div>
-            <div class="col-md-3">
-                <div class="text-muted small">Passengers / Class</div>
-                <div class="fw-semibold">@Model.PassengerCount passenger(s) &mdash; @Model.TicketClass</div>
-            </div>
-            <div class="col-md-3 text-end">
-                <div class="text-muted small">Total Due</div>
-                <div class="fw-bold fs-4 text-success">$@Model.TotalAmount.ToString("F2")</div>
+            <div class="card-body">
+                <div class="row text-center g-3">
+                    <div class="col-6">
+                        <div class="summary-label small text-uppercase fw-bold opacity-75">Flight</div>
+                        <div class="fw-bold">@Model.FlightNumber</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="summary-label small text-uppercase fw-bold opacity-75">Route</div>
+                        <div class="fw-bold text-primary">@Model.Route</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="summary-label small text-uppercase fw-bold opacity-75">Travelers</div>
+                        <div class="fw-bold">@Model.PassengerCount (@Model.TicketClass)</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="summary-label small text-uppercase fw-bold opacity-75">Total Due</div>
+                        <div class="fw-bold fs-5 text-success">$@Model.TotalAmount.ToString("F2")</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-@* ── PAYMENT FORM ── *@
-<div class="card shadow-sm" style="max-width:560px;">
-    <div class="card-header bg-light fw-semibold">Payment Details</div>
-    <div class="card-body">
-        <form method="post" novalidate>
-            <input type="hidden" asp-for="Input.BookingId" />
+        @* ── PAYMENT FORM ── *@
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    <input type="hidden" asp-for="Input.BookingId" />
 
-            @* Payment Method *@
-            <div class="mb-4">
-                <label class="form-label fw-semibold">Payment Method</label>
-                <div class="d-flex gap-3" id="methodGroup">
-                    @foreach (var method in new[] { "Credit Card", "Debit Card", "PayPal" })
-                    {
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio"
-                                   name="Input.PaymentMethod" id="method_@method.Replace(" ", "")"
-                                   value="@method"
-                                   @(Model.Input.PaymentMethod == method ? "checked" : "") />
-                            <label class="form-check-label" for="method_@method.Replace(" ", "")">@method</label>
+                    @* Payment Method Selection *@
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-uppercase mb-3 d-block text-center">Select Payment Method</label>
+                        <div class="row g-2">
+                            @foreach (var method in new[] { "Credit Card", "Debit Card", "PayPal" })
+                            {
+                                <div class="col-4 text-center">
+                                    <input class="form-check-input d-none" type="radio"
+                                           name="Input.PaymentMethod" id="method_@method.Replace(" ", "")"
+                                           value="@method"
+                                           @(Model.Input.PaymentMethod == method ? "checked" : "") />
+                                    <label class="method-option geologica-text" for="method_@method.Replace(" ", "")">
+                                        @method
+                                    </label>
+                                </div>
+                            }
                         </div>
-                    }
-                </div>
-                <span asp-validation-for="Input.PaymentMethod" class="text-danger small"></span>
-            </div>
-
-            @* Card Fields *@
-            <div id="cardFields">
-                <div class="mb-3">
-                    <label class="form-label">Card Holder Name</label>
-                    <input asp-for="Input.CardHolderName" class="form-control" placeholder="Name on card" autocomplete="cc-name" />
-                    <span asp-validation-for="Input.CardHolderName" class="text-danger small"></span>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Card Number</label>
-                    <input asp-for="Input.CardNumber" class="form-control" placeholder="1234 5678 9012 3456"
-                           maxlength="19" id="cardNumberInput" autocomplete="cc-number" />
-                    <span asp-validation-for="Input.CardNumber" class="text-danger small"></span>
-                </div>
-                <div class="row g-3 mb-3">
-                    <div class="col-6">
-                        <label class="form-label">Expiry Date</label>
-                        <input asp-for="Input.ExpiryDate" class="form-control" placeholder="MM/YY"
-                               maxlength="5" id="expiryInput" autocomplete="cc-exp" />
-                        <span asp-validation-for="Input.ExpiryDate" class="text-danger small"></span>
+                        <div class="text-center mt-2">
+                            <span asp-validation-for="Input.PaymentMethod" class="text-danger small"></span>
+                        </div>
                     </div>
-                    <div class="col-6">
-                        <label class="form-label">CVV</label>
-                        <input asp-for="Input.CVV" class="form-control" placeholder="123"
-                               maxlength="4" autocomplete="cc-csc" />
-                        <span asp-validation-for="Input.CVV" class="text-danger small"></span>
+
+                    @* Card Details Section *@
+                    <div id="cardFields" class="bg-light p-3 rounded">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Card Holder Name</label>
+                            <input asp-for="Input.CardHolderName" class="form-control geologica-text" placeholder="Name as shown on card" />
+                            <span asp-validation-for="Input.CardHolderName" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Card Number</label>
+                            <input asp-for="Input.CardNumber" class="form-control font-monospace" placeholder="0000 0000 0000 0000"
+                                   maxlength="19" id="cardNumberInput" />
+                            <span asp-validation-for="Input.CardNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Expiry Date</label>
+                                <input asp-for="Input.ExpiryDate" class="form-control geologica-text" placeholder="MM/YY"
+                                       maxlength="5" id="expiryInput" />
+                                <span asp-validation-for="Input.ExpiryDate" class="text-danger small"></span>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">CVV</label>
+                                <input asp-for="Input.CVV" class="form-control font-monospace" placeholder="123" maxlength="4" />
+                                <span asp-validation-for="Input.CVV" class="text-danger small"></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            @* PayPal Fields *@
-            <div id="paypalFields" style="display:none;">
-                <div class="mb-3">
-                    <label class="form-label">PayPal Email</label>
-                    <input asp-for="Input.PayPalEmail" class="form-control" placeholder="you@example.com" type="email" />
-                    <span asp-validation-for="Input.PayPalEmail" class="text-danger small"></span>
-                </div>
-            </div>
+                    @* PayPal Section *@
+                    <div id="paypalFields" class="bg-light p-4 rounded text-center" style="display:none;">
+                        <p class="mb-3 geologica-text">Please provide your PayPal account email:</p>
+                        <input asp-for="Input.PayPalEmail" class="form-control geologica-text" placeholder="email@example.com" type="email" />
+                        <span asp-validation-for="Input.PayPalEmail" class="text-danger small"></span>
+                    </div>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger my-3 small text-center"></div>
 
-            <div class="d-flex justify-content-between align-items-center mt-2">
-                <span class="text-muted small">&#128274; Secure payment</span>
-                <button type="submit" class="btn btn-success btn-lg px-5">
-                    Pay $@Model.TotalAmount.ToString("F2")
-                </button>
+                    @* Action Buttons - Centered *@
+                    <div class="text-center mt-5">
+                        <button type="submit" class="btn btn-airline btn-lg mb-3 w-100 shadow-sm">
+                            CONFIRM AND PAY $@Model.TotalAmount.ToString("F2")
+                        </button>
+                        <br />
+                       
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -117,17 +190,17 @@
             const selected = document.querySelector('input[name="Input.PaymentMethod"]:checked')?.value ?? '';
             if (selected === 'PayPal') {
                 cardFields.style.display = 'none';
-                paypalFields.style.display = '';
+                paypalFields.style.display = 'block';
             } else {
-                cardFields.style.display = '';
+                cardFields.style.display = 'block';
                 paypalFields.style.display = 'none';
             }
         }
 
         radios.forEach(r => r.addEventListener('change', toggleFields));
-        toggleFields(); // apply on load (handles server-side re-render after validation)
+        toggleFields();
 
-        // Auto-format card number with spaces
+        // Formatting logic
         const cardInput = document.getElementById('cardNumberInput');
         if (cardInput) {
             cardInput.addEventListener('input', function () {
@@ -136,7 +209,6 @@
             });
         }
 
-        // Auto-format expiry MM/YY
         const expiryInput = document.getElementById('expiryInput');
         if (expiryInput) {
             expiryInput.addEventListener('input', function () {
@@ -147,3 +219,5 @@
         }
     </script>
 }
+
+

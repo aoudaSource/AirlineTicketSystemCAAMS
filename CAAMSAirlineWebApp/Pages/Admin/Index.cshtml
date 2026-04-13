@@ -1,97 +1,141 @@
 @page
 @model CAAMSAirlineWebApp.Pages.Admin.IndexModel
 @{
-    ViewData["Title"] = "Admin Dashboard";
+    // This changes the tab name in the browser
+    string roleName = User.IsInRole("Admin") ? "Admin" : "Staff";
+    ViewData["Title"] = $"{roleName} Dashboard";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Admin Dashboard</h2>
-    <span class="text-muted">Welcome, @User.Identity!.Name</span>
-</div>
+<style>
+    /* Premium Branding Typography */
+    .admin-header, .card-title, .section-title {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d; /* Your Dark Blue */
+        font-weight: 800;
+    }
 
-<div class="row g-4 mb-5">
-    <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="card text-white bg-primary h-100">
-            <div class="card-body">
-                <h5 class="card-title">Total Flights</h5>
-                <p class="card-text display-6">@Model.TotalFlights</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="card text-white bg-success h-100">
-            <div class="card-body">
-                <h5 class="card-title">Upcoming Legs</h5>
-                <p class="card-text display-6">@Model.UpcomingFlights</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="card text-white bg-info h-100">
-            <div class="card-body">
-                <h5 class="card-title">Airports</h5>
-                <p class="card-text display-6">@Model.TotalAirports</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="card text-white bg-secondary h-100">
-            <div class="card-body">
-                <h5 class="card-title">Total Bookings</h5>
-                <p class="card-text display-6">@Model.TotalBookings</p>
-            </div>
-        </div>
-    </div>
-</div>
+    /* Top Stats Cards - Unified Color */
+    .card-custom-stats {
+        background-color: #00a4a4 !important; /* Change this hex to your preferred color */
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        transition: 0.3s;
+    }
 
-<div class="row g-4">
-    <div class="col-md-6">
-        <h4 class="mb-3">Bookings</h4>
-        <div class="list-group mb-4">
-            <a asp-page="/Admin/Bookings/Index" class="list-group-item list-group-item-action">
-                Manage Bookings &amp; Passengers
-            </a>
+    /* List Group Buttons - Unified Gray */
+    .list-group-item-custom {
+        background-color: #f0f0f0 !important; /* Your Gray - change later as needed */
+        color: #0c206d !important;
+        font-family: 'Geologica', sans-serif;
+        font-weight: 500;
+        border: 1px solid #ddd !important;
+        margin-bottom: 5px;
+        border-radius: 8px !important;
+        transition: 0.3s;
+    }
+
+        .list-group-item-custom:hover {
+            background-color: #e2e2e2 !important;
+            transform: translateX(5px);
+        }
+
+    /* Spacing for the bottom of the page */
+    .admin-container {
+        padding-bottom: 60px; /* Ensures space above the footer */
+    }
+</style>
+
+<div class="container admin-container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="admin-header text-uppercase">@roleName Dashboard</h2>
+        <span class="text-muted">Logged in as: <strong>@User.Identity!.Name</strong></span>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card card-custom-stats h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white opacity-75">Total Flights</h5>
+                    <p class="card-text display-6 fw-bold">@Model.TotalFlights</p>
+                </div>
+            </div>
         </div>
-        <h4 class="mb-3">Flight Management</h4>
-        <div class="list-group mb-4">
-            <a asp-page="/Admin/Flights/Index" class="list-group-item list-group-item-action">
-                @(User.IsInRole("Admin") ? "Manage Flights" : "View Flights")
-            </a>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card card-custom-stats h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white opacity-75">Upcoming Legs</h5>
+                    <p class="card-text display-6 fw-bold">@Model.UpcomingFlights</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card card-custom-stats h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white opacity-75">Airports</h5>
+                    <p class="card-text display-6 fw-bold">@Model.TotalAirports</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card card-custom-stats h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white opacity-75">Total Bookings</h5>
+                    <p class="card-text display-6 fw-bold">@Model.TotalBookings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-md-6">
+            <h4 class="section-title mb-3">Bookings</h4>
+            <div class="list-group mb-4">
+                <a asp-page="/Admin/Bookings/Index" class="list-group-item list-group-item-action list-group-item-custom">
+                    Manage Bookings &amp; Passengers
+                </a>
+            </div>
+
+            <h4 class="section-title mb-3">Flight Management</h4>
+            <div class="list-group mb-4">
+                <a asp-page="/Admin/Flights/Index" class="list-group-item list-group-item-action list-group-item-custom">
+                    @(User.IsInRole("Admin") ? "Manage Flights" : "View Flights")
+                </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-page="/Admin/Flights/Create" class="list-group-item list-group-item-action list-group-item-custom">
+                        Add New Flight
+                    </a>
+                }
+            </div>
+
             @if (User.IsInRole("Admin"))
             {
-                <a asp-page="/Admin/Flights/Create" class="list-group-item list-group-item-action">
-                    Add New Flight
-                </a>
+                <h4 class="section-title mb-3">Fleet &amp; Infrastructure</h4>
+                <div class="list-group">
+                    <a asp-page="/Admin/Airports/Index" class="list-group-item list-group-item-action list-group-item-custom">
+                        Manage Airports
+                    </a>
+                    <a asp-page="/Admin/Aircrafts/Index" class="list-group-item list-group-item-action list-group-item-custom">
+                        Manage Aircrafts
+                    </a>
+                </div>
             }
         </div>
-        @if (User.IsInRole("Admin"))
-        {
-            <h4 class="mb-3">Fleet &amp; Infrastructure</h4>
+
+        <div class="col-md-6">
+            <h4 class="section-title mb-3">Reports &amp; Analytics</h4>
             <div class="list-group">
-                <a asp-page="/Admin/Airports/Index" class="list-group-item list-group-item-action">
-                    Manage Airports
+                <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action list-group-item-custom">
+                    Route Profitability
                 </a>
-                <a asp-page="/Admin/Aircrafts/Index" class="list-group-item list-group-item-action">
-                    Manage Aircrafts
+                <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action list-group-item-custom">
+                    Customer Loyalty (Top 10%)
+                </a>
+                <a asp-page="/Admin/Reports/DailyRevenue" class="list-group-item list-group-item-action list-group-item-custom">
+                    Daily Revenue (Last 24h)
                 </a>
             </div>
-        }
-    </div>
-    <div class="col-md-6">
-        <h4 class="mb-3">Reports</h4>
-        <div class="list-group">
-            <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action">
-                Route Profitability
-            </a>
-            <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action">
-                Customer Loyalty (Top 10%)
-            </a>
-            <a asp-page="/Admin/Reports/DailyRevenue" class="list-group-item list-group-item-action">
-                Daily Revenue (Last 24h)
-            </a>
-            <a asp-page="/Admin/Reports/MostBookedFlights" class="list-group-item list-group-item-action">
-                Most Popular Destinations
-            </a>
         </div>
     </div>
 </div>

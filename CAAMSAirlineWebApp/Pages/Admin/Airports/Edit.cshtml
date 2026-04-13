@@ -4,57 +4,126 @@
     ViewData["Title"] = "Edit Airport";
 }
 
-<h2 class="mb-1">Edit Airport</h2>
-<a asp-page="/Admin/Airports/Index" class="text-muted small mb-4 d-inline-block">&larr; Back to Airports</a>
+<style>
+    /* Premium Branding Typography */
+    .edit-header, .form-label, .btn-airline-save {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d;
+        font-weight: 700;
+    }
 
-<div class="card shadow-sm" style="max-width:520px;">
-    <div class="card-body">
-        <form method="post">
-            <input type="hidden" asp-for="Input.AirportCode" />
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
 
-            <div class="row g-3">
+    /* Form Card Styling */
+    .edit-card {
+        border: none;
+        border-radius: 12px;
+        background-color: #ffffff;
+    }
 
-                <div class="col-sm-4">
-                    <label class="form-label">IATA Code</label>
-                    <input value="@Model.Input.AirportCode" class="form-control font-monospace"
-                           readonly disabled />
-                    <div class="form-text">Airport codes cannot be changed.</div>
+    /* Locked Field Styling */
+    .form-control-readonly {
+        background-color: #f8f9fa !important;
+        border: 1px dashed #dee2e6 !important;
+        color: #6c757d !important;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    /* Input Focus Effects */
+    .form-control:focus {
+        border-color: #3c81bd;
+        box-shadow: 0 0 0 0.25rem rgba(60, 129, 189, 0.15);
+    }
+
+    /* Primary Action Button */
+    .btn-airline-save {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        padding: 10px 25px;
+        transition: 0.3s;
+        font-weight: 600;
+    }
+
+        .btn-airline-save:hover {
+            background-color: #08164d !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    /* Custom Back Link */
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+        .airline-back-link:hover {
+            text-decoration: underline;
+        }
+
+    /* Spacing for footer */
+    .edit-container {
+        padding-bottom: 120px;
+    }
+</style>
+
+<div class="container edit-container mt-5">
+    <h2 class="edit-header text-uppercase mb-1">Update Airport Information</h2>
+    <a asp-page="/Admin/Airports/Index" class="airline-back-link small mb-4 d-inline-block">&larr; Back to Airports</a>
+
+    <div class="card edit-card shadow-sm" style="max-width:600px;">
+        <div class="card-body p-4">
+            <form method="post">
+                <input type="hidden" asp-for="Input.AirportCode" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 geologica-text small"></div>
+
+                <div class="row g-4">
+                    <div class="col-sm-4">
+                        <label class="form-label">IATA Code</label>
+                        <input value="@Model.Input.AirportCode" class="form-control form-control-readonly font-monospace"
+                               readonly disabled />
+                        <div class="form-text small" style="font-size: 0.75rem;">Unique ID (Permanent)</div>
+                    </div>
+
+                    <div class="col-sm-8">
+                        <label asp-for="Input.AirportName" class="form-label">Full Airport Name</label>
+                        <input asp-for="Input.AirportName" class="form-control geologica-text" placeholder="e.g. Changi International" />
+                        <span asp-validation-for="Input.AirportName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label asp-for="Input.City" class="form-label">City</label>
+                        <input asp-for="Input.City" class="form-control geologica-text" />
+                        <span asp-validation-for="Input.City" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label asp-for="Input.State" class="form-label">
+                            State/Province <span class="text-muted fw-normal small">(Optional)</span>
+                        </label>
+                        <input asp-for="Input.State" class="form-control geologica-text" />
+                        <span asp-validation-for="Input.State" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-sm-12">
+                        <label asp-for="Input.Country" class="form-label">Country</label>
+                        <input asp-for="Input.Country" class="form-control geologica-text" />
+                        <span asp-validation-for="Input.Country" class="text-danger small"></span>
+                    </div>
                 </div>
 
-                <div class="col-sm-8">
-                    <label asp-for="Input.AirportName" class="form-label"></label>
-                    <input asp-for="Input.AirportName" class="form-control" />
-                    <span asp-validation-for="Input.AirportName" class="text-danger small"></span>
+                <div class="mt-5 d-flex gap-3">
+                    <button type="submit" class="btn btn-airline-save shadow-sm">Save Changes</button>
+                    <a asp-page="/Admin/Airports/Index" class="btn btn-outline-secondary geologica-text px-4" style="padding-top:10px;">Cancel</a>
                 </div>
-
-                <div class="col-sm-6">
-                    <label asp-for="Input.City" class="form-label"></label>
-                    <input asp-for="Input.City" class="form-control" />
-                    <span asp-validation-for="Input.City" class="text-danger small"></span>
-                </div>
-
-                <div class="col-sm-6">
-                    <label asp-for="Input.State" class="form-label">
-                        State <span class="text-muted fw-normal">(optional)</span>
-                    </label>
-                    <input asp-for="Input.State" class="form-control" />
-                    <span asp-validation-for="Input.State" class="text-danger small"></span>
-                </div>
-
-                <div class="col-sm-6">
-                    <label asp-for="Input.Country" class="form-label"></label>
-                    <input asp-for="Input.Country" class="form-control" />
-                    <span asp-validation-for="Input.Country" class="text-danger small"></span>
-                </div>
-
-            </div>
-
-            <div class="mt-4 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a asp-page="/Admin/Airports/Index" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 

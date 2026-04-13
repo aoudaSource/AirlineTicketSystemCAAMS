@@ -35,12 +35,12 @@ namespace CAAMSAirlineWebApp.DTOs
         public DateTime? DOB { get; set; }
     }
 
-    /// <summary>
+  
     /// Validates that a passenger's date of birth is:
     ///   - in the past
     ///   - at least 2 years ago (infants have separate booking rules)
     ///   - no more than 120 years ago
-    /// </summary>
+ 
     public class ValidPassengerDOBAttribute : ValidationAttribute
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext context)

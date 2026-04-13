@@ -28,6 +28,9 @@ namespace CAAMSAirlineWebApp.Pages
         public string PageStep { get; set; } = "search";
         public string SuccessMessage { get; set; } = string.Empty;
 
+        [BindProperty(SupportsGet = true)]
+        public bool ShowAll { get; set; } = false;
+
         public async Task OnGetAsync()
         {
             bool hasSearch = !string.IsNullOrWhiteSpace(Search.Origin)
@@ -35,31 +38,36 @@ namespace CAAMSAirlineWebApp.Pages
                           && Search.DepartureDate.HasValue
                           && Search.DepartureDate.Value > DateTime.MinValue;
 
-            if (!hasSearch)
+            if (!hasSearch && !ShowAll)
             {
                 PageStep = "search";
                 return;
             }
 
-            var originLower = Search.Origin.Trim().ToLower();
-            var destLower = Search.Destination.Trim().ToLower();
-            var depStart = Search.DepartureDate!.Value.Date;
-            var depEnd = depStart.AddDays(1);
-
-            var legs = await _context.FlightLegs
+            IQueryable<CAAMSAirlineWebApp.Models.FlightLeg> query = _context.FlightLegs
                 .Include(fl => fl.Flight)
                     .ThenInclude(f => f.Aircraft)
                 .Include(fl => fl.DepartureAirportNavigation)
-                .Include(fl => fl.ArrivalAirportNavigation)
-                .Where(fl =>
+                .Include(fl => fl.ArrivalAirportNavigation);
+
+            if (!ShowAll)
+            {
+                var originLower = Search.Origin.Trim().ToLower();
+                var destLower = Search.Destination.Trim().ToLower();
+                var depStart = Search.DepartureDate!.Value.Date;
+                var depEnd = depStart.AddDays(1);
+
+                query = query.Where(fl =>
                     fl.DepartureTime >= depStart && fl.DepartureTime < depEnd &&
                     (fl.DepartureAirport.ToLower().Contains(originLower) ||
                      fl.DepartureAirportNavigation.City.ToLower().Contains(originLower) ||
                      fl.DepartureAirportNavigation.AirportName.ToLower().Contains(originLower)) &&
                     (fl.ArrivalAirport.ToLower().Contains(destLower) ||
                      fl.ArrivalAirportNavigation.City.ToLower().Contains(destLower) ||
-                     fl.ArrivalAirportNavigation.AirportName.ToLower().Contains(destLower)))
-                .ToListAsync();
+                     fl.ArrivalAirportNavigation.AirportName.ToLower().Contains(destLower)));
+            }
+
+            var legs = await query.ToListAsync();
 
             var legIds = legs.Select(fl => fl.LegId).ToList();
             var bookedCountsPerLeg = await _context.Tickets

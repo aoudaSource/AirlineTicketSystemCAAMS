@@ -179,7 +179,7 @@ namespace CAAMSAirlineWebApp.Data
 
             modelBuilder.Entity<Flight>(entity =>
             {
-                entity.ToTable("Flights");
+                entity.ToTable("Flights", tb => tb.UseSqlOutputClause(false));
 
                 entity.HasKey(e => e.FlightId);
 
@@ -457,7 +457,7 @@ namespace CAAMSAirlineWebApp.Data
 
             modelBuilder.Entity<Ticket>(entity =>
             {
-                entity.ToTable("Tickets");
+                entity.ToTable("Tickets", tb => tb.UseSqlOutputClause(false));
 
                 entity.HasKey(e => e.TicketId);
 

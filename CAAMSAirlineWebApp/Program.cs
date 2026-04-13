@@ -46,9 +46,8 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
-app.MapRazorPages()
-   .WithStaticAssets();
+app.UseStaticFiles(); ;
+app.MapRazorPages();
 
 // Seed the database on startup
 using (var scope = app.Services.CreateScope())

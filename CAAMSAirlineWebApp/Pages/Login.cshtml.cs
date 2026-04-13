@@ -56,7 +56,7 @@ namespace CAAMSAirlineWebApp.Pages
                 principal);
 
             if (user.Role == "Customer")
-                return RedirectToPage("/BookFlight");
+                return RedirectToPage("/Home");
 
             if (user.Role == "Admin" || user.Role == "Staff")
                 return RedirectToPage("/Admin/Index");

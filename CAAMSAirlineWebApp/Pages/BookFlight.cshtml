@@ -255,10 +255,12 @@
     <script>
         const tripTypeSelect = document.getElementById('tripTypeSelect');
         const returnDateGroup = document.getElementById('returnDateGroup');
+        const tripRadios = document.querySelectorAll('input[name="Search.TripType"]');
 
         function toggleReturnDate() {
-            if (tripTypeSelect && returnDateGroup) {
-                returnDateGroup.style.display = tripTypeSelect.value === 'RoundTrip' ? '' : 'none';
+            const selected = document.querySelector('input[name="Search.TripType"]:checked');
+            if (returnDateGroup) {
+                returnDateGroup.style.display = selected && selected.value === 'RoundTrip' ? '' : 'none';
             }
         }
 

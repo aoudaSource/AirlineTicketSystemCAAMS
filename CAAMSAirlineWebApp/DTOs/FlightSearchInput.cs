@@ -10,8 +10,9 @@ namespace CAAMSAirlineWebApp.DTOs
         [Required(ErrorMessage = "Destination is required.")]
         public string Destination { get; set; } = string.Empty;
 
-        public string TripType { get; set; } = "OneWay";
+        public string TripType { get; set; } = "RoundTrip";
 
+        [Required(ErrorMessage = "Departure date is required.")]
         [DataType(DataType.Date)]
         public DateTime? DepartureDate { get; set; }
 
@@ -19,5 +20,7 @@ namespace CAAMSAirlineWebApp.DTOs
         public DateTime? ReturnDate { get; set; }
 
         public int PassengerCount { get; set; } = 1;
+
+        public string CabinClass { get; set; } = "Economy";
     }
 }

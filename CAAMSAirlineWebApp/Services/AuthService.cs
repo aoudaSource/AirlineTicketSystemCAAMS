@@ -22,7 +22,7 @@ namespace CAAMSAirlineWebApp.Services
             if (user == null)
                 return null;
 
-            // Temporary plain-text style comparison for class project demo
+            
             if (user.PasswordHash != password)
                 return null;
 
@@ -42,11 +42,11 @@ namespace CAAMSAirlineWebApp.Services
             var appUser = new AppUser
             {
                 Username = request.Username,
-                PasswordHash = request.Password, // plain-text for class project demo
+                PasswordHash = request.Password, 
                 Role = "Customer",
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                DOB = request.DOB,
+                DOB = request.DOB!.Value,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -57,7 +57,7 @@ namespace CAAMSAirlineWebApp.Services
                 LastName = request.LastName,
                 Email = request.Email,
                 Phone = request.Phone,
-                DOB = request.DOB
+                DOB = request.DOB!.Value
             };
 
             _context.AppUsers.Add(appUser);

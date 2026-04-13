@@ -163,6 +163,11 @@
                 <button type="submit" class="find-flights-btn btn w-100">Find Flights</button>
             </div>
 
+            @* View All *@
+            <div class="col-12 col-md-auto mt-1">
+                <a asp-page="/BookFlight" asp-route-showAll="true" class="btn btn-outline-secondary w-100">View All Available Flights</a>
+            </div>
+
         </div>
 
     </form>
@@ -173,7 +178,14 @@
 {
     <h5 class="mb-3">
         @Model.SearchResults.Count flight(s) found &mdash;
-        <span class="text-muted fw-normal">@Model.Search.Origin → @Model.Search.Destination on @Model.Search.DepartureDate?.ToString("MMM dd, yyyy")</span>
+        @if (Model.ShowAll)
+        {
+            <span class="text-muted fw-normal">All Available Flights</span>
+        }
+        else
+        {
+            <span class="text-muted fw-normal">@Model.Search.Origin → @Model.Search.Destination on @Model.Search.DepartureDate?.ToString("MMM dd, yyyy")</span>
+        }
     </h5>
 
     @if (!Model.SearchResults.Any())

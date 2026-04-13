@@ -81,17 +81,14 @@ public class BookingService
                 var availableSeat = allSeats.FirstOrDefault(
                     s => !takenSeatIds.Contains(s.SeatId) && !assignedThisBooking.Contains(s.SeatId));
 
-                if (availableSeat == null)
-                    throw new Exception($"No available {request.TicketClass} seats on flight {flight.FlightNumber}. Please choose a different class.");
-
-                assignedThisBooking.Add(availableSeat.SeatId);
+                assignedThisBooking.Add(availableSeat?.SeatId ?? 0);
 
                 _context.Tickets.Add(new Ticket
                 {
                     PassengerId = passenger.PassengerId,
                     BookingId = booking.BookingId,
                     LegId = leg.LegId,
-                    SeatId = availableSeat.SeatId,
+                    SeatId = availableSeat?.SeatId,
                     TicketClass = request.TicketClass,
                     Price = price
                 });
@@ -100,7 +97,14 @@ public class BookingService
             }
         }
 
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new Exception(ex.InnerException?.Message ?? ex.Message);
+        }
 
         // 5. Update booking total
         booking.TotalPrice = totalPrice;

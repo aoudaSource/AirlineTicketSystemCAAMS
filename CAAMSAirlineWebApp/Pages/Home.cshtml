@@ -4,8 +4,127 @@
     ViewData["Title"] = "Home";
 }
 
-<div class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-    <div class="text-center">
-        <a asp-page="/BookFlight" class="btn btn-primary btn-lg">Book a Flight</a>
+<style>
+    .welcome-banner {
+        padding: 20px 36px 0 36px;
+    }
+
+    .welcome-card {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, #0c206d 0%, #3c81bd 100%);
+        border-radius: 50px;
+        padding: 8px 18px;
+        box-shadow: 0 4px 14px rgba(12, 32, 109, 0.18);
+        color: white;
+    }
+
+    .welcome-text {
+        font-family: 'Geologica', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: white;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .welcome-divider {
+        width: 1px;
+        height: 16px;
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .welcome-trips {
+        font-family: 'Geologica', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 0;
+        white-space: nowrap;
+    }
+
+
+    .cta-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 55vh;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .cta-heading {
+        font-family: 'Geologica', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0c206d;
+        margin-bottom: 10px;
+    }
+
+    .cta-subtext {
+        font-family: 'Geologica', sans-serif;
+        font-size: 1rem;
+        color: #6b7280;
+        margin-bottom: 32px;
+    }
+
+    .btn-book-flight {
+        background-color: #0c206d;
+        color: white;
+        font-family: 'Geologica', sans-serif;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 14px 48px;
+        border-radius: 50px;
+        border: none;
+        text-decoration: none;
+        transition: 0.3s;
+        box-shadow: 0 6px 20px rgba(12, 32, 109, 0.25);
+    }
+
+        .btn-book-flight:hover {
+            background-color: #3c81bd;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(12, 32, 109, 0.3);
+        }
+
+    .btn-my-trips {
+        background-color: white;
+        color: #0c206d;
+        font-family: 'Geologica', sans-serif;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 14px 48px;
+        border-radius: 50px;
+        border: 2px solid #0c206d;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+        .btn-my-trips:hover {
+            background-color: #f0f4ff;
+            color: #0c206d;
+            transform: translateY(-2px);
+        }
+</style>
+
+<div class="welcome-banner">
+    <div class="welcome-card">
+        <i class="bi bi-person-circle" style="font-size: 1rem; color: rgba(255,255,255,0.8);"></i>
+        <span class="welcome-text">Hi, @User.Identity?.Name</span>
+        <div class="welcome-divider"></div>
+        <span class="welcome-trips">@Model.TripCount @(Model.TripCount == 1 ? "Trip" : "Trips")</span>
+    </div>
+</div>
+
+<div class="cta-section">
+    <h2 class="cta-heading">Where to next?</h2>
+    <p class="cta-subtext">Search hundreds of flights and find the best deal for your journey.</p>
+    <div class="d-flex gap-3">
+        <a asp-page="/BookFlight" class="btn-book-flight">Book a Flight</a>
+        <a href="#" class="btn-my-trips">My Trips</a>
     </div>
 </div>

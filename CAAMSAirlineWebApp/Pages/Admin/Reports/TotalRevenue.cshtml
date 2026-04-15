@@ -1,5 +1,5 @@
 @page
-@model CAAMSAirlineWebApp.Pages.Admin.Reports.DailyRevenueModel
+@model CAAMSAirlineWebApp.Pages.Admin.Reports.TotalRevenueModel
 @{
     ViewData["Title"] = "Total Revenue";
 }
@@ -97,7 +97,7 @@
                     Export CSV
                 </button>
 
-                <a asp-page="./DailyRevenue" class="btn btn-outline-secondary geologica-text">Reset</a>
+                <a asp-page="./TotalRevenue" class="btn btn-outline-secondary geologica-text">Reset</a>
             </div>
         </form>
     </div>
@@ -108,7 +108,7 @@
             <div class="card card-revenue-stats shadow-sm">
                 <div class="card-body">
                     <div class="card-label">Avg Ticket Price</div>
-                    <div class="fs-5 fw-bold geologica-text">MYR @Model.AverageTicketPrice.ToString("N2")</div>
+                    <div class="fs-5 fw-bold geologica-text">USD @Model.AverageTicketPrice.ToString("N2")</div>
                 </div>
             </div>
         </div>
@@ -116,7 +116,7 @@
             <div class="card card-revenue-stats shadow-sm">
                 <div class="card-body">
                     <div class="card-label">YTD Total</div>
-                    <div class="fs-5 fw-bold geologica-text">MYR @Model.TotalRevenueYear.ToString("N0")</div>
+                    <div class="fs-5 fw-bold geologica-text">USD @Model.TotalRevenueYear.ToString("N0")</div>
                 </div>
             </div>
         </div>
@@ -156,7 +156,7 @@
                 <thead class="bg-light geologica-text">
                     <tr>
                         <th class="ps-4">Date</th>
-                        <th class="text-end">Revenue (MYR)</th>
+                        <th class="text-end">Revenue (USD)</th>
                         <th class="text-center">Tickets Sold</th>
                         <th class="text-end pe-4">Avg. Price</th>
                     </tr>

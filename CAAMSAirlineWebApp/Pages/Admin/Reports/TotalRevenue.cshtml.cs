@@ -8,11 +8,11 @@ using System.Text.Json;
 namespace CAAMSAirlineWebApp.Pages.Admin.Reports
 {
     [Authorize(Roles = "Admin,Staff")]
-    public class DailyRevenueModel : PageModel
+    public class TotalRevenueModel : PageModel
     {
         private readonly ApplicationDbContext _context;
 
-        public DailyRevenueModel(ApplicationDbContext context)
+        public TotalRevenueModel(ApplicationDbContext context)
         {
             _context = context;
         }

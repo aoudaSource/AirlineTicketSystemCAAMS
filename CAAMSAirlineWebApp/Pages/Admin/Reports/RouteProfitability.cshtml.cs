@@ -51,7 +51,7 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Reports
             if (!Routes.Any()) return Page();
 
             var csvBuilder = new StringBuilder();
-            csvBuilder.AppendLine("Origin,Destination,Flights,Load Factor %,Revenue (MYR),Cost (MYR),Net Profit (MYR)");
+            csvBuilder.AppendLine("Origin,Destination,Flights,Load Factor %,Revenue (USD),Cost (USD),Net Profit (USD)");
 
             foreach (var r in Routes)
             {

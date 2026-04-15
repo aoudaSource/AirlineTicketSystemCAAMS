@@ -39,7 +39,7 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Reports
 
             var csvBuilder = new StringBuilder();
             // Header Row
-            csvBuilder.AppendLine("Rank,Customer Name,Email,Total Bookings,Total Spent (MYR)");
+            csvBuilder.AppendLine("Rank,Customer Name,Email,Total Bookings,Total Spent (USD)");
 
             foreach (var c in FilteredCustomers)
             {

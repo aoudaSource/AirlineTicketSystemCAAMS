@@ -115,7 +115,7 @@
                 <div class="card-body">
                     <div class="card-label mb-1">Top Performing</div>
                     <div class="fs-5 fw-bold geologica-text">@Model.TopRoute</div>
-                    <small class="opacity-75">+MYR @Model.TopRouteProfit.ToString("N0")</small>
+                    <small class="opacity-75">+USD @Model.TopRouteProfit.ToString("N0")</small>
                 </div>
             </div>
         </div>
@@ -134,7 +134,7 @@
                 <div class="card-body">
                     <div class="card-label mb-1">Underperforming</div>
                     <div class="fs-5 fw-bold geologica-text">@Model.UnderperformingRoute</div>
-                    <small class="opacity-75">@(Model.LowestProfit < 0 ? "Loss" : "Profit"): MYR @Model.LowestProfit.ToString("N0")</small>
+                    <small class="opacity-75">@(Model.LowestProfit < 0 ? "Loss" : "Profit"): USD @Model.LowestProfit.ToString("N0")</small>
                 </div>
             </div>
         </div>
@@ -143,7 +143,7 @@
             <div class="card card-profit-stats shadow-sm" style="background-color: #0c206d !important;">
                 <div class="card-body">
                     <div class="card-label mb-1">System Net Profit</div>
-                    <div class="fs-4 fw-bold geologica-text">MYR @Model.TotalSystemNetProfit.ToString("N0")</div>
+                    <div class="fs-4 fw-bold geologica-text">USD @Model.TotalSystemNetProfit.ToString("N0")</div>
                 </div>
             </div>
         </div>

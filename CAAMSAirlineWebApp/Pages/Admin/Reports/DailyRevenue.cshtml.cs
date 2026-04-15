@@ -1,5 +1,6 @@
 using CAAMSAirlineWebApp.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -16,72 +17,110 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Reports
             _context = context;
         }
 
-        // Passed to Chart.js as JSON
-        public string HourLabelsJson { get; set; } = "[]";
-        public string RevenueDataJson { get; set; } = "[]";
-        public string TicketCountDataJson { get; set; } = "[]";
+        [BindProperty(SupportsGet = true)]
+        public string DatePreset { get; set; } = "30";
+        [BindProperty(SupportsGet = true)]
+        public DateTime? StartDate { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public DateTime? EndDate { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public string PaymentMethod { get; set; }
 
-        public decimal TotalRevenue { get; set; }
-        public int TotalTickets { get; set; }
-        public int PeakHour { get; set; }
-        public decimal PeakRevenue { get; set; }
+        public string DayLabelsJson { get; set; } = "[]";
+        public string RevenueDataJson { get; set; } = "[]";
+        public decimal TotalRevenueYear { get; set; }
+        public double RevenueChangePercentage { get; set; }
+        public bool IsRevenueUp { get; set; }
+        public decimal AverageTicketPrice { get; set; }
+        public string TopRevenueDay { get; set; } = "—";
+        public List<RevenueRow> DailyBreakdown { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            var since = DateTime.Now.AddHours(-24);
+            var now = DateTime.Now;
+            DateTime finalStart;
+            DateTime finalEnd = EndDate ?? now;
 
-            var bookings = await _context.Bookings
-                .Where(b => b.BookingDate >= since)
-                .Select(b => new { b.BookingDate, b.TotalPrice })
+            if (StartDate.HasValue)
+            {
+                finalStart = StartDate.Value;
+            }
+            else
+            {
+                finalStart = DatePreset switch
+                {
+                    "7" => now.AddDays(-7),
+                    "90" => now.AddDays(-90),
+                    "YTD" => new DateTime(now.Year, 1, 1),
+                    _ => now.AddDays(-30)
+                };
+            }
+
+            var baseQuery = from b in _context.Bookings
+                            join p in _context.Payments on b.BookingId equals p.BookingId
+                            select new { b, p };
+
+            var currentQuery = baseQuery.Where(x => x.b.BookingDate >= finalStart && x.b.BookingDate <= finalEnd);
+            if (!string.IsNullOrEmpty(PaymentMethod))
+                currentQuery = currentQuery.Where(x => x.p.PaymentMethod == PaymentMethod);
+
+            TimeSpan duration = finalEnd - finalStart;
+            DateTime prevStart = finalStart.Subtract(duration);
+            DateTime prevEnd = finalStart.AddSeconds(-1);
+
+            var prevQuery = baseQuery.Where(x => x.b.BookingDate >= prevStart && x.b.BookingDate <= prevEnd);
+            if (!string.IsNullOrEmpty(PaymentMethod))
+                prevQuery = prevQuery.Where(x => x.p.PaymentMethod == PaymentMethod);
+
+            var dailyData = await currentQuery
+                .GroupBy(x => x.b.BookingDate.Date)
+                .Select(g => new RevenueRow
+                {
+                    DateValue = g.Key,
+                    Revenue = g.Sum(x => x.p.Amount),
+                    TicketsSold = g.SelectMany(x => x.b.Tickets).Count()
+                })
+                .OrderBy(r => r.DateValue)
                 .ToListAsync();
 
-            var tickets = await _context.Tickets
-                .Include(t => t.Booking)
-                .Where(t => t.Booking.BookingDate >= since)
-                .Select(t => new { t.Booking.BookingDate })
-                .ToListAsync();
+            decimal currentTotal = dailyData.Sum(d => d.Revenue);
+            decimal previousTotal = await prevQuery.SumAsync(x => (decimal?)x.p.Amount) ?? 0;
 
-            // Build 24 hourly buckets starting from the oldest complete hour
-            var buckets = new decimal[24];
-            var ticketBuckets = new int[24];
-            var labels = new string[24];
-
-            for (int i = 0; i < 24; i++)
+            if (previousTotal > 0)
             {
-                var bucketTime = DateTime.Now.AddHours(-(23 - i));
-                labels[i] = bucketTime.ToString("HH:00");
+                RevenueChangePercentage = (double)((currentTotal - previousTotal) / previousTotal) * 100;
+                IsRevenueUp = RevenueChangePercentage >= 0;
+            }
+            else
+            {
+                RevenueChangePercentage = currentTotal > 0 ? 100 : 0;
+                IsRevenueUp = true;
             }
 
-            foreach (var b in bookings)
+            TotalRevenueYear = await _context.Bookings
+                .Where(b => b.BookingDate.Year == now.Year)
+                .SumAsync(b => b.TotalPrice);
+
+            if (dailyData.Any())
             {
-                double hoursAgo = (DateTime.Now - b.BookingDate).TotalHours;
-                if (hoursAgo >= 0 && hoursAgo < 24)
-                {
-                    int bucket = 23 - (int)hoursAgo;
-                    buckets[bucket] += b.TotalPrice;
-                }
+                var labels = dailyData.Select(d => d.DateValue.ToString("dd MMM")).ToList();
+                var revenues = dailyData.Select(d => d.Revenue).ToList();
+                DayLabelsJson = JsonSerializer.Serialize(labels);
+                RevenueDataJson = JsonSerializer.Serialize(revenues.Select(v => Math.Round(v, 2)));
+                DailyBreakdown = dailyData.OrderByDescending(d => d.DateValue).ToList();
+                var topDay = dailyData.OrderByDescending(d => d.Revenue).First();
+                TopRevenueDay = topDay.DateValue.ToString("dd MMM yyyy");
+                var totalPeriodTickets = dailyData.Sum(d => d.TicketsSold);
+                AverageTicketPrice = totalPeriodTickets > 0 ? currentTotal / totalPeriodTickets : 0;
             }
-
-            foreach (var t in tickets)
-            {
-                double hoursAgo = (DateTime.Now - t.BookingDate).TotalHours;
-                if (hoursAgo >= 0 && hoursAgo < 24)
-                {
-                    int bucket = 23 - (int)hoursAgo;
-                    ticketBuckets[bucket]++;
-                }
-            }
-
-            TotalRevenue = buckets.Sum();
-            TotalTickets = ticketBuckets.Sum();
-
-            int peakIdx = Array.IndexOf(buckets, buckets.Max());
-            PeakHour = int.Parse(labels[peakIdx].Replace(":00", ""));
-            PeakRevenue = buckets[peakIdx];
-
-            HourLabelsJson = JsonSerializer.Serialize(labels);
-            RevenueDataJson = JsonSerializer.Serialize(buckets.Select(v => Math.Round(v, 2)));
-            TicketCountDataJson = JsonSerializer.Serialize(ticketBuckets);
         }
+    }
+
+    public class RevenueRow
+    {
+        public DateTime DateValue { get; set; }
+        public string Date => DateValue.ToString("dd MMM yyyy");
+        public decimal Revenue { get; set; }
+        public int TicketsSold { get; set; }
     }
 }

@@ -1,144 +1,141 @@
 @page
-@model CAAMSAirlineWebApp.Pages.Admin.Flights.IndexModel
+@model CAAMSAirlineWebApp.Pages.Admin.IndexModel
 @{
-    ViewData["Title"] = "Manage Flights";
+    // This changes the tab name in the browser
+    string roleName = User.IsInRole("Admin") ? "Admin" : "Staff";
+    ViewData["Title"] = $"{roleName} Dashboard";
 }
 
 <style>
     /* Premium Branding Typography */
-    .report-header, .table thead th, .flight-no {
+    .admin-header, .card-title, .section-title {
         font-family: 'Geologica', sans-serif;
-        color: #0c206d;
+        color: #0c206d; /* Your Dark Blue */
         font-weight: 800;
     }
 
-    .geologica-text {
-        font-family: 'Geologica', sans-serif;
-    }
-
-    /* Primary Action Button */
-    .btn-airline-add {
-        background-color: #0c206d !important;
-        border-color: #0c206d !important;
+    /* Top Stats Cards - Unified Color */
+    .card-custom-stats {
+        background-color: #00a4a4 !important; /* Change this hex to your preferred color */
         color: white !important;
-        font-family: 'Geologica', sans-serif;
-        font-weight: 600;
-        transition: 0.3s;
-        padding: 8px 20px;
-    }
-
-        .btn-airline-add:hover {
-            background-color: #08164d !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-    /* Custom Back Link */
-    .airline-back-link {
-        color: #0c206d;
-        text-decoration: none;
-        font-weight: 600;
-        font-family: 'Geologica', sans-serif;
-    }
-
-        .airline-back-link:hover {
-            text-decoration: underline;
-        }
-
-    /* Table Styling */
-    .table-custom {
+        border: none;
         border-radius: 10px;
-        overflow: hidden;
-        border: 1px solid #eee;
+        transition: 0.3s;
     }
 
-        .table-custom thead {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #0c206d;
+    /* List Group Buttons - Unified Gray */
+    .list-group-item-custom {
+        background-color: #f0f0f0 !important; /* Your Gray - change later as needed */
+        color: #0c206d !important;
+        font-family: 'Geologica', sans-serif;
+        font-weight: 500;
+        border: 1px solid #ddd !important;
+        margin-bottom: 5px;
+        border-radius: 8px !important;
+        transition: 0.3s;
+    }
+
+        .list-group-item-custom:hover {
+            background-color: #e2e2e2 !important;
+            transform: translateX(5px);
         }
 
-    /* Padding for bottom to avoid footer */
-    .management-container {
-        padding-bottom: 120px;
+    /* Spacing for the bottom of the page */
+    .admin-container {
+        padding-bottom: 60px; /* Ensures space above the footer */
     }
 </style>
 
-<div class="container management-container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="report-header text-uppercase">Flight Management</h2>
-        @if (User.IsInRole("Admin"))
-        {
-            <a asp-page="/Admin/Flights/Create" class="btn btn-airline-add">+ Add New Flight</a>
-        }
+<div class="container admin-container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="admin-header text-uppercase">@roleName Dashboard</h2>
+        <span class="text-muted">Logged in as: <strong>@User.Identity!.Name</strong></span>
     </div>
 
-    <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">&larr; Back to Dashboard</a>
-
-    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
-    {
-        <div class="alert alert-success alert-dismissible fade show geologica-text" role="alert">
-            <strong>Success!</strong> @Model.SuccessMessage
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="row g-4 mb-5">
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card card-custom-stats h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white opacity-75">Total Flights</h5>
+                    <p class="card-text display-6 fw-bold">@Model.TotalFlights</p>
+                </div>
+            </div>
         </div>
-    }
-
-    @if (!Model.Flights.Any())
-    {
-        <div class="alert alert-info geologica-text">No flights found. <a asp-page="/Admin/Flights/Create">Add one now.</a></div>
-    }
-    else
-    {
-        <div class="table-responsive table-custom shadow-sm">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th>Flight #</th>
-                        <th>Aircraft</th>
-                        <th>Route</th>
-                        <th>Departure</th>
-                        <th>Arrival</th>
-                        <th>Base Price</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="geologica-text">
-                    @foreach (var f in Model.Flights)
-                    {
-                        <tr>
-                            <td class="flight-no">@f.FlightNumber</td>
-                            <td class="text-muted">@f.Aircraft</td>
-                            <td>
-                                <span class="fw-bold" style="color: #0c206d;">@f.Route</span><br />
-                                <small class="text-muted">@f.DepartureCity → @f.ArrivalCity</small>
-                            </td>
-                            <td class="small">@f.DepartureTime.ToString("dd MMM yyyy")<br /><strong>@f.DepartureTime.ToString("HH:mm")</strong></td>
-                            <td class="small">@f.ArrivalTime.ToString("dd MMM yyyy")<br /><strong>@f.ArrivalTime.ToString("HH:mm")</strong></td>
-                            <td class="fw-bold">MYR @f.BasePrice.ToString("N2")</td>
-                            <td class="text-center">
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <div class="btn-group" role="group">
-                                        <a asp-page="/Admin/Flights/Edit"
-                                           asp-route-flightId="@f.FlightId"
-                                           asp-route-legId="@f.LegId"
-                                           class="btn btn-sm btn-outline-secondary px-3">Edit</a>
-
-                                        <form method="post" class="d-inline"
-                                              onsubmit="return confirm('Delete flight @f.FlightNumber? This cannot be undone.');">
-                                            <input type="hidden" name="flightId" value="@f.FlightId" />
-                                            <button type="submit" asp-page-handler="Delete" class="btn btn-sm btn-outline-danger px-3">Delete</button>
-                                        </form>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-light text-dark border">View only</span>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card card-custom-stats h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white opacity-75">Upcoming Legs</h5>
+                    <p class="card-text display-6 fw-bold">@Model.UpcomingFlights</p>
+                </div>
+            </div>
         </div>
-    }
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card card-custom-stats h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white opacity-75">Airports</h5>
+                    <p class="card-text display-6 fw-bold">@Model.TotalAirports</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card card-custom-stats h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-white opacity-75">Total Bookings</h5>
+                    <p class="card-text display-6 fw-bold">@Model.TotalBookings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-md-6">
+            <h4 class="section-title mb-3">Bookings</h4>
+            <div class="list-group mb-4">
+                <a asp-page="/Admin/Bookings/Index" class="list-group-item list-group-item-action list-group-item-custom">
+                    Manage Bookings &amp; Passengers
+                </a>
+            </div>
+
+            <h4 class="section-title mb-3">Flight Management</h4>
+            <div class="list-group mb-4">
+                <a asp-page="/Admin/Flights/Index" class="list-group-item list-group-item-action list-group-item-custom">
+                    @(User.IsInRole("Admin") ? "Manage Flights" : "View Flights")
+                </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-page="/Admin/Flights/Create" class="list-group-item list-group-item-action list-group-item-custom">
+                        Add New Flight
+                    </a>
+                }
+            </div>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <h4 class="section-title mb-3">Fleet &amp; Infrastructure</h4>
+                <div class="list-group">
+                    <a asp-page="/Admin/Airports/Index" class="list-group-item list-group-item-action list-group-item-custom">
+                        Manage Airports
+                    </a>
+                    <a asp-page="/Admin/Aircrafts/Index" class="list-group-item list-group-item-action list-group-item-custom">
+                        Manage Aircrafts
+                    </a>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-6">
+            <h4 class="section-title mb-3">Reports &amp; Analytics</h4>
+            <div class="list-group">
+                <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action list-group-item-custom">
+                    Route Profitability
+                </a>
+                <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action list-group-item-custom">
+                    Customer Loyalty (Top 10%)
+                </a>
+                <a asp-page="/Admin/Reports/DailyRevenue" class="list-group-item list-group-item-action list-group-item-custom">
+                    Daily Revenue (Last 24h)
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

@@ -5,73 +5,153 @@
 }
 
 <style>
-    /* Premium Branding Typography */
-    .report-header, .table thead th, .footer-total {
+    .report-header, .table thead th, .footer-total, .card-label, .filter-label {
         font-family: 'Geologica', sans-serif;
-        color: #0c206d; /* Your Dark Blue */
+        color: #0c206d;
         font-weight: 800;
     }
+    .geologica-text { font-family: 'Geologica', sans-serif; }
 
-    .geologica-text {
-        font-family: 'Geologica', sans-serif;
+    .filter-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid #eee;
     }
+    .btn-airline {
+        background-color: #0c206d;
+        color: white;
+        font-weight: 600;
+    }
+    .btn-airline:hover { background-color: #09184d; color: white; }
 
-    /* Custom Back Link */
+    .btn-export {
+        background-color: #28a745;
+        color: white;
+        font-weight: 600;
+    }
+    .btn-export:hover { background-color: #218838; color: white; }
+
+    .card-profit-stats {
+        background-color: #00a4a4 !important;
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        min-height: 105px;
+    }
+    .card-label {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .alert-card { background-color: #dc3545 !important; }
     .airline-back-link {
         color: #0c206d;
         text-decoration: none;
         font-weight: 600;
         font-family: 'Geologica', sans-serif;
     }
-
-        .airline-back-link:hover {
-            text-decoration: underline;
-        }
-
-    /* Table Styling */
     .table-custom {
         border-radius: 10px;
         overflow: hidden;
         border: 1px solid #eee;
     }
-
-        .table-custom thead {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #0c206d;
-        }
-
-    /* Padding for the bottom so it doesn't touch the footer */
-    .report-container {
-        padding-bottom: 120px;
-    }
-
-    /* Custom progress bar height */
-    .progress-thin {
-        height: 8px;
-        border-radius: 4px;
-        background-color: #e9ecef;
-    }
+    .report-container { padding-bottom: 120px; }
+    .progress-thin { height: 8px; border-radius: 4px; }
 </style>
 
 <div class="container report-container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-1">
         <h2 class="report-header text-uppercase">Route Profitability</h2>
+        <span class="text-muted small geologica-text">Live Profit Intelligence</span>
     </div>
 
     <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">
         &larr; Back to Dashboard
     </a>
 
-    <div class="alert alert-light border shadow-sm geologica-text small mb-4">
-        <strong>Business Intelligence:</strong> Load factor = tickets sold ÷ total seats.
-        <span class="ms-md-3"><span class="badge bg-success">High ≥ 70%</span></span>
-        <span class="ms-1"><span class="badge bg-warning text-dark">Mid ≥ 40%</span></span>
-        <span class="ms-1"><span class="badge bg-danger">Low < 40%</span></span>
+    <div class="filter-section mb-4 shadow-sm">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="filter-label small text-uppercase mb-1 d-block">Origin</label>
+                <select asp-for="Origin" asp-items="Model.Airports" class="form-select geologica-text">
+                    <option value="">All Airports</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">Destination</label>
+                <select asp-for="Destination" asp-items="Model.Airports" class="form-select geologica-text">
+                    <option value="">All Airports</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">Aircraft Type</label>
+                <select asp-for="AircraftModel" class="form-select geologica-text">
+                    <option value="">All Models</option>
+                    @foreach(var modelName in Model.AircraftModels)
+                    {
+                        <option value="@modelName">@modelName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-5 d-flex gap-2">
+                <button type="submit" class="btn btn-airline geologica-text flex-grow-1">Apply Filters</button>
+                
+                @* Export Button *@
+                <button type="submit" formmethod="post" asp-page-handler="Export" class="btn btn-export geologica-text">
+                    Export CSV
+                </button>
+
+                <a asp-page="./RouteProfitability" class="btn btn-outline-secondary geologica-text">Reset</a>
+            </div>
+            @Html.AntiForgeryToken()
+        </form>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-profit-stats shadow-sm">
+                <div class="card-body">
+                    <div class="card-label mb-1">Top Performing</div>
+                    <div class="fs-5 fw-bold geologica-text">@Model.TopRoute</div>
+                    <small class="opacity-75">+MYR @Model.TopRouteProfit.ToString("N0")</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-profit-stats shadow-sm">
+                <div class="card-body">
+                    <div class="card-label mb-1">Avg. Profit Margin</div>
+                    <div class="fs-4 fw-bold geologica-text">@Model.AverageMargin.ToString("N1")%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-profit-stats shadow-sm @(Model.LowestProfit < 0 ? "alert-card" : "")">
+                <div class="card-body">
+                    <div class="card-label mb-1">Underperforming</div>
+                    <div class="fs-5 fw-bold geologica-text">@Model.UnderperformingRoute</div>
+                    <small class="opacity-75">@(Model.LowestProfit < 0 ? "Loss" : "Profit"): MYR @Model.LowestProfit.ToString("N0")</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-profit-stats shadow-sm" style="background-color: #0c206d !important;">
+                <div class="card-body">
+                    <div class="card-label mb-1">System Net Profit</div>
+                    <div class="fs-4 fw-bold geologica-text">MYR @Model.TotalSystemNetProfit.ToString("N0")</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if (!Model.Routes.Any())
     {
-        <div class="alert alert-info geologica-text">No flight data yet. Add flights and bookings to see this report.</div>
+        <div class="alert alert-info geologica-text">No flight data matches your criteria.</div>
     }
     else
     {
@@ -80,11 +160,10 @@
                 <thead>
                     <tr>
                         <th style="min-width: 200px;">Route Details</th>
-                        <th class="text-center">Legs</th>
-                        <th class="text-center">Capacity</th>
-                        <th class="text-center">Sold</th>
-                        <th class="text-center" style="width: 200px;">Load Factor</th>
-                        <th class="text-end">Revenue (MYR)</th>
+                        <th class="text-center">Load Factor</th>
+                        <th class="text-end">Revenue</th>
+                        <th class="text-end">Cost</th>
+                        <th class="text-end">Net Profit</th>
                     </tr>
                 </thead>
                 <tbody class="geologica-text">
@@ -93,38 +172,22 @@
                         <tr>
                             <td>
                                 <span class="fw-bold" style="color: #0c206d;">@r.DepartureCode → @r.ArrivalCode</span><br />
-                                <small class="text-muted">@r.DepartureCity to @r.ArrivalCity</small>
+                                <small class="text-muted">@r.TotalLegs Flights</small>
                             </td>
-                            <td class="text-center">@r.TotalLegs</td>
-                            <td class="text-center">@r.TotalSeatsAvailable</td>
-                            <td class="text-center">@r.TicketsSold</td>
-                            <td class="text-center">
+                            <td class="text-center" style="width: 180px;">
                                 <span class="fw-bold text-@r.LoadFactorBadge small">@r.LoadFactor%</span>
                                 <div class="progress progress-thin mt-1">
-                                    <div class="progress-bar bg-@r.LoadFactorBadge"
-                                         role="progressbar"
-                                         style="width:@r.LoadFactor%"
-                                         aria-valuenow="@r.LoadFactor"
-                                         aria-valuemin="0"
-                                         aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-@r.LoadFactorBadge" style="width:@r.LoadFactor%"></div>
                                 </div>
                             </td>
-                            <td class="text-end fw-bold" style="color: #0c206d;">@r.TotalRevenue.ToString("N2")</td>
+                            <td class="text-end">@r.TotalRevenue.ToString("N2")</td>
+                            <td class="text-end text-muted small">@r.TotalCost.ToString("N2")</td>
+                            <td class="text-end fw-bold @(r.NetProfit < 0 ? "text-danger" : "text-success")">
+                                @r.NetProfit.ToString("N2")
+                            </td>
                         </tr>
                     }
                 </tbody>
-                <tfoot class="table-light footer-total">
-                    <tr>
-                        <td>TOTAL FLEET PERFORMANCE</td>
-                        <td class="text-center">@Model.Routes.Sum(r => r.TotalLegs)</td>
-                        <td class="text-center">@Model.Routes.Sum(r => r.TotalSeatsAvailable)</td>
-                        <td class="text-center">@Model.Routes.Sum(r => r.TicketsSold)</td>
-                        <td></td>
-                        <td class="text-end fw-extrabold" style="font-size: 1.1rem;">
-                            @Model.Routes.Sum(r => r.TotalRevenue).ToString("N2")
-                        </td>
-                    </tr>
-                </tfoot>
             </table>
         </div>
     }

@@ -1,195 +1,209 @@
 @page
 @model CAAMSAirlineWebApp.Pages.Admin.Reports.DailyRevenueModel
 @{
-    ViewData["Title"] = "Daily Revenue";
+    ViewData["Title"] = "Total Revenue";
 }
 
 <style>
-    /* Premium Branding Typography */
-    .report-header, .card-label, .card-header {
-        font-family: 'Geologica', sans-serif;
-        color: #0c206d; /* Your Dark Blue */
-        font-weight: 800;
-    }
-
-    .geologica-text {
-        font-family: 'Geologica', sans-serif;
-    }
-
-    /* Top Stats Cards - Matching Dashboard */
-    .card-revenue-stats {
-        background-color: #00a4a4 !important;
-        color: white !important;
-        border: none;
+    .report-header, .card-label, .filter-label { font-family: 'Geologica', sans-serif; color: #0c206d; font-weight: 800; }
+    .geologica-text { font-family: 'Geologica', sans-serif; }
+    
+    .filter-section {
+        background-color: #f8f9fa;
         border-radius: 10px;
-        transition: 0.3s;
-    }
-
-    .card-label {
-        color: rgba(255, 255, 255, 0.8) !important;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    /* Chart Card Styling */
-    .chart-card {
-        border-radius: 12px;
+        padding: 20px;
         border: 1px solid #eee;
     }
 
-        .chart-card .card-header {
-            background-color: #fff;
-            border-bottom: 1px solid #eee;
-            padding: 1.25rem;
-        }
+    .btn-airline {
+        background-color: #0c206d;
+        color: white;
+        font-weight: 600;
+    }
+    .btn-airline:hover { background-color: #09184d; color: white; }
 
-    /* Custom Back Link */
+    /* New Export Button Style from RouteProfitability */
+    .btn-export {
+        background-color: #28a745;
+        color: white;
+        font-weight: 600;
+    }
+    .btn-export:hover { background-color: #218838; color: white; }
+
+    .card-revenue-stats { 
+        background-color: #00a4a4 !important; 
+        color: white !important; 
+        border: none; 
+        border-radius: 10px; 
+        min-height: 105px; 
+    }
+    .card-label { 
+        color: rgba(255, 255, 255, 0.8) !important; 
+        font-size: 0.75rem; 
+        text-transform: uppercase; 
+        letter-spacing: 1px; 
+    }
     .airline-back-link {
         color: #0c206d;
         text-decoration: none;
         font-weight: 600;
         font-family: 'Geologica', sans-serif;
     }
-
-        .airline-back-link:hover {
-            text-decoration: underline;
-        }
-
-    /* Padding for bottom to avoid footer */
-    .report-container {
-        padding-bottom: 100px;
-    }
 </style>
 
-<div class="container report-container mt-5">
+<div class="container mt-5 pb-5">
     <div class="d-flex justify-content-between align-items-center mb-1">
-        <h2 class="report-header text-uppercase">Daily Revenue</h2>
-        <span class="text-muted small geologica-text">Last 24 hours as of @DateTime.Now.ToString("dd MMM yyyy HH:mm")</span>
+        <h2 class="report-header text-uppercase">Total Revenue</h2>
+        <span class="text-muted small geologica-text">Daily Financial Overview</span>
     </div>
 
     <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">
         &larr; Back to Dashboard
     </a>
 
+    <div class="filter-section mb-4 shadow-sm">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">Range Preset</label>
+                <select asp-for="DatePreset" class="form-select geologica-text">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                    <option value="90">This Quarter</option>
+                    <option value="YTD">Year to Date</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">Start</label>
+                <input type="date" asp-for="StartDate" class="form-control geologica-text" />
+            </div>
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">End</label>
+                <input type="date" asp-for="EndDate" class="form-control geologica-text" />
+            </div>
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">Payment Method</label>
+                <select asp-for="PaymentMethod" class="form-select geologica-text">
+                    <option value="">All Methods</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Debit Card">Debit Card</option>
+                    <option value="PayPal">PayPal</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-airline geologica-text flex-grow-1">Apply Filters</button>
+                
+                <button type="button" onclick="exportTableToExcel('revenueTable', 'Daily_Revenue_Report')" class="btn btn-export geologica-text">
+                    Export CSV
+                </button>
+
+                <a asp-page="./DailyRevenue" class="btn btn-outline-secondary geologica-text">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    @* Stat Cards Section *@
     <div class="row g-3 mb-5">
-        <div class="col-sm-4">
+        <div class="col-md-3">
             <div class="card card-revenue-stats shadow-sm">
                 <div class="card-body">
-                    <div class="card-label mb-1">Total Revenue (24h)</div>
-                    <div class="fs-4 fw-bold geologica-text">MYR @Model.TotalRevenue.ToString("N2")</div>
+                    <div class="card-label">Avg Ticket Price</div>
+                    <div class="fs-5 fw-bold geologica-text">MYR @Model.AverageTicketPrice.ToString("N2")</div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-md-3">
             <div class="card card-revenue-stats shadow-sm">
                 <div class="card-body">
-                    <div class="card-label mb-1">Tickets Sold (24h)</div>
-                    <div class="fs-4 fw-bold geologica-text">@Model.TotalTickets</div>
+                    <div class="card-label">YTD Total</div>
+                    <div class="fs-5 fw-bold geologica-text">MYR @Model.TotalRevenueYear.ToString("N0")</div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-md-3">
             <div class="card card-revenue-stats shadow-sm">
                 <div class="card-body">
-                    <div class="card-label mb-1">Peak Hour</div>
-                    <div class="fs-4 fw-bold geologica-text">
-                        @if (Model.TotalRevenue > 0)
-                        {
-                            <span>@Model.PeakHour:00 (MYR @Model.PeakRevenue.ToString("N0"))</span>
-                        }
-                        else
-                        {
-                            <span>—</span>
-                        }
+                    <div class="card-label">Top Day</div>
+                    <div class="fs-6 fw-bold geologica-text">@Model.TopRevenueDay</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-revenue-stats shadow-sm" style="background-color: #0c206d !important;">
+                <div class="card-body">
+                    <div class="card-label">Vs. Previous Period</div>
+                    <div class="fs-5 fw-bold geologica-text">
+                        <span class="@(Model.IsRevenueUp ? "text-white" : "text-warning")">
+                            @(Model.IsRevenueUp ? "↑" : "↓") @Math.Abs(Model.RevenueChangePercentage).ToString("N1")%
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card chart-card shadow-sm mb-4">
-        <div class="card-header fw-bold text-uppercase">Revenue by Hour (MYR)</div>
+    @* Chart Section *@
+    <div class="card shadow-sm mb-4">
         <div class="card-body">
             <canvas id="revenueChart" height="100"></canvas>
         </div>
     </div>
 
-    <div class="card chart-card shadow-sm">
-        <div class="card-header fw-bold text-uppercase">Tickets Sold by Hour</div>
-        <div class="card-body">
-            <canvas id="ticketChart" height="80"></canvas>
+    @* Table Section *@
+    <div class="card shadow-sm border-0" style="border-radius:12px; overflow:hidden;">
+        <div class="table-responsive">
+            <table id="revenueTable" class="table table-hover align-middle mb-0">
+                <thead class="bg-light geologica-text">
+                    <tr>
+                        <th class="ps-4">Date</th>
+                        <th class="text-end">Revenue (MYR)</th>
+                        <th class="text-center">Tickets Sold</th>
+                        <th class="text-end pe-4">Avg. Price</th>
+                    </tr>
+                </thead>
+                <tbody class="geologica-text">
+                    @foreach (var row in Model.DailyBreakdown) {
+                        <tr>
+                            <td class="ps-4 fw-bold" style="color:#0c206d;">@row.Date</td>
+                            <td class="text-end">@row.Revenue.ToString("N2")</td>
+                            <td class="text-center">@row.TicketsSold</td>
+                            <td class="text-end pe-4 text-muted small">
+                                @(row.TicketsSold > 0 ? (row.Revenue / row.TicketsSold).ToString("N2") : "0.00")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        const labels = @Html.Raw(Model.HourLabelsJson);
-        const revenueData = @Html.Raw(Model.RevenueDataJson);
-        const ticketData = @Html.Raw(Model.TicketCountDataJson);
-
-        // Geologica font setting for charts
-        const chartFont = {
-            family: "'Geologica', sans-serif",
-            weight: '600'
-        };
+        function exportTableToExcel(tableId, filename) {
+            const table = document.getElementById(tableId);
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Revenue Data" });
+            XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0,10)}.csv`);
+        }
 
         new Chart(document.getElementById('revenueChart'), {
-            type: 'bar',
-            data: {
-                labels,
-                datasets: [{
-                    label: 'Revenue (MYR)',
-                    data: revenueData,
-                    backgroundColor: '#0c206d', // Your Dark Blue
-                    borderRadius: 6
-                }]
+            type: 'line',
+            data: { 
+                labels: @Html.Raw(Model.DayLabelsJson), 
+                datasets: [{ 
+                    label: 'Revenue', 
+                    data: @Html.Raw(Model.RevenueDataJson), 
+                    borderColor: '#0c206d', 
+                    backgroundColor: 'rgba(12, 32, 109, 0.1)', 
+                    fill: true, 
+                    tension: 0.3 
+                }] 
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            font: chartFont,
-                            callback: v => 'MYR ' + v.toLocaleString()
-                        }
-                    },
-                    x: { ticks: { font: chartFont } }
-                }
-            }
-        });
-
-        new Chart(document.getElementById('ticketChart'), {
-            type: 'line', // Changed to line chart for visual variety in the report
-            data: {
-                labels,
-                datasets: [{
-                    label: 'Tickets Sold',
-                    data: ticketData,
-                    borderColor: '#0c206d',
-                    backgroundColor: 'rgba(12, 32, 109, 0.1)',
-                    fill: true,
-                    tension: 0.4, // Smooth curve
-                    pointRadius: 4,
-                    pointBackgroundColor: '#0c206d'
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { font: chartFont, stepSize: 1 }
-                    },
-                    x: { ticks: { font: chartFont } }
-                }
+            options: { 
+                responsive: true, 
+                plugins: { legend: { display: false } } 
             }
         });
     </script>

@@ -5,134 +5,163 @@
 }
 
 <style>
-    /* Premium Branding Typography */
-    .report-header, .card-label, .table thead th {
+    .report-header, .table thead th, .filter-label, .card-label {
         font-family: 'Geologica', sans-serif;
-        color: #0c206d; /* Your Dark Blue */
+        color: #0c206d;
         font-weight: 800;
     }
-
-    .geologica-text {
-        font-family: 'Geologica', sans-serif;
-    }
-
-    /* Top Stats Cards - Matching your Dashboard Style */
-    .card-loyalty-stats {
-        background-color: #00a4a4 !important;
-        color: white !important;
-        border: none;
-        border-radius: 10px;
-        transition: 0.3s;
-    }
-
+    .geologica-text { font-family: 'Geologica', sans-serif; }
     .card-label {
         color: rgba(255, 255, 255, 0.8) !important;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
-
-    /* Table Styling */
-    .table-custom {
-        border-radius: 10px;
-        overflow: hidden;
-        border: 1px solid #eee;
-    }
-
-        .table-custom thead {
-            background-color: #f8f9fa;
-        }
-
-    /* Custom Back Link */
     .airline-back-link {
         color: #0c206d;
         text-decoration: none;
         font-weight: 600;
         font-family: 'Geologica', sans-serif;
     }
-
-        .airline-back-link:hover {
-            text-decoration: underline;
-        }
-
-    /* Padding for the bottom so it doesn't touch the footer */
-    .report-container {
-        padding-bottom: 100px;
+    .card-loyalty-stats {
+        background-color: #00a4a4 !important;
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        min-height: 105px;
     }
+    .filter-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid #eee;
+    }
+    .btn-airline {
+        background-color: #0c206d;
+        color: white;
+        font-weight: 600;
+    }
+    .btn-airline:hover { background-color: #09184d; color: white; }
+    .btn-export {
+        background-color: #28a745;
+        color: white;
+        font-weight: 600;
+    }
+    .btn-export:hover { background-color: #218838; color: white; }
+    .report-container { padding-bottom: 100px; }
 </style>
 
 <div class="container report-container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-1">
         <h2 class="report-header text-uppercase">Customer Loyalty</h2>
+        <span class="text-muted small geologica-text">Retention & Spend Intelligence</span>
     </div>
 
     <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">
         &larr; Back to Dashboard
     </a>
 
+    <div class="filter-section mb-4 shadow-sm">
+        @* Use GET for filtering, but we will handle the POST for export via formmethod *@
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="filter-label small text-uppercase mb-1 d-block">Spending Tier</label>
+                <select asp-for="Tier" class="form-select geologica-text">
+                    <option value="">All Customers</option>
+                    <option value="HighValue">High Value (Top 10%)</option>
+                    <option value="MediumValue">Medium Value (>1 Booking)</option>
+                    <option value="NewCustomers">New Customers (1 Booking)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">Min. Bookings</label>
+                <input type="number" asp-for="MinBookings" class="form-control geologica-text" placeholder="e.g. 5" />
+            </div>
+            <div class="col-md-7 d-flex gap-2">
+                <button type="submit" class="btn btn-airline geologica-text flex-grow-1">Apply Filters</button>
+                
+                @* CRITICAL FIX: 
+                   1. Use formmethod="post" to trigger the OnPost handler.
+                   2. Use asp-page-handler="Export" to tell Razor which method to run.
+                *@
+                <button type="submit" 
+                        formmethod="post" 
+                        asp-page-handler="Export" 
+                        class="btn btn-export geologica-text">
+                    Export CSV
+                </button>
+                
+                <a asp-page="./CustomerLoyalty" class="btn btn-outline-secondary geologica-text">Reset</a>
+            </div>
+            @Html.AntiForgeryToken()
+        </form>
+    </div>
+
+    @* ... (Rest of the stats and table remains the same as your original) ... *@
     <div class="row g-3 mb-5">
         <div class="col-sm-4">
             <div class="card card-loyalty-stats shadow-sm">
                 <div class="card-body">
-                    <div class="card-label mb-1">Total Customers</div>
-                    <div class="fs-4 fw-bold geologica-text">@Model.TotalCustomers</div>
+                    <div class="card-label mb-1">Top Spender (Filtered)</div>
+                    <div class="fs-6 fw-bold geologica-text">@Model.HighestValueCustomer</div>
                 </div>
             </div>
         </div>
         <div class="col-sm-4">
             <div class="card card-loyalty-stats shadow-sm">
                 <div class="card-body">
-                    <div class="card-label mb-1">Top 10% Count</div>
-                    <div class="fs-4 fw-bold geologica-text">@Model.TopTenPercentCount</div>
+                    <div class="card-label mb-1">Top 10% Spend Threshold</div>
+                    <div class="fs-4 fw-bold geologica-text">MYR @Model.SpendThreshold.ToString("N2")</div>
                 </div>
             </div>
         </div>
         <div class="col-sm-4">
-            <div class="card card-loyalty-stats shadow-sm">
+            <div class="card card-loyalty-stats shadow-sm" style="background-color: #0c206d !important;">
                 <div class="card-body">
-                    <div class="card-label mb-1">Revenue from Top 10%</div>
-                    <div class="fs-4 fw-bold geologica-text">MYR @Model.TopTenPercentRevenue.ToString("N2")</div>
+                    <div class="card-label mb-1">Filtered Group Revenue</div>
+                    <div class="fs-4 fw-bold geologica-text">MYR @Model.FilteredGroupRevenue.ToString("N2")</div>
                 </div>
             </div>
         </div>
     </div>
 
     <h5 class="report-header mb-3" style="font-size: 1.2rem;">
-        Top @Model.TopTenPercentCount High-Value Customers
-        <span class="text-muted fw-normal small d-block d-md-inline">(Top 10% by total spend)</span>
+        Customer Breakdown
+        <span class="text-muted fw-normal small d-block d-md-inline">Showing @Model.FilteredCustomers.Count results</span>
     </h5>
 
-    @if (!Model.TopCustomers.Any())
+    @if (!Model.FilteredCustomers.Any())
     {
-        <div class="alert alert-info geologica-text">No bookings recorded yet.</div>
+        <div class="alert alert-info geologica-text">No customers match your current filter criteria.</div>
     }
     else
     {
-        <div class="table-responsive table-custom shadow-sm">
+        <div class="table-responsive shadow-sm" style="border-radius: 10px; overflow: hidden; border: 1px solid #eee;">
             <table class="table table-hover align-middle mb-0">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         <th class="text-center" style="width:80px;">Rank</th>
                         <th>Customer Name</th>
-                        <th>Email Address</th>
+                        <th>Email</th>
                         <th class="text-center">Bookings</th>
                         <th class="text-end">Total Spent (MYR)</th>
                     </tr>
                 </thead>
                 <tbody class="geologica-text">
-                    @foreach (var c in Model.TopCustomers)
+                    @foreach (var c in Model.FilteredCustomers)
                     {
-                        @* Removed the emoji and replaced with a subtle highlight for Rank #1 *@
-                        <tr class="@(c.Rank == 1 ? "table-light" : "")">
-                            <td class="text-center fw-bold text-muted">
-                                #@c.Rank
+                        <tr>
+                            <td class="text-center fw-bold text-muted">#@c.Rank</td>
+                            <td class="fw-semibold" style="color: #0c206d;">
+                                @c.FullName
+                                @if (c.TotalSpent >= Model.SpendThreshold)
+                                {
+                                    <span class="badge bg-warning text-dark ms-1" style="font-size: 0.6rem;">TOP 10%</span>
+                                }
                             </td>
-                            <td class="fw-semibold" style="color: #0c206d;">@c.FullName</td>
-                            <td>
-                                <a href="mailto:@c.Email" class="text-decoration-none text-secondary">@c.Email</a>
-                            </td>
+                            <td><span class="text-secondary small">@c.Email</span></td>
                             <td class="text-center">@c.TotalBookings</td>
-                            <td class="text-end fw-bold" style="color: #0c206d;">@c.TotalSpent.ToString("N2")</td>
+                            <td class="text-end fw-bold">@c.TotalSpent.ToString("N2")</td>
                         </tr>
                     }
                 </tbody>

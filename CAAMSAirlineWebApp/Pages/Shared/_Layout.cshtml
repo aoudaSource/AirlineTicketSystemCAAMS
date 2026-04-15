@@ -16,7 +16,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow-x: hidden; /* Stops side-scrolling */
+            overflow-x: hidden; 
             display: flex;
             flex-direction: column;
         }
@@ -37,7 +37,7 @@
             background-color: #3c81bd;
             color: white !important;
             border-top: none !important;
-            flex-shrink: 0; /* Prevents footer from squishing */
+            flex-shrink: 0; 
             width: 100%;
         }
 
@@ -54,7 +54,7 @@
             margin: 0;
         }
 
-        /* Styles the "Hello Admin" text */
+        
         .airline-nav-text {
             color: white !important;
             font-family: 'Geologica', sans-serif;
@@ -64,7 +64,7 @@
             align-items: center;
         }
 
-        /* Styles the Logout button to look like a plain white link */
+        
         .airline-logout-btn {
             color: white !important;
             font-family: 'Geologica', sans-serif;
@@ -101,6 +101,13 @@
                         <li class="nav-item">
                             <a class="nav-link text-white mx-3" asp-area="" asp-page="/Index">Home</a>
                         </li>
+
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Customer"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white mx-3" asp-page="/EditProfile">My Profile</a>
+                            </li>
+                        }
                         @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
                         {
                             <li class="nav-item">

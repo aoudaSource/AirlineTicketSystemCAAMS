@@ -63,6 +63,7 @@
         color: #0c206d;
         text-decoration: none;
         font-weight: 600;
+        font-family: 'Geologica', sans-serif;
     }
 </style>
 
@@ -75,27 +76,23 @@
         }
     </div>
 
-    <div class="card shadow-sm mb-4 border-0" style="border-radius: 12px;">
-        <div class="card border-0 shadow-sm mb-4 p-3 bg-light">
-            <form method="get" class="d-flex gap-2" style="max-width:600px;">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search" style="color:#0c206d;"></i></span>
-                    <input type="text" name="Query" value="@Model.Query"
-                           class="form-control border-start-0 search-input geologica-text"
-                           placeholder="Search Flight #, Aircraft, or City...">
-                </div>
-                <button type="submit" class="btn btn-airline-search px-4 shadow-sm">Search</button>
-                @if (!string.IsNullOrEmpty(Model.Query))
-                {
-                    <a asp-page="/Admin/Flights/Index" class="btn btn-outline-secondary geologica-text">Clear</a>
-                }
-            </form>
-        </div>
+    <div class="card border-0 shadow-sm mb-4 p-3 bg-light">
+        <form method="get" class="d-flex gap-2" style="max-width:600px;">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search" style="color:#0c206d;"></i></span>
+                <input type="text" name="Query" value="@Model.Query"
+                        class="form-control border-start-0 search-input geologica-text"
+                        placeholder="Search Flight #, Aircraft, or City...">
+            </div>
+            <button type="submit" class="btn btn-airline-search px-4 shadow-sm">Search</button>
+            @if (!string.IsNullOrEmpty(Model.Query))
+            {
+                <a asp-page="/Admin/Flights/Index" class="btn btn-outline-secondary geologica-text">Clear</a>
+            }
+        </form>
     </div>
 
-    <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">
-        <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
-    </a>
+    <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">&larr; Back to Dashboard</a>
 
     @if (!string.IsNullOrEmpty(Model.SuccessMessage))
     {
@@ -107,9 +104,9 @@
 
     @if (Model.Flights == null || !Model.Flights.Any())
     {
-        <div class="text-center py-5 border rounded bg-white shadow-sm">
-            <i class="bi bi-airplane text-muted opacity-25" style="font-size: 3rem;"></i>
-            <p class="text-muted mt-3 geologica-text">No flights found matching your search.</p>
+        <div class="alert alert-info border-0 shadow-sm geologica-text">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            @(string.IsNullOrEmpty(Model.Query) ? "No flights found." : "No matching travel records found.")
         </div>
     }
     else

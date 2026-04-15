@@ -1,0 +1,210 @@
+@page
+@model CAAMSAirlineWebApp.Pages.Admin.Reports.TotalRevenueModel
+@{
+    ViewData["Title"] = "Total Revenue";
+}
+
+<style>
+    .report-header, .card-label, .filter-label { font-family: 'Geologica', sans-serif; color: #0c206d; font-weight: 800; }
+    .geologica-text { font-family: 'Geologica', sans-serif; }
+    
+    .filter-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid #eee;
+    }
+
+    .btn-airline {
+        background-color: #0c206d;
+        color: white;
+        font-weight: 600;
+    }
+    .btn-airline:hover { background-color: #09184d; color: white; }
+
+    /* New Export Button Style from RouteProfitability */
+    .btn-export {
+        background-color: #28a745;
+        color: white;
+        font-weight: 600;
+    }
+    .btn-export:hover { background-color: #218838; color: white; }
+
+    .card-revenue-stats { 
+        background-color: #00a4a4 !important; 
+        color: white !important; 
+        border: none; 
+        border-radius: 10px; 
+        min-height: 105px; 
+    }
+    .card-label { 
+        color: rgba(255, 255, 255, 0.8) !important; 
+        font-size: 0.75rem; 
+        text-transform: uppercase; 
+        letter-spacing: 1px; 
+    }
+    .airline-back-link {
+        color: #0c206d;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+</style>
+
+<div class="container mt-5 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <h2 class="report-header text-uppercase">Total Revenue</h2>
+        <span class="text-muted small geologica-text">Total Financial Overview</span>
+    </div>
+
+    <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">
+        &larr; Back to Dashboard
+    </a>
+
+    <div class="filter-section mb-4 shadow-sm">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">Range Preset</label>
+                <select asp-for="DatePreset" class="form-select geologica-text">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                    <option value="90">This Quarter</option>
+                    <option value="YTD">Year to Date</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">Start</label>
+                <input type="date" asp-for="StartDate" class="form-control geologica-text" />
+            </div>
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">End</label>
+                <input type="date" asp-for="EndDate" class="form-control geologica-text" />
+            </div>
+            <div class="col-md-2">
+                <label class="filter-label small text-uppercase mb-1 d-block">Payment Method</label>
+                <select asp-for="PaymentMethod" class="form-select geologica-text">
+                    <option value="">All Methods</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Debit Card">Debit Card</option>
+                    <option value="PayPal">PayPal</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-airline geologica-text flex-grow-1">Apply Filters</button>
+                
+                <button type="button" onclick="exportTableToExcel('revenueTable', 'Total_Revenue_Report')" class="btn btn-export geologica-text">
+                    Export CSV
+                </button>
+
+                <a asp-page="./TotalRevenue" class="btn btn-outline-secondary geologica-text">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    @* Stat Cards Section *@
+    <div class="row g-3 mb-5">
+        <div class="col-md-3">
+            <div class="card card-revenue-stats shadow-sm">
+                <div class="card-body">
+                    <div class="card-label">Avg Ticket Price</div>
+                    <div class="fs-5 fw-bold geologica-text">USD @Model.AverageTicketPrice.ToString("N2")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-revenue-stats shadow-sm">
+                <div class="card-body">
+                    <div class="card-label">YTD Total</div>
+                    <div class="fs-5 fw-bold geologica-text">USD @Model.TotalRevenueYear.ToString("N0")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-revenue-stats shadow-sm">
+                <div class="card-body">
+                    <div class="card-label">Top Day</div>
+                    <div class="fs-6 fw-bold geologica-text">@Model.TopRevenueDay</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-revenue-stats shadow-sm" style="background-color: #0c206d !important;">
+                <div class="card-body">
+                    <div class="card-label">Vs. Previous Period</div>
+                    <div class="fs-5 fw-bold geologica-text">
+                        <span class="@(Model.IsRevenueUp ? "text-white" : "text-warning")">
+                            @(Model.IsRevenueUp ? "↑" : "↓") @Math.Abs(Model.RevenueChangePercentage).ToString("N1")%
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Chart Section *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <canvas id="revenueChart" height="100"></canvas>
+        </div>
+    </div>
+
+    @* Table Section *@
+    <div class="card shadow-sm border-0" style="border-radius:12px; overflow:hidden;">
+        <div class="table-responsive">
+            <table id="revenueTable" class="table table-hover align-middle mb-0">
+                <thead class="bg-light geologica-text">
+                    <tr>
+                        <th class="ps-4">Date</th>
+                        <th class="text-end">Revenue (USD)</th>
+                        <th class="text-center">Tickets Sold</th>
+                        <th class="text-end pe-4">Avg. Price</th>
+                    </tr>
+                </thead>
+                <tbody class="geologica-text">
+                    @foreach (var row in Model.DailyBreakdown) {
+                        <tr>
+                            <td class="ps-4 fw-bold" style="color:#0c206d;">@row.Date</td>
+                            <td class="text-end">@row.Revenue.ToString("N2")</td>
+                            <td class="text-center">@row.TicketsSold</td>
+                            <td class="text-end pe-4 text-muted small">
+                                @(row.TicketsSold > 0 ? (row.Revenue / row.TicketsSold).ToString("N2") : "0.00")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        function exportTableToExcel(tableId, filename) {
+            const table = document.getElementById(tableId);
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Revenue Data" });
+            XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0,10)}.csv`);
+        }
+
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: { 
+                labels: @Html.Raw(Model.DayLabelsJson), 
+                datasets: [{ 
+                    label: 'Revenue', 
+                    data: @Html.Raw(Model.RevenueDataJson), 
+                    borderColor: '#0c206d', 
+                    backgroundColor: 'rgba(12, 32, 109, 0.1)', 
+                    fill: true, 
+                    tension: 0.3 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                plugins: { legend: { display: false } } 
+            }
+        });
+    </script>
+}

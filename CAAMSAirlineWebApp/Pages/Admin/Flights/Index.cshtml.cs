@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace CAAMSAirlineWebApp.Pages.Admin.Flights
 {
@@ -17,6 +18,11 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Flights
             _context = context;
         }
 
+        // Add this property to fix the 'Query' error
+        [BindProperty(SupportsGet = true)]
+        [ValidateNever]
+        public string? Query { get; set; }
+
         public List<FlightListItem> Flights { get; set; } = new();
         public string? SuccessMessage { get; set; }
 
@@ -26,13 +32,35 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Flights
             if (success == "updated") SuccessMessage = "Flight updated successfully.";
             if (success == "deleted") SuccessMessage = "Flight deleted successfully.";
 
-            var legs = await _context.FlightLegs
+            // Convert query to lowercase for case-insensitive searching
+            var q = Query?.Trim().ToLower();
+
+            // Start with the base query including all necessary navigation properties
+            var legsQuery = _context.FlightLegs
                 .Include(fl => fl.Flight).ThenInclude(f => f.Aircraft)
                 .Include(fl => fl.DepartureAirportNavigation)
                 .Include(fl => fl.ArrivalAirportNavigation)
+                .AsQueryable();
+
+            // Apply search filtering logic
+            if (!string.IsNullOrEmpty(q))
+            {
+                legsQuery = legsQuery.Where(fl =>
+                    fl.Flight.FlightNumber.ToLower().Contains(q) ||
+                    fl.Flight.Aircraft.Model.ToLower().Contains(q) ||
+                    fl.DepartureAirportNavigation.City.ToLower().Contains(q) ||
+                    fl.ArrivalAirportNavigation.City.ToLower().Contains(q) ||
+                    fl.DepartureAirport.ToLower().Contains(q) ||
+                    fl.ArrivalAirport.ToLower().Contains(q)
+                );
+            }
+
+            // Execute the query with sorting
+            var legs = await legsQuery
                 .OrderBy(fl => fl.DepartureTime)
                 .ToListAsync();
 
+            // Map the results to your FlightListItem DTO
             Flights = legs.Select(fl => new FlightListItem
             {
                 FlightId = fl.FlightId,

@@ -181,18 +181,18 @@
 
                     <div class="d-flex justify-content-between mb-2">
                         <span>Base Fare (@Model.Input.PassengerCount ×)</span>
-                        <span>MYR @((Model.BasePrice * Model.Input.PassengerCount).ToString("N2"))</span>
+                        <span>USD @((Model.BasePrice * Model.Input.PassengerCount).ToString("N2"))</span>
                     </div>
 
                     <div id="classSurchargeRow" class="d-flex justify-content-between mb-4 small text-info" style="display:none !important;">
                         <span>Cabin Upgrade</span>
-                        <span id="surchargeAmount">+ MYR 0.00</span>
+                        <span id="surchargeAmount">+ USD 0.00</span>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
                         <span class="fs-5">Grand Total</span>
                         <div class="text-end">
-                            <div class="fs-3 fw-bold" id="liveTotalDisplay">MYR @Model.EstimatedTotal.ToString("N2")</div>
+                            <div class="fs-3 fw-bold" id="liveTotalDisplay">USD @Model.EstimatedTotal.ToString("N2")</div>
                             <div class="small opacity-75">All taxes included</div>
                         </div>
                     </div>
@@ -230,11 +230,11 @@
             const total = passengerCount * basePrice * multiplier;
             const surcharge = (total - (passengerCount * basePrice));
 
-            liveTotalDisplay.innerText = 'MYR ' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+            liveTotalDisplay.innerText = 'USD ' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
 
             if (surcharge > 0) {
                 surchargeRow.setAttribute('style', 'display: flex !important');
-                surchargeAmount.innerText = '+ MYR ' + surcharge.toLocaleString(undefined, {minimumFractionDigits: 2});
+                surchargeAmount.innerText = '+ USD ' + surcharge.toLocaleString(undefined, {minimumFractionDigits: 2});
             } else {
                 surchargeRow.setAttribute('style', 'display: none !important');
             }

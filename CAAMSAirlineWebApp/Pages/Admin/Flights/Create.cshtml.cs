@@ -107,7 +107,7 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Flights
 
         [Required]
         [Range(1, 99999, ErrorMessage = "Base price must be greater than 0.")]
-        [Display(Name = "Base Price (MYR)")]
+        [Display(Name = "Base Price (USD)")]
         public decimal BasePrice { get; set; }
 
         [Required]

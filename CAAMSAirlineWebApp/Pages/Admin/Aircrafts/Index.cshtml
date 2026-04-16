@@ -66,6 +66,16 @@
         font-size: 0.85rem;
     }
 
+    .aircraft-id-badge {
+        background-color: #f0f2f9;
+        color: #0c206d;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-family: 'Courier New', monospace;
+    }
+
     /* Spacing for footer */
     .management-container {
         padding-bottom: 120px;
@@ -94,6 +104,7 @@
         <table class="table table-hover align-middle mb-0">
             <thead>
                 <tr>
+                    <th>Aircraft ID</th>
                     <th>Model Designation</th>
                     <th>Manufacturer</th>
                     <th class="text-center">Seat Capacity</th>
@@ -104,6 +115,9 @@
                 @foreach (var a in Model.Aircrafts)
                 {
                     <tr>
+                        <td>
+                            <span class="aircraft-id-badge">#@a.AircraftId</span>
+                        </td>
                         <td class="aircraft-model">@a.Model</td>
                         <td class="text-muted text-uppercase small fw-bold">@(a.Manufacturer ?? "—")</td>
                         <td class="text-center">

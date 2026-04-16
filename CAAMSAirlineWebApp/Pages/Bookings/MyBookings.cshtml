@@ -20,7 +20,7 @@
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin: 30px 0 12px;
-        border-bottom: 2px solid #1a3a5c;
+        border-bottom: 2px solid #3c81bd;
         padding-bottom: 6px;
     }
 
@@ -33,10 +33,10 @@
         box-shadow: 0 2px 8px rgba(60,129,189,0.07);
     }
 
-    .booking-card.past {
-        background: #f8f9fa;
-        border-color: #e0e0e0;
-    }
+        .booking-card.past {
+            background: #f8f9fa;
+            border-color: #e0e0e0;
+        }
 
     .booking-id {
         font-size: 0.8rem;
@@ -65,7 +65,7 @@
     }
 
     .flight-arrow {
-        color: #1a3a5c;
+        color: #3c81bd;
         font-size: 1.2rem;
         flex: 1;
         text-align: center;
@@ -78,7 +78,7 @@
     }
 
     .flight-number-badge {
-        background: #1a3a5c;
+        background: #3c81bd;
         color: white;
         border-radius: 6px;
         padding: 2px 10px;
@@ -89,7 +89,7 @@
 
     .badge-class {
         background: #e8f0fb;
-        color: #1a3a5c;
+        color: #3c81bd;
         border-radius: 6px;
         padding: 2px 10px;
         font-size: 0.78rem;
@@ -137,11 +137,36 @@
         font-size: 0.75rem;
         font-weight: 600;
     }
+
+    .passenger-names {
+        font-size: 0.8rem;
+        color: #555;
+        margin-top: 6px;
+        font-family: 'Geologica', sans-serif;
+    }
+
+    .btn-cancel {
+        background: none;
+        border: 1px solid #e53e3e;
+        color: #e53e3e;
+        border-radius: 20px;
+        padding: 2px 14px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-cancel:hover {
+            background: #e53e3e;
+            color: white;
+        }
 </style>
 
 <h2 class="bookings-header">My Bookings</h2>
 
-<div class="section-label"> Upcoming</div>
+<div class="section-label">Upcoming</div>
 
 @if (!Model.UpcomingBookings.Any())
 {
@@ -157,8 +182,20 @@ else
                     <span class="booking-id">Booking #@booking.BookingId</span> &nbsp;
                     <span class="status-upcoming">Upcoming</span>
                 </div>
-                <span class="total-price">MYR @booking.TotalPrice.ToString("N2")</span>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="total-price">MYR @booking.TotalPrice.ToString("N2")</span>
+                    <form method="post" asp-page-handler="Cancel" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                        <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                        <button type="submit" class="btn-cancel">Cancel</button>
+                    </form>
+                </div>
             </div>
+
+            @* Passenger Names *@
+            <div class="passenger-names">
+                Passengers: @string.Join(", ", booking.Passengers.Select(p => p.FirstName + " " + p.LastName))
+            </div>
+
             @{
                 var legs = booking.Tickets
                     .GroupBy(t => t.LegId)
@@ -194,7 +231,7 @@ else
     }
 }
 
-<div class="section-label"> Past</div>
+<div class="section-label">Past</div>
 
 @if (!Model.PastBookings.Any())
 {
@@ -212,6 +249,12 @@ else
                 </div>
                 <span class="total-price">MYR @booking.TotalPrice.ToString("N2")</span>
             </div>
+
+            @* Passenger Names *@
+            <div class="passenger-names">
+                Passengers: @string.Join(", ", booking.Passengers.Select(p => p.FirstName + " " + p.LastName))
+            </div>
+
             @{
                 var pastLegs = booking.Tickets
                     .GroupBy(t => t.LegId)

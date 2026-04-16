@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using CAAMSAirlineWebApp.Data;
 using CAAMSAirlineWebApp.Models;
@@ -29,7 +30,7 @@ namespace CAAMSAirlineWebApp.Pages.Bookings
             if (customer == null) return;
 
             var allBookings = await _context.Bookings
-                .Where(b => b.CustomerId == customer.CustomerId)
+                .Where(b => b.CustomerId == customer.CustomerId && b.Status == "Active")
                 .Include(b => b.Tickets)
                     .ThenInclude(t => t.FlightLeg)
                         .ThenInclude(fl => fl.Flight)
@@ -52,6 +53,26 @@ namespace CAAMSAirlineWebApp.Pages.Bookings
             PastBookings = allBookings
                 .Where(b => b.Tickets.All(t => t.FlightLeg.DepartureTime <= now))
                 .ToList();
+        }
+
+        public async Task<IActionResult> OnPostCancelAsync(int bookingId)
+        {
+            var username = User.Identity!.Name;
+
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.Username == username);
+
+            if (customer == null) return Forbid();
+
+            var booking = await _context.Bookings
+                .FirstOrDefaultAsync(b => b.BookingId == bookingId && b.CustomerId == customer.CustomerId);
+
+            if (booking == null) return NotFound();
+
+            booking.Status = "Cancelled";
+            await _context.SaveChangesAsync();
+
+            return RedirectToPage();
         }
     }
 }

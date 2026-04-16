@@ -124,19 +124,32 @@
         </div>
 
         <div class="col-md-6">
-            <h4 class="section-title mb-3">Reports &amp; Analytics</h4>
-            <div class="list-group">
-                <a asp-page="/Admin/Reports/TotalRevenue" class="list-group-item list-group-item-action list-group-item-custom">
-                    Total Revenue
-                </a>
-                <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action list-group-item-custom">
-                    Route Profitability
-                </a>
-                <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action list-group-item-custom">
-                    Customer Loyalty (Top 10%)
-                </a>
+            @if (User.IsInRole("Admin"))
+            {
+                <h4 class="section-title mb-3">Reports &amp; Analytics</h4>
+                <div class="list-group">
+                    <a asp-page="/Admin/Reports/TotalRevenue" class="list-group-item list-group-item-action list-group-item-custom">
+                        Total Revenue
+                    </a>
+                    <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action list-group-item-custom">
+                        Route Profitability
+                    </a>
+                    <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action list-group-item-custom">
+                        Customer Loyalty (Top 10%)
+                    </a>
                 
-            </div>
+                </div>
+            }
+            @if (User.IsInRole("Staff"))
+            {
+                <h4 class="section-title mb-3">Reports &amp; Analytics</h4>
+                <div class="list-group">
+                    <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action list-group-item-custom">
+                        Customer Loyalty (Top 10%)
+                    </a>
+                
+                </div>
+            }
         </div>
     </div>
 </div>

@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace CAAMSAirlineWebApp.Pages.Admin.Reports
 {
-    [Authorize(Roles = "Admin,Staff")]
+    [Authorize(Roles = "Admin")]
     public class TotalRevenueModel : PageModel
     {
         private readonly ApplicationDbContext _context;

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CAAMSAirlineWebApp.Pages.Admin.Reports
 {
-    [Authorize(Roles = "Admin,Staff")]
+    [Authorize(Roles = "Admin")]
     public class RouteProfitabilityModel : PageModel
     {
         private readonly ApplicationDbContext _context;

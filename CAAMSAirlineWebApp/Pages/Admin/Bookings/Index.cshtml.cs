@@ -30,21 +30,20 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Bookings
             var bookingsQuery = _context.Bookings
                 .Include(b => b.Customer)
                 .Include(b => b.Passengers)
-                .AsQueryable();
+                .OrderByDescending(b => b.BookingDate);
 
+            var results = await bookingsQuery.ToListAsync();
+
+            // Apply client-side filtering
             if (!string.IsNullOrEmpty(q))
             {
-                // Match on booking ID, customer name, or any passenger passport number
-                bookingsQuery = bookingsQuery.Where(b =>
-                    b.BookingId.ToString() == q ||
+                results = results.Where(b =>
+                    (q.StartsWith("#") && b.BookingId.ToString().Equals(q.Substring(1))) ||
                     (b.Customer.FirstName + " " + b.Customer.LastName).ToLower().Contains(q) ||
-                    b.Passengers.Any(p => p.PassportNumber.ToLower().Contains(q)));
+                    b.BookingDate.Day.ToString().Equals(q) ||
+                    b.BookingDate.ToString("MMM").ToLower().Equals(q) ||
+                    b.BookingDate.Year.ToString().Equals(q)).ToList();
             }
-
-            var results = await bookingsQuery
-                .OrderByDescending(b => b.BookingDate)
-                .Take(100)
-                .ToListAsync();
 
             Bookings = results.Select(b => new BookingRow
             {

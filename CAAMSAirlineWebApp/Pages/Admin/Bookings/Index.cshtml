@@ -89,7 +89,7 @@
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search" style="color:#0c206d;"></i></span>
                 <input type="text" name="Query" value="@Model.Query"
                        class="form-control border-start-0 search-input geologica-text"
-                       placeholder="Search Booking ID, Customer, or Passport..." />
+                       placeholder="Search Booking ID, Customer, or Date..." />
             </div>
             <button type="submit" class="btn btn-airline-search px-4 shadow-sm">Search</button>
             @if (!string.IsNullOrEmpty(Model.Query))
@@ -140,7 +140,7 @@
                                 </span>
                             </td>
                             <td class="text-end fw-bold pe-3">
-                                <small class="text-muted fw-normal">MYR</small> @b.TotalPrice.ToString("N2")
+                                <small class="text-muted fw-normal">USD</small> @b.TotalPrice.ToString("N2")
                             </td>
                             <td class="text-center">
                                 <a asp-page="/Admin/Bookings/Details"

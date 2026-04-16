@@ -16,6 +16,19 @@
         font-family: 'Geologica', sans-serif;
     }
 
+    /* Search Bar Styling */
+    .search-input:focus {
+        border-color: #3c81bd;
+        box-shadow: 0 0 0 0.25rem rgba(60, 129, 189, 0.15);
+    }
+
+    .btn-airline-search {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        font-weight: 600;
+    }
+
     /* Primary Action Button */
     .btn-airline-add {
         background-color: #0c206d !important;
@@ -33,43 +46,49 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-    /* Custom Back Link */
+    .table-custom {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #eee;
+        background: white;
+    }
+
+        .table-custom thead {
+            background-color: #f8faff;
+        }
+
     .airline-back-link {
         color: #0c206d;
         text-decoration: none;
         font-weight: 600;
         font-family: 'Geologica', sans-serif;
     }
-
-        .airline-back-link:hover {
-            text-decoration: underline;
-        }
-
-    /* Table Styling */
-    .table-custom {
-        border-radius: 10px;
-        overflow: hidden;
-        border: 1px solid #eee;
-    }
-
-        .table-custom thead {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #0c206d;
-        }
-
-    /* Padding for bottom to avoid footer */
-    .management-container {
-        padding-bottom: 120px;
-    }
 </style>
 
-<div class="container management-container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="report-header text-uppercase">Flight Management</h2>
+<div class="container mt-5 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="report-header text-uppercase mb-0">Flight Management</h2>
+        @* Only Admins see the Create button *@
         @if (User.IsInRole("Admin"))
         {
             <a asp-page="/Admin/Flights/Create" class="btn btn-airline-add">+ Add New Flight</a>
         }
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4 p-3 bg-light">
+        <form method="get" class="d-flex gap-2" style="max-width:600px;">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search" style="color:#0c206d;"></i></span>
+                <input type="text" name="Query" value="@Model.Query"
+                       class="form-control border-start-0 search-input geologica-text"
+                       placeholder="Search Flight #, Aircraft, or City...">
+            </div>
+            <button type="submit" class="btn btn-airline-search px-4 shadow-sm">Search</button>
+            @if (!string.IsNullOrEmpty(Model.Query))
+            {
+                <a asp-page="/Admin/Flights/Index" class="btn btn-outline-secondary geologica-text">Clear</a>
+            }
+        </form>
     </div>
 
     <a asp-page="/Admin/Index" class="airline-back-link small mb-4 d-inline-block">&larr; Back to Dashboard</a>
@@ -77,14 +96,17 @@
     @if (!string.IsNullOrEmpty(Model.SuccessMessage))
     {
         <div class="alert alert-success alert-dismissible fade show geologica-text" role="alert">
-            <strong>Success!</strong> @Model.SuccessMessage
+            <i class="bi bi-check-circle-fill me-2"></i>@Model.SuccessMessage
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
-    @if (!Model.Flights.Any())
+    @if (Model.Flights == null || !Model.Flights.Any())
     {
-        <div class="alert alert-info geologica-text">No flights found. <a asp-page="/Admin/Flights/Create">Add one now.</a></div>
+        <div class="alert alert-info border-0 shadow-sm geologica-text">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            @(string.IsNullOrEmpty(Model.Query) ? "No flights found." : "No matching travel records found.")
+        </div>
     }
     else
     {
@@ -92,49 +114,56 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th>Flight #</th>
+                        <th class="ps-3">Flight #</th>
                         <th>Aircraft</th>
                         <th>Route</th>
                         <th>Departure</th>
                         <th>Arrival</th>
-                        <th>Base Price</th>
-                        <th class="text-center">Actions</th>
+                        <th>Price</th>
+                        @* Action header only visible to Admins *@
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <th class="text-center">Actions</th>
+                        }
                     </tr>
                 </thead>
                 <tbody class="geologica-text">
                     @foreach (var f in Model.Flights)
                     {
                         <tr>
-                            <td class="flight-no">@f.FlightNumber</td>
-                            <td class="text-muted">@f.Aircraft</td>
-                            <td>
-                                <span class="fw-bold" style="color: #0c206d;">@f.Route</span><br />
-                                <small class="text-muted">@f.DepartureCity → @f.ArrivalCity</small>
+                            <td class="ps-3">
+                                <span class="flight-no">@f.FlightNumber</span>
                             </td>
-                            <td class="small">@f.DepartureTime.ToString("dd MMM yyyy")<br /><strong>@f.DepartureTime.ToString("HH:mm")</strong></td>
-                            <td class="small">@f.ArrivalTime.ToString("dd MMM yyyy")<br /><strong>@f.ArrivalTime.ToString("HH:mm")</strong></td>
-                            <td class="fw-bold">MYR @f.BasePrice.ToString("N2")</td>
-                            <td class="text-center">
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <div class="btn-group" role="group">
-                                        <a asp-page="/Admin/Flights/Edit"
-                                           asp-route-flightId="@f.FlightId"
-                                           asp-route-legId="@f.LegId"
+                            <td class="text-muted small">@f.Aircraft</td>
+                            <td>
+                                <div class="fw-bold" style="color: #0c206d;">@f.Route</div>
+                                <div class="small text-muted">@f.DepartureCity &rarr; @f.ArrivalCity</div>
+                            </td>
+                            <td>
+                                <div class="small">@f.DepartureTime.ToString("dd MMM yyyy")</div>
+                                <div class="fw-bold">@f.DepartureTime.ToString("HH:mm")</div>
+                            </td>
+                            <td>
+                                <div class="small">@f.ArrivalTime.ToString("dd MMM yyyy")</div>
+                                <div class="fw-bold">@f.ArrivalTime.ToString("HH:mm")</div>
+                            </td>
+                            <td class="fw-bold">USD @f.BasePrice.ToString("N2")</td>
+                            
+                            @* Action buttons only rendered for Admins *@
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <a asp-page="/Admin/Flights/Edit" asp-route-flightId="@f.FlightId" asp-route-legId="@f.LegId"
                                            class="btn btn-sm btn-outline-secondary px-3">Edit</a>
-
-                                        <form method="post" class="d-inline"
-                                              onsubmit="return confirm('Delete flight @f.FlightNumber? This cannot be undone.');">
+                                        
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Delete flight @f.FlightNumber?');">
                                             <input type="hidden" name="flightId" value="@f.FlightId" />
                                             <button type="submit" asp-page-handler="Delete" class="btn btn-sm btn-outline-danger px-3">Delete</button>
                                         </form>
                                     </div>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-light text-dark border">View only</span>
-                                }
-                            </td>
+                                </td>
+                            }
                         </tr>
                     }
                 </tbody>

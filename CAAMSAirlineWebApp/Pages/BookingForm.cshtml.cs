@@ -21,7 +21,7 @@ namespace CAAMSAirlineWebApp.Pages
             _bookingService = bookingService;
         }
 
-        // Flight summary loaded on GET, re-loaded on POST
+        // Outbound flight summary
         public string FlightNumber { get; set; } = "";
         public string DepartureCode { get; set; } = "";
         public string DepartureCity { get; set; } = "";
@@ -31,30 +31,51 @@ namespace CAAMSAirlineWebApp.Pages
         public DateTime ArrivalTime { get; set; }
         public decimal BasePrice { get; set; }
 
+        // Return flight summary
+        public string ReturnFlightNumber { get; set; } = "";
+        public string ReturnDepartureCode { get; set; } = "";
+        public string ReturnDepartureCity { get; set; } = "";
+        public string ReturnArrivalCode { get; set; } = "";
+        public string ReturnArrivalCity { get; set; } = "";
+        public DateTime ReturnDepartureTime { get; set; }
+        public DateTime ReturnArrivalTime { get; set; }
+
         public decimal EstimatedTotal { get; set; }
+        public int? ReturnFlightId { get; set; }
+
+        public string CustomerFirstName { get; set; } = "";
+        public string CustomerLastName { get; set; } = "";
+        public DateTime? CustomerDOB { get; set; }
 
         [BindProperty]
         public CreateBookingRequest Input { get; set; } = new();
 
-        public async Task<IActionResult> OnGetAsync(int flightId, int passengerCount, string cabinClass = "Economy")
+        public async Task<IActionResult> OnGetAsync(int flightId, int passengerCount, int? returnFlightId)
         {
             if (!await LoadFlightAsync(flightId))
                 return NotFound();
 
             Input.FlightId = flightId;
+            Input.ReturnFlightId = returnFlightId;
             Input.PassengerCount = passengerCount;
-            Input.TicketClass = cabinClass;
+
+            if (returnFlightId.HasValue)
+            {
+                await LoadReturnFlightAsync(returnFlightId.Value);
+                ReturnFlightId = returnFlightId.Value;
+            }
+
+            var username = User.Identity?.Name;
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Username == username);
+            if (customer != null)
+            {
+                CustomerFirstName = customer.FirstName;
+                CustomerLastName = customer.LastName;
+                CustomerDOB = customer.DOB;
+            }
 
             for (int i = 0; i < passengerCount; i++)
                 Input.Passengers.Add(new PassengerInput());
-
-            var multiplier = cabinClass switch
-            {
-                "Business" => 1.5m,
-                "First" => 2m,
-                _ => 1m
-            };
-            EstimatedTotal = passengerCount * BasePrice * multiplier;
 
             return Page();
         }
@@ -64,7 +85,9 @@ namespace CAAMSAirlineWebApp.Pages
             if (!await LoadFlightAsync(Input.FlightId))
                 return NotFound();
 
-            // Calculate estimated total
+            if (Input.ReturnFlightId.HasValue)
+                await LoadReturnFlightAsync(Input.ReturnFlightId.Value);
+
             var multiplier = Input.TicketClass switch
             {
                 "Business" => 1.5m,
@@ -76,7 +99,6 @@ namespace CAAMSAirlineWebApp.Pages
             if (!ModelState.IsValid)
                 return Page();
 
-            // Check if any minor (≤14) exists without an accompanying adult
             var today = DateTime.Today;
             static int CalcAge(DateTime dob)
             {
@@ -95,7 +117,6 @@ namespace CAAMSAirlineWebApp.Pages
                 return Page();
             }
 
-            // Check for duplicate passport numbers within this booking
             var passports = Input.Passengers.Select(p => p.PassportNumber?.Trim().ToUpper()).ToList();
             if (passports.Count != passports.Distinct().Count())
             {
@@ -148,6 +169,31 @@ namespace CAAMSAirlineWebApp.Pages
             DepartureTime = first.DepartureTime;
             ArrivalTime = last.ArrivalTime;
             BasePrice = flight.BasePrice;
+
+            return true;
+        }
+
+        private async Task<bool> LoadReturnFlightAsync(int flightId)
+        {
+            var flight = await _context.Flights
+                .Include(f => f.FlightLegs.OrderBy(l => l.LegNumber))
+                    .ThenInclude(fl => fl.DepartureAirportNavigation)
+                .Include(f => f.FlightLegs.OrderBy(l => l.LegNumber))
+                    .ThenInclude(fl => fl.ArrivalAirportNavigation)
+                .FirstOrDefaultAsync(f => f.FlightId == flightId);
+
+            if (flight == null) return false;
+
+            var first = flight.FlightLegs.First();
+            var last = flight.FlightLegs.Last();
+
+            ReturnFlightNumber = flight.FlightNumber;
+            ReturnDepartureCode = first.DepartureAirport;
+            ReturnDepartureCity = first.DepartureAirportNavigation.City;
+            ReturnArrivalCode = last.ArrivalAirport;
+            ReturnArrivalCity = last.ArrivalAirportNavigation.City;
+            ReturnDepartureTime = first.DepartureTime;
+            ReturnArrivalTime = last.ArrivalTime;
 
             return true;
         }

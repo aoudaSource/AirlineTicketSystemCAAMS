@@ -4,6 +4,7 @@ using CAAMSAirlineWebApp.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CAAMSAirlineWebApp.Services;
+
 public class BookingService
 {
     private readonly ApplicationDbContext _context;
@@ -15,7 +16,7 @@ public class BookingService
 
     public async Task<int> CreateBookingAsync(CreateBookingRequest request)
     {
-        // 1. Get flight + legs + aircraft seats
+        // 1. Get outbound flight + legs
         var flight = await _context.Flights
             .Include(f => f.FlightLegs)
             .FirstOrDefaultAsync(f => f.FlightId == request.FlightId);
@@ -23,22 +24,16 @@ public class BookingService
         if (flight == null)
             throw new Exception("Flight not found");
 
-        // Pre-load all seats for this aircraft grouped by class
-        var allSeats = await _context.Seats
-            .Where(s => s.AircraftId == flight.AircraftId && s.SeatClass == request.TicketClass)
-            .OrderBy(s => s.SeatNumber)
-            .ToListAsync();
-
         // 2. Create booking
         var booking = new Booking
         {
             CustomerId = request.CustomerId,
             BookingDate = DateTime.Now,
-            TotalPrice = 0 // will calculate later
+            TotalPrice = 0
         };
 
         _context.Bookings.Add(booking);
-        await _context.SaveChangesAsync(); // get BookingId
+        await _context.SaveChangesAsync();
 
         // 3. Create passengers
         var passengers = new List<Passenger>();
@@ -53,64 +48,83 @@ public class BookingService
                 PassportNumber = p.PassportNumber,
                 DOB = p.DOB!.Value
             };
-
             passengers.Add(passenger);
         }
 
         _context.Passengers.AddRange(passengers);
         await _context.SaveChangesAsync();
 
-        // 4. Create tickets + assign seats + calculate price
+        // 4. Create tickets for outbound flight
         decimal totalPrice = 0;
+        totalPrice += await CreateTicketsForFlight(flight, passengers, request.TicketClass);
+
+        // 5. If round trip, create tickets for return flight too
+        if (request.ReturnFlightId.HasValue)
+        {
+            var returnFlight = await _context.Flights
+                .Include(f => f.FlightLegs)
+                .FirstOrDefaultAsync(f => f.FlightId == request.ReturnFlightId.Value);
+
+            if (returnFlight == null)
+                throw new Exception("Return flight not found");
+
+            totalPrice += await CreateTicketsForFlight(returnFlight, passengers, request.TicketClass);
+        }
+
+        await _context.SaveChangesAsync();
+
+        // 6. Update booking total
+        booking.TotalPrice = totalPrice;
+        await _context.SaveChangesAsync();
+
+        return booking.BookingId;
+    }
+
+    private async Task<decimal> CreateTicketsForFlight(Flight flight, List<Passenger> passengers, string ticketClass)
+    {
+        decimal total = 0;
+
+        var allSeats = await _context.Seats
+            .Where(s => s.AircraftId == flight.AircraftId && s.SeatClass == ticketClass)
+            .OrderBy(s => s.SeatNumber)
+            .ToListAsync();
 
         foreach (var leg in flight.FlightLegs)
         {
-            // Find seat IDs already taken on this leg
             var takenSeatIds = await _context.Tickets
                 .Where(t => t.LegId == leg.LegId && t.SeatId != null)
                 .Select(t => t.SeatId!.Value)
                 .ToListAsync();
 
-            // Track seats assigned within this booking so far (avoid double-assigning)
             var assignedThisBooking = new HashSet<int>();
 
             foreach (var passenger in passengers)
             {
-                var price = CalculatePrice(flight.BasePrice, request.TicketClass);
+                var price = CalculatePrice(flight.BasePrice, ticketClass);
 
                 var availableSeat = allSeats.FirstOrDefault(
                     s => !takenSeatIds.Contains(s.SeatId) && !assignedThisBooking.Contains(s.SeatId));
 
-                assignedThisBooking.Add(availableSeat?.SeatId ?? 0);
+                if (availableSeat == null)
+                    throw new Exception($"No available {ticketClass} seats on flight {flight.FlightNumber}. Please choose a different class.");
+
+                assignedThisBooking.Add(availableSeat.SeatId);
 
                 _context.Tickets.Add(new Ticket
                 {
                     PassengerId = passenger.PassengerId,
-                    BookingId = booking.BookingId,
+                    BookingId = passenger.BookingId,
                     LegId = leg.LegId,
-                    SeatId = availableSeat?.SeatId,
-                    TicketClass = request.TicketClass,
+                    SeatId = availableSeat.SeatId,
+                    TicketClass = ticketClass,
                     Price = price
                 });
 
-                totalPrice += price;
+                total += price;
             }
         }
 
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            throw new Exception(ex.InnerException?.Message ?? ex.Message);
-        }
-
-        // 5. Update booking total
-        booking.TotalPrice = totalPrice;
-        await _context.SaveChangesAsync();
-
-        return booking.BookingId;
+        return total;
     }
 
     private decimal CalculatePrice(decimal basePrice, string ticketClass)

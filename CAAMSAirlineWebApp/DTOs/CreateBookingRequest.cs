@@ -8,6 +8,8 @@ namespace CAAMSAirlineWebApp.DTOs
 
         public int FlightId { get; set; }
 
+        public int? ReturnFlightId { get; set; } // null = one-way, set = round trip
+
         [Required(ErrorMessage = "Please select a ticket class.")]
         public string TicketClass { get; set; } = string.Empty;
         public int PassengerCount { get; set; }
@@ -35,18 +37,12 @@ namespace CAAMSAirlineWebApp.DTOs
         public DateTime? DOB { get; set; }
     }
 
-  
-    /// Validates that a passenger's date of birth is:
-    ///   - in the past
-    ///   - at least 2 years ago (infants have separate booking rules)
-    ///   - no more than 120 years ago
- 
     public class ValidPassengerDOBAttribute : ValidationAttribute
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext context)
         {
             if (value is not DateTime dob)
-                return ValidationResult.Success; // [Required] handles null
+                return ValidationResult.Success;
 
             var today = DateTime.Today;
 
@@ -54,7 +50,7 @@ namespace CAAMSAirlineWebApp.DTOs
                 return new ValidationResult("Date of birth must be in the past.");
 
             var age = today.Year - dob.Year;
-            if (dob > today.AddYears(-age)) age--; // adjust for birthday not yet reached
+            if (dob > today.AddYears(-age)) age--;
 
             if (age < 2)
                 return new ValidationResult("Passenger must be at least 2 years old. Infants must be booked separately.");

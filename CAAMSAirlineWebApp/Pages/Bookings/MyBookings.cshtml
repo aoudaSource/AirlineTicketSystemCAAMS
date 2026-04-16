@@ -1,0 +1,248 @@
+﻿@page
+@model CAAMSAirlineWebApp.Pages.Bookings.MyBookingsModel
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<style>
+    .bookings-header {
+        font-family: 'Geologica', sans-serif;
+        font-weight: 700;
+        color: #1a3a5c;
+        margin: 30px 0 10px;
+    }
+
+    .section-label {
+        font-family: 'Geologica', sans-serif;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #3c81bd;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 30px 0 12px;
+        border-bottom: 2px solid #1a3a5c;
+        padding-bottom: 6px;
+    }
+
+    .booking-card {
+        border: 1px solid #dce6f0;
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(60,129,189,0.07);
+    }
+
+    .booking-card.past {
+        background: #f8f9fa;
+        border-color: #e0e0e0;
+    }
+
+    .booking-id {
+        font-size: 0.8rem;
+        color: #888;
+        font-family: 'Geologica', sans-serif;
+    }
+
+    .flight-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin: 10px 0;
+        flex-wrap: wrap;
+    }
+
+    .airport-code {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a3a5c;
+        font-family: 'Geologica', sans-serif;
+    }
+
+    .airport-name {
+        font-size: 0.75rem;
+        color: #888;
+    }
+
+    .flight-arrow {
+        color: #1a3a5c;
+        font-size: 1.2rem;
+        flex: 1;
+        text-align: center;
+    }
+
+    .flight-time {
+        font-size: 0.85rem;
+        color: #555;
+        font-family: 'Geologica', sans-serif;
+    }
+
+    .flight-number-badge {
+        background: #1a3a5c;
+        color: white;
+        border-radius: 6px;
+        padding: 2px 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+    }
+
+    .badge-class {
+        background: #e8f0fb;
+        color: #1a3a5c;
+        border-radius: 6px;
+        padding: 2px 10px;
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+    .booking-meta {
+        font-size: 0.82rem;
+        color: #777;
+        margin-top: 10px;
+    }
+
+    .total-price {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a3a5c;
+    }
+
+    .leg-divider {
+        border: none;
+        border-top: 1px dashed #cde;
+        margin: 10px 0;
+    }
+
+    .no-bookings {
+        color: #aaa;
+        font-style: italic;
+        padding: 10px 0;
+    }
+
+    .status-upcoming {
+        background: #d4edda;
+        color: #155724;
+        border-radius: 20px;
+        padding: 2px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-past {
+        background: #e2e3e5;
+        color: #555;
+        border-radius: 20px;
+        padding: 2px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+</style>
+
+<h2 class="bookings-header">My Bookings</h2>
+
+<div class="section-label"> Upcoming</div>
+
+@if (!Model.UpcomingBookings.Any())
+{
+    <p class="no-bookings">No upcoming bookings.</p>
+}
+else
+{
+    @foreach (var booking in Model.UpcomingBookings)
+    {
+        <div class="booking-card">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <span class="booking-id">Booking #@booking.BookingId</span> &nbsp;
+                    <span class="status-upcoming">Upcoming</span>
+                </div>
+                <span class="total-price">MYR @booking.TotalPrice.ToString("N2")</span>
+            </div>
+            @{
+                var legs = booking.Tickets
+                    .GroupBy(t => t.LegId)
+                    .Select(g => g.First())
+                    .OrderBy(t => t.FlightLeg.DepartureTime)
+                    .ToList();
+            }
+            @foreach (var ticket in legs)
+            {
+                var leg = ticket.FlightLeg;
+                <hr class="leg-divider" />
+                <div class="flight-row">
+                    <span class="flight-number-badge">@leg.Flight.FlightNumber</span>
+                    <div class="text-center">
+                        <div class="airport-code">@leg.DepartureAirport</div>
+                        <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
+                        <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
+                    </div>
+                    <div class="flight-arrow">→</div>
+                    <div class="text-center">
+                        <div class="airport-code">@leg.ArrivalAirport</div>
+                        <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
+                        <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
+                    </div>
+                    <span class="badge-class">@ticket.TicketClass</span>
+                </div>
+            }
+            <div class="booking-meta">
+                Booked on @booking.BookingDate.ToString("dd MMM yyyy") &nbsp;|&nbsp;
+                @booking.Passengers.Count passenger(s)
+            </div>
+        </div>
+    }
+}
+
+<div class="section-label"> Past</div>
+
+@if (!Model.PastBookings.Any())
+{
+    <p class="no-bookings">No past bookings.</p>
+}
+else
+{
+    @foreach (var booking in Model.PastBookings)
+    {
+        <div class="booking-card past">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <span class="booking-id">Booking #@booking.BookingId</span> &nbsp;
+                    <span class="status-past">Completed</span>
+                </div>
+                <span class="total-price">MYR @booking.TotalPrice.ToString("N2")</span>
+            </div>
+            @{
+                var pastLegs = booking.Tickets
+                    .GroupBy(t => t.LegId)
+                    .Select(g => g.First())
+                    .OrderBy(t => t.FlightLeg.DepartureTime)
+                    .ToList();
+            }
+            @foreach (var ticket in pastLegs)
+            {
+                var leg = ticket.FlightLeg;
+                <hr class="leg-divider" />
+                <div class="flight-row">
+                    <span class="flight-number-badge">@leg.Flight.FlightNumber</span>
+                    <div class="text-center">
+                        <div class="airport-code">@leg.DepartureAirport</div>
+                        <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
+                        <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
+                    </div>
+                    <div class="flight-arrow">→</div>
+                    <div class="text-center">
+                        <div class="airport-code">@leg.ArrivalAirport</div>
+                        <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
+                        <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
+                    </div>
+                    <span class="badge-class">@ticket.TicketClass</span>
+                </div>
+            }
+            <div class="booking-meta">
+                Booked on @booking.BookingDate.ToString("dd MMM yyyy") &nbsp;|&nbsp;
+                @booking.Passengers.Count passenger(s)
+            </div>
+        </div>
+    }
+}

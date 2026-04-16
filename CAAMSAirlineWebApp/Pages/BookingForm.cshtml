@@ -5,7 +5,6 @@
 }
 
 <style>
-    /* Premium Branding Typography */
     .booking-header, .form-label, .btn-airline-confirm, .passenger-title {
         font-family: 'Geologica', sans-serif;
         color: #0c206d;
@@ -15,7 +14,6 @@
         font-family: 'Geologica', sans-serif;
     }
 
-    /* Ticket Stub Summary */
     .ticket-summary {
         border: none;
         border-left: 8px solid #0c206d;
@@ -23,7 +21,6 @@
         background-color: #f8faff;
     }
 
-    /* Passenger Card Styling */
     .passenger-section {
         background: white;
         border: 1px solid #eef1f7;
@@ -46,7 +43,6 @@
         margin-right: 10px;
     }
 
-    /* Live Price Checkout Look */
     .price-checkout-box {
         background-color: #0c206d;
         color: white;
@@ -81,8 +77,8 @@
 <div class="container mt-5 pb-5">
     <h2 class="booking-header text-uppercase mb-4">Passenger Details</h2>
 
-    @* ── FLIGHT SUMMARY (Ticket Stub) ── *@
-    <div class="card ticket-summary mb-5 shadow-sm">
+    @* ── OUTBOUND FLIGHT SUMMARY ── *@
+    <div class="card ticket-summary mb-4 shadow-sm">
         <div class="card-body py-4">
             <div class="row align-items-center">
                 <div class="col-md-2 border-end">
@@ -117,10 +113,50 @@
         </div>
     </div>
 
+    @* ── RETURN FLIGHT SUMMARY ── *@
+    @if (Model.ReturnFlightId.HasValue)
+    {
+        <div class="card ticket-summary mb-5 shadow-sm">
+            <div class="card-body py-4">
+                <div class="row align-items-center">
+                    <div class="col-md-2 border-end">
+                        <div class="text-muted small text-uppercase fw-bold">Return Flight</div>
+                        <span class="fs-4 fw-bold" style="color:#0c206d;">@Model.ReturnFlightNumber</span>
+                    </div>
+                    <div class="col-md-7 px-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="text-center">
+                                <div class="fs-4 fw-800" style="color:#0c206d;">@Model.ReturnDepartureCode</div>
+                                <div class="text-muted small">@Model.ReturnDepartureCity</div>
+                                <div class="fw-bold text-primary">@Model.ReturnDepartureTime.ToString("HH:mm")</div>
+                            </div>
+                            <div class="flex-grow-1 mx-4 text-center">
+                                <div class="text-muted small mb-1">@Model.ReturnDepartureTime.ToString("ddd, dd MMM yyyy")</div>
+                                <div style="position:relative;">
+                                    <hr class="m-0" style="border-top: 2px dashed #cbd5e0;">
+                                    <i class="bi bi-airplane-fill position-absolute top-50 start-50 translate-middle bg-light px-2 text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="fs-4 fw-800" style="color:#0c206d;">@Model.ReturnArrivalCode</div>
+                                <div class="text-muted small">@Model.ReturnArrivalCity</div>
+                                <div class="fw-bold text-primary">@Model.ReturnArrivalTime.ToString("HH:mm")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="bi bi-check2-circle me-1"></i> Selection Saved</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     @* ── BOOKING FORM ── *@
     <form method="post" novalidate>
         <input type="hidden" asp-for="Input.FlightId" />
         <input type="hidden" asp-for="Input.PassengerCount" />
+        <input type="hidden" asp-for="Input.ReturnFlightId" />
 
         <div class="row">
             <div class="col-lg-8">
@@ -163,7 +199,6 @@
                                 <label class="form-label small fw-bold">Date of Birth</label>
                                 <input asp-for="Input.Passengers[i].DOB" type="date" class="form-control dob-input geologica-text" />
                                 <span asp-validation-for="Input.Passengers[i].DOB" class="text-danger small"></span>
-
                                 <div class="minor-warning-box minor-age-warning shadow-sm" style="display:none;">
                                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                     <strong>Minor Traveler Notice:</strong> Passengers 14 or under must be accompanied by an adult.
@@ -183,6 +218,14 @@
                         <span>Base Fare (@Model.Input.PassengerCount ×)</span>
                         <span>MYR @((Model.BasePrice * Model.Input.PassengerCount).ToString("N2"))</span>
                     </div>
+
+                    @if (Model.ReturnFlightId.HasValue)
+                    {
+                        <div class="d-flex justify-content-between mb-2 small text-info">
+                            <span>Return Fare (@Model.Input.PassengerCount ×)</span>
+                            <span>MYR @((Model.BasePrice * Model.Input.PassengerCount).ToString("N2"))</span>
+                        </div>
+                    }
 
                     <div id="classSurchargeRow" class="d-flex justify-content-between mb-4 small text-info" style="display:none !important;">
                         <span>Cabin Upgrade</span>
@@ -213,7 +256,6 @@
 
 @section Scripts {
     <script>
-        // Enhanced Total Calculation
         const ticketClassSelect = document.getElementById('ticketClassSelect');
         const liveTotalDisplay = document.getElementById('liveTotalDisplay');
         const surchargeRow = document.getElementById('classSurchargeRow');
@@ -221,14 +263,16 @@
 
         const passengerCount = @Model.Input.PassengerCount;
         const basePrice = @Model.BasePrice;
+        const isRoundTrip = @((Model.ReturnFlightId.HasValue ? "true" : "false"));
 
         function updateTotal() {
             const multipliers = { 'Economy': 1, 'Business': 1.5, 'First': 2 };
             const cls = ticketClassSelect.value;
             const multiplier = multipliers[cls] || 1;
 
-            const total = passengerCount * basePrice * multiplier;
-            const surcharge = (total - (passengerCount * basePrice));
+            const flightCount = isRoundTrip ? 2 : 1;
+            const total = passengerCount * basePrice * multiplier * flightCount;
+            const surcharge = (total - (passengerCount * basePrice * flightCount));
 
             liveTotalDisplay.innerText = 'MYR ' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
 
@@ -244,7 +288,6 @@
             ticketClassSelect.addEventListener('change', updateTotal);
         }
 
-        // Adult verification logic
         function calcAge(dob) {
             const today = new Date();
             const birthDate = new Date(dob);
@@ -269,5 +312,15 @@
         document.querySelectorAll('.dob-input').forEach(input => {
             input.addEventListener('change', updateMinorWarnings);
         });
+
+        // Autofill Traveler 1 with logged-in customer's info
+        const firstName = document.getElementById('Input_Passengers_0__FirstName');
+        const lastName = document.getElementById('Input_Passengers_0__LastName');
+        const dob = document.getElementById('Input_Passengers_0__DOB');
+
+        if (firstName && !firstName.value) firstName.value = '@Model.CustomerFirstName';
+        if (lastName && !lastName.value) lastName.value = '@Model.CustomerLastName';
+        if (dob && !dob.value && '@Model.CustomerDOB?.ToString("yyyy-MM-dd")' !== '')
+            dob.value = '@Model.CustomerDOB?.ToString("yyyy-MM-dd")';
     </script>
 }

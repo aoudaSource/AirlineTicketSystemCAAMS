@@ -376,11 +376,7 @@ namespace CAAMSAirlineWebApp.Data
                     .HasColumnType("decimal(10,2)")
                     .IsRequired();
 
-                entity.Property(e => e.Status)
-                    .HasMaxLength(20)
-                    .HasDefaultValue("Active")
-                    .IsRequired();
-
+                
                 entity.HasOne(e => e.Customer)
                     .WithMany(c => c.Bookings)
                     .HasForeignKey(e => e.CustomerId)

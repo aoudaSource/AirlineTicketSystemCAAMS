@@ -12,7 +12,7 @@ namespace CAAMSAirlineWebApp.DTOs
 
         public string TripType { get; set; } = "RoundTrip";
 
-        [Required(ErrorMessage = "Departure date is required.")]
+       
         [DataType(DataType.Date)]
         public DateTime? DepartureDate { get; set; }
 

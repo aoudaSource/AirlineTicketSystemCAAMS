@@ -9,88 +9,39 @@
         font-family: 'Geologica', sans-serif;
         color: #0c206d;
     }
+    .geologica-text { font-family: 'Geologica', sans-serif; }
+    .search-card { border-radius: 15px; background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%); border: 1px solid #eef1f7; }
+    .form-control:focus, .form-select:focus { border-color: #3c81bd; box-shadow: 0 0 0 0.25rem rgba(60,129,189,0.15); }
+    .btn-airline-search { background-color: #0c206d !important; border-color: #0c206d !important; color: white !important; font-weight: 600; padding: 12px; transition: 0.3s; }
+    .btn-airline-search:hover { background-color: #08164d !important; transform: translateY(-2px); }
+    .flight-card { border-radius: 12px; transition: 0.3s ease; border: 1px solid transparent; }
+    .flight-card:hover { border-color: #3c81bd; transform: scale(1.01); box-shadow: 0 10px 20px rgba(12,32,109,0.08) !important; }
+    .flight-card.selected-outbound { border-color: #3c81bd; background: #f0f7ff; }
+    .airport-code { font-size: 1.5rem; font-weight: 800; color: #0c206d; line-height: 1; }
+    .flight-path { position: relative; color: #cbd5e0; font-size: 1.2rem; }
+    .price-tag { color: #0c206d; font-size: 1.4rem; font-weight: 800; }
+    .btn-book-now { background-color: #0c206d; color: white; border-radius: 50px; font-weight: 600; padding: 8px 25px; transition: 0.3s; border: none; cursor: pointer; }
+    .btn-book-now:hover { background-color: #3c81bd; color: white; }
+    .btn-book-now.selected { background-color: #3c81bd; }
+    .search-title { border-left: 5px solid #0c206d; padding-left: 15px; font-weight: 800; }
+    .section-divider { border: none; border-top: 2px solid #3c81bd; margin: 30px 0 20px; opacity: 0.3; }
+    .return-locked { opacity: 0.4; pointer-events: none; }
 
-    .geologica-text {
-        font-family: 'Geologica', sans-serif;
-    }
-
-    .search-card {
-        border: none;
-        border-radius: 15px;
-        background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+    /* Scrollable flight box */
+    .flights-scroll-box {
+        max-height: 560px;
+        overflow-y: auto;
+        padding-right: 6px;
+        scrollbar-width: thin;
+        scrollbar-color: #3c81bd #f0f4f8;
         border: 1px solid #eef1f7;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: #3c81bd;
-        box-shadow: 0 0 0 0.25rem rgba(60, 129, 189, 0.15);
-    }
-
-    .btn-airline-search {
-        background-color: #0c206d !important;
-        border-color: #0c206d !important;
-        color: white !important;
-        font-weight: 600;
-        padding: 12px;
-        transition: 0.3s;
-    }
-
-        .btn-airline-search:hover {
-            background-color: #08164d !important;
-            transform: translateY(-2px);
-        }
-
-    .flight-card {
-        border: none;
         border-radius: 12px;
-        transition: 0.3s ease;
-        border: 1px solid transparent;
+        padding: 12px;
+        background: #fafcff;
     }
-
-        .flight-card:hover {
-            border-color: #3c81bd;
-            transform: scale(1.01);
-            box-shadow: 0 10px 20px rgba(12, 32, 109, 0.08) !important;
-        }
-
-    .airport-code {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #0c206d;
-        line-height: 1;
-    }
-
-    .flight-path {
-        position: relative;
-        color: #cbd5e0;
-        font-size: 1.2rem;
-    }
-
-    .price-tag {
-        color: #0c206d;
-        font-size: 1.4rem;
-        font-weight: 800;
-    }
-
-    .btn-book-now {
-        background-color: #0c206d;
-        color: white;
-        border-radius: 50px;
-        font-weight: 600;
-        padding: 8px 25px;
-        transition: 0.3s;
-    }
-
-        .btn-book-now:hover {
-            background-color: #3c81bd;
-            color: white;
-        }
-
-    .search-title {
-        border-left: 5px solid #0c206d;
-        padding-left: 15px;
-        font-weight: 800;
-    }
+    .flights-scroll-box::-webkit-scrollbar { width: 6px; }
+    .flights-scroll-box::-webkit-scrollbar-track { background: #f0f4f8; border-radius: 10px; }
+    .flights-scroll-box::-webkit-scrollbar-thumb { background: #3c81bd; border-radius: 10px; }
 </style>
 
 <div class="container mt-5 pb-5">
@@ -104,11 +55,11 @@
         </div>
     }
 
-    @* ── STEP 1: SEARCH FORM ── *@
+    @* SEARCH FORM *@
     @if (Model.PageStep == "search" || Model.PageStep == "results")
     {
         <div class="card search-card p-4 mb-5 shadow-sm">
-            <form method="get" novalidate>
+            <form method="get" novalidate id="searchForm">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label fw-bold small text-uppercase">Departure City</label>
@@ -116,18 +67,14 @@
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-geo-alt text-primary"></i></span>
                             <input asp-for="Search.Origin" class="form-control border-start-0 geologica-text" placeholder="e.g. KUL" />
                         </div>
-                        <span asp-validation-for="Search.Origin" class="text-danger small"></span>
                     </div>
-
                     <div class="col-md-3">
                         <label class="form-label fw-bold small text-uppercase">Arrival City</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-airplane-engines text-primary"></i></span>
                             <input asp-for="Search.Destination" class="form-control border-start-0 geologica-text" placeholder="e.g. SIN" />
                         </div>
-                        <span asp-validation-for="Search.Destination" class="text-danger small"></span>
                     </div>
-
                     <div class="col-md-2">
                         <label class="form-label fw-bold small text-uppercase">Trip Type</label>
                         <select asp-for="Search.TripType" class="form-select geologica-text" id="tripTypeSelect">
@@ -135,20 +82,17 @@
                             <option value="RoundTrip">Round Trip</option>
                         </select>
                     </div>
-
                     <div class="col-md-2">
-                        <label class="form-label fw-bold small text-uppercase">Departure</label>
-                        <input asp-for="Search.DepartureDate" type="date" class="form-control geologica-text" />
-                        <span asp-validation-for="Search.DepartureDate" class="text-danger small"></span>
+                        <label class="form-label fw-bold small text-uppercase">Departure Date</label>
+                        <input asp-for="Search.DepartureDate" type="date" class="form-control geologica-text" id="departureDateInput"
+                               oninput="filterByDate('outbound-cards', this.value)" />
                     </div>
-
-                    <div class="col-md-2" id="returnDateGroup">
-                        <label class="form-label fw-bold small text-uppercase">Return</label>
-                        <input asp-for="Search.ReturnDate" type="date" class="form-control geologica-text" />
-                        <span asp-validation-for="Search.ReturnDate" class="text-danger small"></span>
+                    <div class="col-md-2" id="returnDateGroup" style="display:none;">
+                        <label class="form-label fw-bold small text-uppercase">Return Date</label>
+                        <input asp-for="Search.ReturnDate" type="date" class="form-control geologica-text" id="returnDateInput"
+                               oninput="filterByDate('return-cards', this.value)" />
                     </div>
                 </div>
-
                 <div class="row g-3 mt-2 align-items-end">
                     <div class="col-md-2">
                         <label class="form-label fw-bold small text-uppercase">Travelers</label>
@@ -169,175 +113,212 @@
         </div>
     }
 
-    @* ── STEP 2: RESULTS ── *@
+    @* RESULTS *@
     @if (Model.PageStep == "results")
     {
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="geologica-text fw-bold mb-0">
-                <span class="text-primary">@Model.SearchResults.Count</span> Available Flights
-            </h5>
-            <div class="text-muted small geologica-text">
-                @Model.Search.Origin <i class="bi bi-arrow-right mx-1"></i> @Model.Search.Destination
-                | @Model.Search.DepartureDate?.ToString("ddd, dd MMM yyyy")
-            </div>
-        </div>
+        var isRoundTrip = Model.Search.TripType == "RoundTrip";
 
-        @* OUTBOUND FLIGHTS *@
-        @if (Model.Search.TripType == "RoundTrip")
-        {
-            <h5 class="geologica-text fw-bold mb-3 text-primary"> Outbound Flight</h5>
-        }
+        @* OUTBOUND *@
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="geologica-text fw-bold mb-0">
+                @if (isRoundTrip) { <span>Outbound — </span> }
+                <span class="text-primary">@Model.SearchResults.Count</span> flights
+            </h5>
+            <span class="text-muted small">Scroll to see more</span>
+        </div>
 
         @if (!Model.SearchResults.Any())
         {
-            <div class="alert alert-light border shadow-sm p-5 text-center geologica-text">
+            <div class="alert alert-light border shadow-sm p-4 text-center geologica-text">
                 <i class="bi bi-cloud-slash display-4 text-muted mb-3 d-block"></i>
                 <h4>No Flights Found</h4>
-                <p class="text-muted">We couldn't find any flights for these dates. Try adjusting your search criteria.</p>
+                <p class="text-muted">Try a different route.</p>
             </div>
         }
         else
         {
-            @foreach (var flight in Model.SearchResults)
-            {
-                <div class="card flight-card mb-4 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="row align-items-center">
-                            <div class="col-md-2">
-                                <div class="text-muted small text-uppercase fw-bold">Flight</div>
-                                <span class="flight-number fs-4 fw-800">@flight.FlightNumber</span>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="d-flex align-items-center justify-content-between px-3">
-                                    <div class="text-center">
-                                        <div class="airport-code">@flight.DepartureCode</div>
-                                        <div class="text-muted small fw-bold">@flight.DepartureCity</div>
-                                        <div class="fw-bold text-primary mt-1">@flight.DepartureTime.ToString("HH:mm")</div>
+            <div class="flights-scroll-box">
+                <div id="outbound-cards">
+                    @foreach (var flight in Model.SearchResults)
+                    {
+                        <div class="card flight-card mb-3 shadow-sm outbound-item"
+                             data-date="@flight.DepartureTime.ToString("yyyy-MM-dd")">
+                            <div class="card-body p-4">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <div class="text-muted small text-uppercase fw-bold">Flight</div>
+                                        <span class="flight-number fs-4 fw-800">@flight.FlightNumber</span>
                                     </div>
-                                    <div class="flex-grow-1 mx-4 text-center">
-                                        <div class="small text-muted mb-1">Non-stop</div>
-                                        <div class="flight-path">
-                                            <hr class="m-0" style="border-top: 2px dashed #cbd5e0;">
-                                            <i class="bi bi-airplane-fill position-absolute top-50 start-50 translate-middle bg-white px-2 text-primary"></i>
+                                    <div class="col-md-5">
+                                        <div class="d-flex align-items-center justify-content-between px-3">
+                                            <div class="text-center">
+                                                <div class="airport-code">@flight.DepartureCode</div>
+                                                <div class="text-muted small fw-bold">@flight.DepartureCity</div>
+                                                <div class="fw-bold text-primary mt-1">@flight.DepartureTime.ToString("HH:mm")</div>
+                                            </div>
+                                            <div class="flex-grow-1 mx-4 text-center">
+                                                <div class="small text-muted mb-1">Non-stop</div>
+                                                <div class="flight-path">
+                                                    <hr class="m-0" style="border-top: 2px dashed #cbd5e0;">
+                                                    <i class="bi bi-airplane-fill position-absolute top-50 start-50 translate-middle bg-white px-2 text-primary"></i>
+                                                </div>
+                                                <div class="small text-muted mt-1">@flight.DepartureTime.ToString("ddd, MMM dd")</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="airport-code">@flight.ArrivalCode</div>
+                                                <div class="text-muted small fw-bold">@flight.ArrivalCity</div>
+                                                <div class="fw-bold text-primary mt-1">@flight.ArrivalTime.ToString("HH:mm")</div>
+                                            </div>
                                         </div>
-                                        <div class="small text-muted mt-1">@flight.DepartureTime.ToString("MMM dd")</div>
                                     </div>
-                                    <div class="text-center">
-                                        <div class="airport-code">@flight.ArrivalCode</div>
-                                        <div class="text-muted small fw-bold">@flight.ArrivalCity</div>
-                                        <div class="fw-bold text-primary mt-1">@flight.ArrivalTime.ToString("HH:mm")</div>
+                                    <div class="col-md-3 text-center border-start border-end">
+                                        <div class="text-muted small text-uppercase fw-bold">Best Price</div>
+                                        <div class="price-tag"><small class="fs-6 fw-normal">MYR</small> @flight.BasePrice.ToString("N2")</div>
+                                        <div class="text-success small"><i class="bi bi-lightning-charge-fill"></i> Instant Booking</div>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        @if (isRoundTrip)
+                                        {
+                                            <button class="btn-book-now px-4 py-2"
+                                                    onclick="selectOutbound('@flight.FlightId', '@flight.DepartureTime.ToString("yyyy-MM-dd")', this)">
+                                                Select
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn-book-now px-4 py-2"
+                                                    onclick="selectOneWay('@flight.FlightId', '@flight.DepartureTime.ToString("yyyy-MM-dd")', @Model.Search.PassengerCount)">
+                                                Select
+                                            </button>
+                                        }
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-center border-start border-end">
-                                <div class="text-muted small text-uppercase fw-bold">Best Price</div>
-                                <div class="price-tag"><small class="fs-6 fw-normal">MYR</small> @flight.BasePrice.ToString("N2")</div>
-                                <div class="text-success small"><i class="bi bi-lightning-charge-fill"></i> Instant Booking</div>
-                            </div>
-                            <div class="col-md-2 text-center">
-                                @if (Model.Search.TripType == "RoundTrip" && Model.ReturnResults.Any())
-                                {
-                                    <a asp-page="/BookFlight"
-                                       asp-route-Search.Origin="@Model.Search.Origin"
-                                       asp-route-Search.Destination="@Model.Search.Destination"
-                                       asp-route-Search.TripType="@Model.Search.TripType"
-                                       asp-route-Search.DepartureDate="@Model.Search.DepartureDate?.ToString("yyyy-MM-dd")"
-                                       asp-route-Search.ReturnDate="@Model.Search.ReturnDate?.ToString("yyyy-MM-dd")"
-                                       asp-route-Search.PassengerCount="@Model.Search.PassengerCount"
-                                       asp-route-SelectedOutboundFlightId="@flight.FlightId"
-                                       class="btn btn-book-now px-4 py-2">Select ✓</a>
-                                }
-                                else
-                                {
-                                    <a asp-page="/BookingForm"
-                                       asp-route-flightId="@flight.FlightId"
-                                       asp-route-passengerCount="@Model.Search.PassengerCount"
-                                       class="btn btn-book-now px-4 py-2">Select Flight</a>
-                                }
-                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
-            }
+            </div>
         }
 
-        @* RETURN FLIGHTS *@
-        @if (Model.Search.TripType == "RoundTrip" && Model.ReturnResults.Any())
+        @* RETURN *@
+        @if (isRoundTrip && Model.ReturnResults.Any())
         {
-            <h5 class="geologica-text fw-bold mt-5 mb-3 text-primary"> Return Flight</h5>
+            <hr class="section-divider" />
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="geologica-text fw-bold mb-0">
+                    Return — <span class="text-primary">@Model.ReturnResults.Count</span> flights
+                </h5>
+                <span class="text-muted small" id="returnHint">Select an outbound flight first</span>
+            </div>
 
-            @foreach (var flight in Model.ReturnResults)
-            {
-                <div class="card flight-card mb-4 shadow-sm @(Model.SelectedOutboundFlightId.HasValue ? "" : "opacity-50")">
-                    <div class="card-body p-4">
-                        <div class="row align-items-center">
-                            <div class="col-md-2">
-                                <div class="text-muted small text-uppercase fw-bold">Flight</div>
-                                <span class="flight-number fs-4 fw-800">@flight.FlightNumber</span>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="d-flex align-items-center justify-content-between px-3">
-                                    <div class="text-center">
-                                        <div class="airport-code">@flight.DepartureCode</div>
-                                        <div class="text-muted small fw-bold">@flight.DepartureCity</div>
-                                        <div class="fw-bold text-primary mt-1">@flight.DepartureTime.ToString("HH:mm")</div>
+            <div class="flights-scroll-box">
+                <div id="return-cards" class="return-locked">
+                    @foreach (var flight in Model.ReturnResults)
+                    {
+                        <div class="card flight-card mb-3 shadow-sm return-item"
+                             data-date="@flight.DepartureTime.ToString("yyyy-MM-dd")">
+                            <div class="card-body p-4">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <div class="text-muted small text-uppercase fw-bold">Flight</div>
+                                        <span class="flight-number fs-4 fw-800">@flight.FlightNumber</span>
                                     </div>
-                                    <div class="flex-grow-1 mx-4 text-center">
-                                        <div class="small text-muted mb-1">Non-stop</div>
-                                        <div class="flight-path">
-                                            <hr class="m-0" style="border-top: 2px dashed #cbd5e0;">
-                                            <i class="bi bi-airplane-fill position-absolute top-50 start-50 translate-middle bg-white px-2 text-primary"></i>
+                                    <div class="col-md-5">
+                                        <div class="d-flex align-items-center justify-content-between px-3">
+                                            <div class="text-center">
+                                                <div class="airport-code">@flight.DepartureCode</div>
+                                                <div class="text-muted small fw-bold">@flight.DepartureCity</div>
+                                                <div class="fw-bold text-primary mt-1">@flight.DepartureTime.ToString("HH:mm")</div>
+                                            </div>
+                                            <div class="flex-grow-1 mx-4 text-center">
+                                                <div class="small text-muted mb-1">Non-stop</div>
+                                                <div class="flight-path">
+                                                    <hr class="m-0" style="border-top: 2px dashed #cbd5e0;">
+                                                    <i class="bi bi-airplane-fill position-absolute top-50 start-50 translate-middle bg-white px-2 text-primary"></i>
+                                                </div>
+                                                <div class="small text-muted mt-1">@flight.DepartureTime.ToString("ddd, MMM dd")</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="airport-code">@flight.ArrivalCode</div>
+                                                <div class="text-muted small fw-bold">@flight.ArrivalCity</div>
+                                                <div class="fw-bold text-primary mt-1">@flight.ArrivalTime.ToString("HH:mm")</div>
+                                            </div>
                                         </div>
-                                        <div class="small text-muted mt-1">@flight.DepartureTime.ToString("MMM dd")</div>
                                     </div>
-                                    <div class="text-center">
-                                        <div class="airport-code">@flight.ArrivalCode</div>
-                                        <div class="text-muted small fw-bold">@flight.ArrivalCity</div>
-                                        <div class="fw-bold text-primary mt-1">@flight.ArrivalTime.ToString("HH:mm")</div>
+                                    <div class="col-md-3 text-center border-start border-end">
+                                        <div class="text-muted small text-uppercase fw-bold">Best Price</div>
+                                        <div class="price-tag"><small class="fs-6 fw-normal">MYR</small> @flight.BasePrice.ToString("N2")</div>
+                                        <div class="text-success small"><i class="bi bi-lightning-charge-fill"></i> Instant Booking</div>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <button class="btn-book-now px-4 py-2"
+                                                onclick="selectReturn('@flight.FlightId', '@flight.DepartureTime.ToString("yyyy-MM-dd")', @Model.Search.PassengerCount)">
+                                            Select
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-center border-start border-end">
-                                <div class="text-muted small text-uppercase fw-bold">Best Price</div>
-                                <div class="price-tag"><small class="fs-6 fw-normal">MYR</small> @flight.BasePrice.ToString("N2")</div>
-                                <div class="text-success small"><i class="bi bi-lightning-charge-fill"></i> Instant Booking</div>
-                            </div>
-                            <div class="col-md-2 text-center">
-                                @if (Model.SelectedOutboundFlightId.HasValue)
-                                {
-                                    <a asp-page="/BookingForm"
-                                       asp-route-flightId="@Model.SelectedOutboundFlightId"
-                                       asp-route-returnFlightId="@flight.FlightId"
-                                       asp-route-passengerCount="@Model.Search.PassengerCount"
-                                       class="btn btn-book-now px-4 py-2">Select Flight</a>
-                                }
-                                else
-                                {
-                                    <span class="text-muted small">Select outbound first</span>
-                                }
-                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
-            }
+            </div>
         }
     }
 </div>
 
 @section Scripts {
-    <script>
-        const tripTypeSelect = document.getElementById('tripTypeSelect');
-        const returnDateGroup = document.getElementById('returnDateGroup');
+<script>
+    // Trip type toggle
+    const tripTypeSelect = document.getElementById('tripTypeSelect');
+    const returnDateGroup = document.getElementById('returnDateGroup');
+    function toggleReturnDate() {
+        if (tripTypeSelect && returnDateGroup)
+            returnDateGroup.style.display = tripTypeSelect.value === 'RoundTrip' ? '' : 'none';
+    }
+    if (tripTypeSelect) { tripTypeSelect.addEventListener('change', toggleReturnDate); toggleReturnDate(); }
 
-        function toggleReturnDate() {
-            if (tripTypeSelect && returnDateGroup) {
-                returnDateGroup.style.display = tripTypeSelect.value === 'RoundTrip' ? '' : 'none';
-            }
-        }
+    // Live date filter — type "25" matches any 25th, "04" matches April, "2026-04-25" exact
+    function filterByDate(containerId, value) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const val = value.trim();
+        container.querySelectorAll('.card').forEach(card => {
+            const date = card.dataset.date || '';
+            card.style.display = (!val || date.includes(val)) ? '' : 'none';
+        });
+    }
 
-        if (tripTypeSelect) {
-            tripTypeSelect.addEventListener('change', toggleReturnDate);
-            toggleReturnDate();
-        }
-    </script>
+    // One-way
+    function selectOneWay(flightId, date, passengerCount) {
+        const dep = document.getElementById('departureDateInput');
+        if (dep) dep.value = date;
+        window.location.href = '/BookingForm?flightId=' + flightId + '&passengerCount=' + passengerCount;
+    }
+
+    // Round trip step 1
+    var selectedOutboundId = null;
+    function selectOutbound(flightId, date, btn) {
+        selectedOutboundId = flightId;
+        const dep = document.getElementById('departureDateInput');
+        if (dep) dep.value = date;
+        document.querySelectorAll('.outbound-item').forEach(c => c.classList.remove('selected-outbound'));
+        btn.closest('.card').classList.add('selected-outbound');
+        btn.textContent = 'Selected';
+        btn.classList.add('selected');
+        const returnSection = document.getElementById('return-cards');
+        if (returnSection) returnSection.classList.remove('return-locked');
+        const hint = document.getElementById('returnHint');
+        if (hint) hint.textContent = 'Now select your return flight';
+        const divider = document.querySelector('.section-divider');
+        if (divider) divider.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Round trip step 2
+    function selectReturn(returnFlightId, date, passengerCount) {
+        if (!selectedOutboundId) { alert('Please select an outbound flight first.'); return; }
+        const ret = document.getElementById('returnDateInput');
+        if (ret) ret.value = date;
+        window.location.href = '/BookingForm?flightId=' + selectedOutboundId + '&returnFlightId=' + returnFlightId + '&passengerCount=' + passengerCount;
+    }
+</script>
 }

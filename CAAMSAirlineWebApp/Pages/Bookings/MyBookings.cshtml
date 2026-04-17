@@ -36,10 +36,10 @@
         box-shadow: 0 2px 8px rgba(60,129,189,0.07);
     }
 
-    .booking-card.past {
-        background: #f8f9fa;
-        border-color: #e0e0e0;
-    }
+        .booking-card.past {
+            background: #f8f9fa;
+            border-color: #e0e0e0;
+        }
 
     .connector-line {
         width: 2px;
@@ -63,6 +63,21 @@
         color: #3c81bd;
         font-family: 'Geologica', sans-serif;
         margin-bottom: 8px;
+    }
+
+    .flight-summary-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        flex-wrap: wrap;
+    }
+
+    .flight-summary-airports {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
     }
 
     .leg-row {
@@ -137,6 +152,50 @@
         white-space: nowrap;
     }
 
+    .badge-stops {
+        background: #fff3cd;
+        color: #856404;
+        border-radius: 6px;
+        padding: 2px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .badge-direct {
+        background: #d4edda;
+        color: #155724;
+        border-radius: 6px;
+        padding: 2px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .btn-toggle-stops {
+        background: none;
+        border: 1px solid #3c81bd;
+        color: #3c81bd;
+        border-radius: 20px;
+        padding: 2px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-toggle-stops:hover {
+            background: #3c81bd;
+            color: white;
+        }
+
+    .stops-detail {
+        border-top: 1px dashed #dce6f0;
+        margin-top: 8px;
+        padding-top: 8px;
+    }
+
     .booking-meta {
         font-size: 0.82rem;
         color: #777;
@@ -195,10 +254,10 @@
         transition: 0.2s;
     }
 
-    .btn-cancel:hover {
-        background: #e53e3e;
-        color: white;
-    }
+        .btn-cancel:hover {
+            background: #e53e3e;
+            color: white;
+        }
 
     .card-header-row {
         display: flex;
@@ -239,8 +298,11 @@ else
                     .ToList();
 
                 var firstLeg = flightLegs.First().FlightLeg;
+                var lastLeg = flightLegs.Last().FlightLeg;
                 var flightNumber = firstLeg.Flight.FlightNumber;
                 var ticketClass = flightTickets.First().TicketClass;
+                var stopCount = flightLegs.Count - 1;
+                var uniqueId = $"stops-{booking.BookingId}-{f}";
 
                 <div class="booking-card">
                     <div class="card-header-row">
@@ -271,33 +333,70 @@ else
                         </div>
                     }
 
-                    <div class="mt-2">
+                    <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
                         <span class="flight-number-badge">@flightNumber</span>
-                        <span class="badge-class ms-2">@ticketClass</span>
+                        <span class="badge-class">@ticketClass</span>
+                        @if (stopCount == 0)
+                        {
+                            <span class="badge-direct">Direct</span>
+                        }
+                        else
+                        {
+                            <span class="badge-stops">@stopCount Stop@(stopCount > 1 ? "s" : "")</span>
+                        }
                     </div>
 
-                    @foreach (var ticket in flightLegs)
-                    {
-                        var leg = ticket.FlightLeg;
-                        <div class="leg-row">
-                            <div class="leg-airports">
-                                <div class="airport-block">
-                                    <div class="airport-code">@leg.DepartureAirport</div>
-                                    <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
-                                    <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
-                                </div>
-                                <div class="leg-arrow">→</div>
-                                <div class="airport-block">
-                                    <div class="airport-code">@leg.ArrivalAirport</div>
-                                    <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
-                                    <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
-                                </div>
+                    @* Flight summary — always visible *@
+                    <div class="flight-summary-row">
+                        <div class="flight-summary-airports">
+                            <div class="airport-block">
+                                <div class="airport-code">@firstLeg.DepartureAirport</div>
+                                <div class="airport-name">@firstLeg.DepartureAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@firstLeg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
+                            </div>
+                            <div class="leg-arrow">→</div>
+                            <div class="airport-block">
+                                <div class="airport-code">@lastLeg.ArrivalAirport</div>
+                                <div class="airport-name">@lastLeg.ArrivalAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@lastLeg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
                             </div>
                         </div>
-                        @if (ticket != flightLegs.Last())
+                        @if (stopCount > 0)
                         {
-                            <hr class="leg-divider" />
+                            <button class="btn-toggle-stops" onclick="toggleStops('@uniqueId', this)">
+                                View Stops
+                            </button>
                         }
+                    </div>
+
+                    @* Stops detail — hidden by default, only shows if multiple legs *@
+                    @if (stopCount > 0)
+                    {
+                        <div id="@uniqueId" class="stops-detail" style="display:none;">
+                            @foreach (var ticket in flightLegs)
+                            {
+                                var leg = ticket.FlightLeg;
+                                <div class="leg-row">
+                                    <div class="leg-airports">
+                                        <div class="airport-block">
+                                            <div class="airport-code">@leg.DepartureAirport</div>
+                                            <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
+                                            <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
+                                        </div>
+                                        <div class="leg-arrow">→</div>
+                                        <div class="airport-block">
+                                            <div class="airport-code">@leg.ArrivalAirport</div>
+                                            <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
+                                            <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (ticket != flightLegs.Last())
+                                {
+                                    <hr class="leg-divider" />
+                                }
+                            }
+                        </div>
                     }
 
                     @if (f == 0)
@@ -345,8 +444,11 @@ else
                     .ToList();
 
                 var firstLeg = flightLegs.First().FlightLeg;
+                var lastLeg = flightLegs.Last().FlightLeg;
                 var flightNumber = firstLeg.Flight.FlightNumber;
                 var ticketClass = flightTickets.First().TicketClass;
+                var stopCount = flightLegs.Count - 1;
+                var uniqueId = $"past-stops-{booking.BookingId}-{f}";
 
                 <div class="booking-card past">
                     <div class="card-header-row">
@@ -371,33 +473,68 @@ else
                         </div>
                     }
 
-                    <div class="mt-2">
+                    <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
                         <span class="flight-number-badge">@flightNumber</span>
-                        <span class="badge-class ms-2">@ticketClass</span>
+                        <span class="badge-class">@ticketClass</span>
+                        @if (stopCount == 0)
+                        {
+                            <span class="badge-direct">Direct</span>
+                        }
+                        else
+                        {
+                            <span class="badge-stops">@stopCount Stop@(stopCount > 1 ? "s" : "")</span>
+                        }
                     </div>
 
-                    @foreach (var ticket in flightLegs)
-                    {
-                        var leg = ticket.FlightLeg;
-                        <div class="leg-row">
-                            <div class="leg-airports">
-                                <div class="airport-block">
-                                    <div class="airport-code">@leg.DepartureAirport</div>
-                                    <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
-                                    <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
-                                </div>
-                                <div class="leg-arrow">→</div>
-                                <div class="airport-block">
-                                    <div class="airport-code">@leg.ArrivalAirport</div>
-                                    <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
-                                    <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
-                                </div>
+                    <div class="flight-summary-row">
+                        <div class="flight-summary-airports">
+                            <div class="airport-block">
+                                <div class="airport-code">@firstLeg.DepartureAirport</div>
+                                <div class="airport-name">@firstLeg.DepartureAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@firstLeg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
+                            </div>
+                            <div class="leg-arrow">→</div>
+                            <div class="airport-block">
+                                <div class="airport-code">@lastLeg.ArrivalAirport</div>
+                                <div class="airport-name">@lastLeg.ArrivalAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@lastLeg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
                             </div>
                         </div>
-                        @if (ticket != flightLegs.Last())
+                        @if (stopCount > 0)
                         {
-                            <hr class="leg-divider" />
+                            <button class="btn-toggle-stops" onclick="toggleStops('@uniqueId', this)">
+                                View Stops
+                            </button>
                         }
+                    </div>
+
+                    @if (stopCount > 0)
+                    {
+                        <div id="@uniqueId" class="stops-detail" style="display:none;">
+                            @foreach (var ticket in flightLegs)
+                            {
+                                var leg = ticket.FlightLeg;
+                                <div class="leg-row">
+                                    <div class="leg-airports">
+                                        <div class="airport-block">
+                                            <div class="airport-code">@leg.DepartureAirport</div>
+                                            <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
+                                            <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
+                                        </div>
+                                        <div class="leg-arrow">→</div>
+                                        <div class="airport-block">
+                                            <div class="airport-code">@leg.ArrivalAirport</div>
+                                            <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
+                                            <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (ticket != flightLegs.Last())
+                                {
+                                    <hr class="leg-divider" />
+                                }
+                            }
+                        </div>
                     }
 
                     @if (f == 0)
@@ -417,3 +554,16 @@ else
         </div>
     }
 }
+
+<script>
+    function toggleStops(id, btn) {
+        const el = document.getElementById(id);
+        if (el.style.display === 'none') {
+            el.style.display = 'block';
+            btn.textContent = 'Hide Stops';
+        } else {
+            el.style.display = 'none';
+            btn.textContent = 'View Stops';
+        }
+    }
+</script>

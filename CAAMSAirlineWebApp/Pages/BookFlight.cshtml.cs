@@ -33,9 +33,7 @@ namespace CAAMSAirlineWebApp.Pages
         public async Task OnGetAsync()
         {
             bool hasSearch = !string.IsNullOrWhiteSpace(Search.Origin)
-                          && !string.IsNullOrWhiteSpace(Search.Destination)
-                          && Search.DepartureDate.HasValue
-                          && Search.DepartureDate.Value > DateTime.MinValue;
+                          && !string.IsNullOrWhiteSpace(Search.Destination);
 
             if (!hasSearch)
             {
@@ -45,22 +43,28 @@ namespace CAAMSAirlineWebApp.Pages
 
             var originLower = Search.Origin.Trim().ToLower();
             var destLower = Search.Destination.Trim().ToLower();
-            var depStart = Search.DepartureDate!.Value.Date;
-            var depEnd = depStart.AddDays(1);
 
-            var legs = await _context.FlightLegs
+            var outboundQuery = _context.FlightLegs
                 .Include(fl => fl.Flight)
                 .Include(fl => fl.DepartureAirportNavigation)
                 .Include(fl => fl.ArrivalAirportNavigation)
                 .Where(fl =>
-                    fl.DepartureTime >= depStart && fl.DepartureTime < depEnd &&
                     (fl.DepartureAirport.ToLower().Contains(originLower) ||
                      fl.DepartureAirportNavigation.City.ToLower().Contains(originLower) ||
                      fl.DepartureAirportNavigation.AirportName.ToLower().Contains(originLower)) &&
                     (fl.ArrivalAirport.ToLower().Contains(destLower) ||
                      fl.ArrivalAirportNavigation.City.ToLower().Contains(destLower) ||
-                     fl.ArrivalAirportNavigation.AirportName.ToLower().Contains(destLower)))
-                .ToListAsync();
+                     fl.ArrivalAirportNavigation.AirportName.ToLower().Contains(destLower)));
+
+            if (Search.DepartureDate.HasValue)
+            {
+                var depStart = Search.DepartureDate.Value.Date;
+                var depEnd = depStart.AddDays(1);
+                outboundQuery = outboundQuery.Where(fl =>
+                    fl.DepartureTime >= depStart && fl.DepartureTime < depEnd);
+            }
+
+            var legs = await outboundQuery.OrderBy(fl => fl.DepartureTime).ToListAsync();
 
             SearchResults = legs.Select(fl => new FlightResultItem
             {
@@ -75,24 +79,29 @@ namespace CAAMSAirlineWebApp.Pages
                 BasePrice = fl.Flight.BasePrice
             }).ToList();
 
-            if (Search.TripType == "RoundTrip" && Search.ReturnDate.HasValue)
+            if (Search.TripType == "RoundTrip")
             {
-                var retStart = Search.ReturnDate.Value.Date;
-                var retEnd = retStart.AddDays(1);
-
-                var returnLegs = await _context.FlightLegs
+                var returnQuery = _context.FlightLegs
                     .Include(fl => fl.Flight)
                     .Include(fl => fl.DepartureAirportNavigation)
                     .Include(fl => fl.ArrivalAirportNavigation)
                     .Where(fl =>
-                        fl.DepartureTime >= retStart && fl.DepartureTime < retEnd &&
                         (fl.DepartureAirport.ToLower().Contains(destLower) ||
                          fl.DepartureAirportNavigation.City.ToLower().Contains(destLower) ||
                          fl.DepartureAirportNavigation.AirportName.ToLower().Contains(destLower)) &&
                         (fl.ArrivalAirport.ToLower().Contains(originLower) ||
                          fl.ArrivalAirportNavigation.City.ToLower().Contains(originLower) ||
-                         fl.ArrivalAirportNavigation.AirportName.ToLower().Contains(originLower)))
-                    .ToListAsync();
+                         fl.ArrivalAirportNavigation.AirportName.ToLower().Contains(originLower)));
+
+                if (Search.ReturnDate.HasValue)
+                {
+                    var retStart = Search.ReturnDate.Value.Date;
+                    var retEnd = retStart.AddDays(1);
+                    returnQuery = returnQuery.Where(fl =>
+                        fl.DepartureTime >= retStart && fl.DepartureTime < retEnd);
+                }
+
+                var returnLegs = await returnQuery.OrderBy(fl => fl.DepartureTime).ToListAsync();
 
                 ReturnResults = returnLegs.Select(fl => new FlightResultItem
                 {
@@ -110,18 +119,19 @@ namespace CAAMSAirlineWebApp.Pages
 
             PageStep = "results";
         }
-    }
 
-    public class FlightResultItem
-    {
-        public int FlightId { get; set; }
-        public string FlightNumber { get; set; } = "";
-        public string DepartureCode { get; set; } = "";
-        public string DepartureCity { get; set; } = "";
-        public string ArrivalCode { get; set; } = "";
-        public string ArrivalCity { get; set; } = "";
-        public DateTime DepartureTime { get; set; }
-        public DateTime ArrivalTime { get; set; }
-        public decimal BasePrice { get; set; }
+        public class FlightResultItem
+        {
+            public int FlightId { get; set; }
+            public string FlightNumber { get; set; } = "";
+            public string DepartureCode { get; set; } = "";
+            public string DepartureCity { get; set; } = "";
+            public string ArrivalCode { get; set; } = "";
+            public string ArrivalCity { get; set; } = "";
+            public DateTime DepartureTime { get; set; }
+            public DateTime ArrivalTime { get; set; }
+            public decimal BasePrice { get; set; }
+        }
     }
 }
+

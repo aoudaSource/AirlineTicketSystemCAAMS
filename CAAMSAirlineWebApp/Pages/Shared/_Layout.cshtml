@@ -11,27 +11,33 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap" rel="stylesheet">
     <style>
-            /* 1. CRITICAL: Force the page to fill the screen exactly */
-            html, body {
-                height: 100%;
-                margin: 0;
-                padding: 0;
-                overflow-x: hidden; /* Stops side-scrolling */
-                display: flex;
-                flex-direction: column;
-            }
+        /* 1. CRITICAL: Force the page to fill the screen exactly */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 2. Push footer to bottom */
+        main {
+            flex: 1 0 auto;
+        }
 
             /* 2. Push footer to bottom */
             main {
                 flex: 1 0 auto;
             }
 
-            .navbar-nav .nav-link, .navbar-brand {
-                font-family: 'Geologica', sans-serif !important;
-                font-variation-settings: "slnt" 0;
-                font-weight: 600;
-                letter-spacing: -0.02em;
-            }
+        .footer-custom {
+            background-color: #3c81bd;
+            color: white !important;
+            border-top: none !important;
+            flex-shrink: 0; 
+            width: 100%;
+        }
 
             .footer-custom {
                 background-color: #3c81bd;
@@ -101,8 +107,16 @@
                         <li class="nav-item">
                             <a class="nav-link text-white mx-3" asp-area="" asp-page="/Index">Home</a>
                         </li>
+
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Customer"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white mx-3" asp-page="/EditProfile">My Profile</a>
                         @if (User.Identity.IsAuthenticated && !User.IsInRole("Admin") && !User.IsInRole("Staff"))
                         {
+                            <li class="nav-item">
+                                <a class="nav-link text-white mx-3" asp-page="/EditProfile"> My Profile</a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link text-white mx-3" asp-page="/Bookings/MyBookings">My Bookings</a>
                             </li>

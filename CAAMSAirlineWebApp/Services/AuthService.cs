@@ -66,5 +66,48 @@ namespace CAAMSAirlineWebApp.Services
 
             return (appUser, null);
         }
+
+
+
+        public async Task<(AppUser? user, string? error)> RegisterStaffAsync(RegisterRequest request)
+        {
+            if (await _context.AppUsers.AnyAsync(u => u.Username == request.Username))
+                return (null, "Username is already taken.");
+
+            var user = new AppUser
+            {
+                Username = request.Username,
+                PasswordHash = request.Password,
+                Role = "Staff",
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                DOB = request.DOB!.Value,
+                CreatedAt = DateTime.UtcNow
+                // Note: If AppUser has an Email column, add it here:
+                // Email = request.Email 
+            };
+
+            var staff = new Staff
+            {
+                Username = request.Username,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Role = "Staff"
+            };
+
+            try
+            {
+                _context.AppUsers.Add(user);
+                _context.Staffs.Add(staff);
+                await _context.SaveChangesAsync();
+                return (user, null);
+            }
+            catch (Exception ex)
+            {
+                return (null, ex.InnerException?.Message ?? ex.Message);
+            }
+        }
+
     }
-}
+
+    }

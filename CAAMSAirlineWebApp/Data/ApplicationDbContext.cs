@@ -117,6 +117,7 @@ namespace CAAMSAirlineWebApp.Data
                     .HasPrincipalKey<AppUser>(u => u.Username)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_Customers_AppUsers");
+
             });
 
             modelBuilder.Entity<Staff>(entity =>

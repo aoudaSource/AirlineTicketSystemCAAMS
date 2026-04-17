@@ -9,6 +9,7 @@
     .admin-header, .card-title, .section-title {
         font-family: 'Geologica', sans-serif;
         font-weight: 800;
+        color: #0c206d;
     }
 
     .card-custom-stats {
@@ -28,6 +29,7 @@
         margin-bottom: 8px;
         border-radius: 8px !important;
         transition: 0.3s;
+        text-decoration: none;
     }
 
         .list-group-item-custom:hover {
@@ -47,6 +49,7 @@
         <span class="text-muted">Logged in as: <strong>@User.Identity!.Name</strong></span>
     </div>
 
+    @* STATS SECTION *@
     <div class="row g-4 mb-5">
         <div class="col-sm-6 col-md-4 col-lg-3">
             <div class="card card-custom-stats h-100 shadow-sm">
@@ -83,6 +86,7 @@
     </div>
 
     <div class="row g-5">
+        @* LEFT COLUMN: Operations *@
         <div class="col-md-6">
             <h4 class="section-title mb-3">Bookings</h4>
             <div class="list-group mb-4">
@@ -118,7 +122,9 @@
             }
         </div>
 
+        @* RIGHT COLUMN: Admin Tools & Reports *@
         <div class="col-md-6">
+            @* YOUR PART: User & Staff Management (Admin Only) *@
             @if (User.IsInRole("Admin"))
             {
                 <h4 class="section-title mb-3">User &amp; Staff Management</h4>
@@ -146,25 +152,19 @@
                     <a asp-page="/Admin/Reports/TotalRevenue" class="list-group-item list-group-item-action list-group-item-custom">
                         Total Revenue
                     </a>
+                    <a asp-page="/Admin/Reports/DailyRevenue" class="list-group-item list-group-item-action list-group-item-custom">
+                        Daily Revenue (Last 24h)
+                    </a>
                     <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action list-group-item-custom">
                         Route Profitability
                     </a>
-                    <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action list-group-item-custom">
-                        Customer Loyalty (Top 10%)
-                    </a>
-                
-                </div>
-            }
-            @if (User.IsInRole("Staff"))
-            {
-                <h4 class="section-title mb-3">Reports &amp; Analytics</h4>
-                <div class="list-group">
-                    <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action list-group-item-custom">
-                        Customer Loyalty (Top 10%)
-                    </a>
-                
-                </div>
-            }
+                }
+
+                @* Both Admin and Staff can see Loyalty *@
+                <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action list-group-item-custom">
+                    Customer Loyalty (Top 10%)
+                </a>
+            </div>
         </div>
     </div>
 </div>

@@ -30,7 +30,7 @@ namespace CAAMSAirlineWebApp.Pages.Bookings
             if (customer == null) return;
 
             var allBookings = await _context.Bookings
-                .Where(b => b.CustomerId == customer.CustomerId && b.Status == "Active")
+                .Where(b => b.CustomerId == customer.CustomerId)
                 .Include(b => b.Tickets)
                     .ThenInclude(t => t.FlightLeg)
                         .ThenInclude(fl => fl.Flight)
@@ -65,11 +65,22 @@ namespace CAAMSAirlineWebApp.Pages.Bookings
             if (customer == null) return Forbid();
 
             var booking = await _context.Bookings
+                .Include(b => b.Tickets)
+                .Include(b => b.Passengers)
+                .Include(b => b.Payments)
                 .FirstOrDefaultAsync(b => b.BookingId == bookingId && b.CustomerId == customer.CustomerId);
 
             if (booking == null) return NotFound();
 
-            booking.Status = "Cancelled";
+            //deleteeeeee
+            foreach (var ticket in booking.Tickets)
+                _context.Baggages.RemoveRange(ticket.Baggages);
+
+            _context.Tickets.RemoveRange(booking.Tickets);
+            _context.Passengers.RemoveRange(booking.Passengers);
+            _context.Payments.RemoveRange(booking.Payments);
+            _context.Bookings.Remove(booking);
+
             await _context.SaveChangesAsync();
 
             return RedirectToPage();

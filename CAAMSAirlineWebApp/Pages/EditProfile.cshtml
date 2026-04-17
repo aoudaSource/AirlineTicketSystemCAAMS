@@ -1,29 +1,29 @@
-﻿@page
+@page
 @model CAAMSAirlineWebApp.Pages.EditProfileModel
 @{
     ViewData["Title"] = "Edit Profile";
 }
 
 <style>
-
-    .profile-header {
-        font-family: 'Geologica', sans-serif;
-        color: #0c206d;
-        text-transform: uppercase;
-        font-weight: 700;
+    
+    .profile-header { 
+        font-family: 'Geologica', sans-serif; 
+        color: #0c206d; 
+        text-transform: uppercase; 
+        font-weight: 700; 
     }
 
-    .card-profile {
-        border: 2px solid #0c206d;
-        border-radius: 12px;
-        background-color: #0c206d;
-        color: white;
+    .card-profile { 
+        border: 2px solid #0c206d; 
+        border-radius: 12px; 
+        background-color: #0c206d; 
+        color: white; 
     }
 
-    .form-label {
-        font-weight: 600;
-        color: #ffffff;
-        font-size: 0.9rem;
+    .form-label { 
+        font-weight: 600; 
+        color: #ffffff; 
+        font-size: 0.9rem; 
     }
 
     .form-control {
@@ -31,21 +31,21 @@
         border: 1px solid #ced4da;
     }
 
-    .btn-airline-white {
-        background-color: #ffffff;
-        color: #0c206d;
-        font-weight: 700;
-        padding: 10px 30px;
-        border-radius: 8px;
+    .btn-airline-white { 
+        background-color: #ffffff; 
+        color: #0c206d; 
+        font-weight: 700; 
+        padding: 10px 30px; 
+        border-radius: 8px; 
         transition: 0.3s;
         border: none;
     }
 
-        .btn-airline-white:hover {
-            background-color: #e2e8f0;
-            color: #0c206d;
-            transform: translateY(-1px);
-        }
+    .btn-airline-white:hover { 
+        background-color: #e2e8f0; 
+        color: #0c206d;
+        transform: translateY(-1px); 
+    }
 
     .text-light-muted {
         color: rgba(255, 255, 255, 0.7);
@@ -65,7 +65,7 @@
                 </div>
             }
 
-            <div class="card card-profile shadow-sm">
+            <div class="card card-profile shadow-sm"> 
                 <div class="card-body p-4 p-md-5">
                     <form method="post">
                         <input type="hidden" asp-for="CustomerInfo.CustomerId" />
@@ -92,11 +92,11 @@
 
                             <div class="col-12">
                                 <label asp-for="CustomerInfo.Phone" class="form-label">Phone Number (9 Digits)</label>
-                                <input asp-for="CustomerInfo.Phone"
-                                       class="form-control"
-                                       placeholder="e.g. 123456789"
-                                       maxlength="9"
-                                       type="tel"
+                                <input asp-for="CustomerInfo.Phone" 
+                                       class="form-control" 
+                                       placeholder="e.g. 123456789" 
+                                       maxlength="9" 
+                                       type="tel" 
                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
                                 <span asp-validation-for="CustomerInfo.Phone" class="text-warning small"></span>
                             </div>

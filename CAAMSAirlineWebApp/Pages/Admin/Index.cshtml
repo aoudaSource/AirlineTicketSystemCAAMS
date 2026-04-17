@@ -135,11 +135,20 @@
                 </div>
             }
 
-            @* REPORTS SECTION *@
             <h4 class="section-title mb-3">Reports &amp; Analytics</h4>
             <div class="list-group">
-                @if (User.IsInRole("Admin"))
-                {
+                <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action list-group-item-custom">
+                    Route Profitability
+                </a>
+                <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action list-group-item-custom">
+                    Customer Loyalty (Top 10%)
+                </a>
+                <a asp-page="/Admin/Reports/DailyRevenue" class="list-group-item list-group-item-action list-group-item-custom">
+                    Daily Revenue (Last 24h)
+                </a>
+            </div>
+                <h4 class="section-title mb-3">Reports &amp; Analytics</h4>
+                <div class="list-group">
                     <a asp-page="/Admin/Reports/TotalRevenue" class="list-group-item list-group-item-action list-group-item-custom">
                         Total Revenue
                     </a>

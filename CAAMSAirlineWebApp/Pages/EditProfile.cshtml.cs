@@ -28,7 +28,7 @@ namespace CAAMSAirlineWebApp.Pages
             var username = User.Identity?.Name;
             if (string.IsNullOrEmpty(username)) return RedirectToPage("/Login");
 
-
+            
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(m => m.Username == username);
 
@@ -45,34 +45,34 @@ namespace CAAMSAirlineWebApp.Pages
 
             if (!ModelState.IsValid) return Page();
 
-
+            
             var customerToUpdate = await _context.Customers
-                .Include(c => c.AppUser)
+                .Include(c => c.AppUser) 
                 .FirstOrDefaultAsync(c => c.CustomerId == CustomerInfo.CustomerId);
 
             if (customerToUpdate == null) return NotFound();
 
-
+            
             customerToUpdate.FirstName = CustomerInfo.FirstName;
             customerToUpdate.LastName = CustomerInfo.LastName;
             customerToUpdate.Email = CustomerInfo.Email;
             customerToUpdate.Phone = CustomerInfo.Phone;
             customerToUpdate.DOB = CustomerInfo.DOB;
 
-
+            
             if (customerToUpdate.AppUser != null)
             {
                 customerToUpdate.AppUser.FirstName = CustomerInfo.FirstName;
                 customerToUpdate.AppUser.LastName = CustomerInfo.LastName;
                 customerToUpdate.AppUser.DOB = CustomerInfo.DOB;
-
+                
             }
 
             try
             {
-
+                
                 await _context.SaveChangesAsync();
-                SuccessMessage = "Profile updated successfully!";
+                SuccessMessage = "Profile and Account updated successfully!";
                 return RedirectToPage();
             }
             catch (Exception ex)

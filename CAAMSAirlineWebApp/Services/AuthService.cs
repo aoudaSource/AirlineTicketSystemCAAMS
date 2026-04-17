@@ -67,6 +67,8 @@ namespace CAAMSAirlineWebApp.Services
             return (appUser, null);
         }
 
+
+
         public async Task<(AppUser? user, string? error)> RegisterStaffAsync(RegisterRequest request)
         {
             if (await _context.AppUsers.AnyAsync(u => u.Username == request.Username))
@@ -106,6 +108,6 @@ namespace CAAMSAirlineWebApp.Services
             }
         }
 
+    }
 
     }
-}

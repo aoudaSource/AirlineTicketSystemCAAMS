@@ -6,7 +6,7 @@ namespace CAAMSAirlineWebApp.Data
     {
         public static void Seed(ApplicationDbContext context)
         {
-            // Skip if already seeded (check for the staff user added in v2 seed)
+            // Skip if already seeded
             if (context.AppUsers.Any(u => u.Username == "staff"))
                 return;
 
@@ -120,7 +120,6 @@ namespace CAAMSAirlineWebApp.Data
             context.SaveChanges();
 
             // ── Flights & FlightLegs ──────────────────────────────────────────
-            // Seed 14 days of flights starting from tomorrow
             var today = DateTime.Today;
             var flights = new List<Flight>();
 
@@ -167,6 +166,22 @@ namespace CAAMSAirlineWebApp.Data
                 {
                     flights.Add(MakeFlight("MH122", b777.AircraftId, 1499m, "KUL", "SYD",
                         d.AddHours(23).AddMinutes(55), d.AddDays(1).AddHours(8)));
+                }
+
+                // MH200: KUL → SIN → SYD (2 legs with stop) — every 3 days
+                if (day % 3 == 2)
+                {
+                    flights.Add(new Flight
+                    {
+                        FlightNumber = "MH200",
+                        AircraftId = b777.AircraftId,
+                        BasePrice = 1299m,
+                        FlightLegs = new List<FlightLeg>
+                        {
+                            new FlightLeg { LegNumber = 1, DepartureAirport = "KUL", ArrivalAirport = "SIN", DepartureTime = d.AddHours(6), ArrivalTime = d.AddHours(7).AddMinutes(30) },
+                            new FlightLeg { LegNumber = 2, DepartureAirport = "SIN", ArrivalAirport = "SYD", DepartureTime = d.AddHours(9), ArrivalTime = d.AddHours(17) }
+                        }
+                    });
                 }
             }
 

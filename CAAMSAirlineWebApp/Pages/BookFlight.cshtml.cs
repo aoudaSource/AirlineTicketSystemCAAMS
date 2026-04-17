@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CAAMSAirlineWebApp.Pages
 {
+    [Authorize(Roles = "Customer")]
     public class BookFlightModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -17,18 +18,18 @@ namespace CAAMSAirlineWebApp.Pages
             _context = context;
         }
 
+        // Bound from GET query string — [ValidateNever] prevents it being validated on POSTs
         [BindProperty(SupportsGet = true)]
         [ValidateNever]
         public FlightSearchInput Search { get; set; } = new();
 
         public List<FlightResultItem> SearchResults { get; set; } = new();
-        public List<FlightResultItem> ReturnResults { get; set; } = new();
-
-        [BindProperty(SupportsGet = true)]
-        public int? SelectedOutboundFlightId { get; set; }
 
         public string PageStep { get; set; } = "search";
         public string SuccessMessage { get; set; } = string.Empty;
+
+        [BindProperty(SupportsGet = true)]
+        public bool ShowAll { get; set; } = false;
 
         public async Task OnGetAsync()
         {
@@ -37,30 +38,43 @@ namespace CAAMSAirlineWebApp.Pages
                           && Search.DepartureDate.HasValue
                           && Search.DepartureDate.Value > DateTime.MinValue;
 
-            if (!hasSearch)
+            if (!hasSearch && !ShowAll)
             {
                 PageStep = "search";
                 return;
             }
 
-            var originLower = Search.Origin.Trim().ToLower();
-            var destLower = Search.Destination.Trim().ToLower();
-            var depStart = Search.DepartureDate!.Value.Date;
-            var depEnd = depStart.AddDays(1);
-
-            var legs = await _context.FlightLegs
+            IQueryable<CAAMSAirlineWebApp.Models.FlightLeg> query = _context.FlightLegs
                 .Include(fl => fl.Flight)
+                    .ThenInclude(f => f.Aircraft)
                 .Include(fl => fl.DepartureAirportNavigation)
-                .Include(fl => fl.ArrivalAirportNavigation)
-                .Where(fl =>
+                .Include(fl => fl.ArrivalAirportNavigation);
+
+            if (!ShowAll)
+            {
+                var originLower = Search.Origin.Trim().ToLower();
+                var destLower = Search.Destination.Trim().ToLower();
+                var depStart = Search.DepartureDate!.Value.Date;
+                var depEnd = depStart.AddDays(1);
+
+                query = query.Where(fl =>
                     fl.DepartureTime >= depStart && fl.DepartureTime < depEnd &&
                     (fl.DepartureAirport.ToLower().Contains(originLower) ||
                      fl.DepartureAirportNavigation.City.ToLower().Contains(originLower) ||
                      fl.DepartureAirportNavigation.AirportName.ToLower().Contains(originLower)) &&
                     (fl.ArrivalAirport.ToLower().Contains(destLower) ||
                      fl.ArrivalAirportNavigation.City.ToLower().Contains(destLower) ||
-                     fl.ArrivalAirportNavigation.AirportName.ToLower().Contains(destLower)))
-                .ToListAsync();
+                     fl.ArrivalAirportNavigation.AirportName.ToLower().Contains(destLower)));
+            }
+
+            var legs = await query.ToListAsync();
+
+            var legIds = legs.Select(fl => fl.LegId).ToList();
+            var bookedCountsPerLeg = await _context.Tickets
+                .Where(t => legIds.Contains(t.LegId))
+                .GroupBy(t => t.LegId)
+                .Select(g => new { LegId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.LegId, x => x.Count);
 
             SearchResults = legs.Select(fl => new FlightResultItem
             {
@@ -72,44 +86,14 @@ namespace CAAMSAirlineWebApp.Pages
                 ArrivalCity = fl.ArrivalAirportNavigation.City,
                 DepartureTime = fl.DepartureTime,
                 ArrivalTime = fl.ArrivalTime,
-                BasePrice = fl.Flight.BasePrice
+                BasePrice = fl.Flight.BasePrice,
+                IsFull = bookedCountsPerLeg.TryGetValue(fl.LegId, out var booked)
+                         && booked >= fl.Flight.Aircraft.Capacity
             }).ToList();
-
-            if (Search.TripType == "RoundTrip" && Search.ReturnDate.HasValue)
-            {
-                var retStart = Search.ReturnDate.Value.Date;
-                var retEnd = retStart.AddDays(1);
-
-                var returnLegs = await _context.FlightLegs
-                    .Include(fl => fl.Flight)
-                    .Include(fl => fl.DepartureAirportNavigation)
-                    .Include(fl => fl.ArrivalAirportNavigation)
-                    .Where(fl =>
-                        fl.DepartureTime >= retStart && fl.DepartureTime < retEnd &&
-                        (fl.DepartureAirport.ToLower().Contains(destLower) ||
-                         fl.DepartureAirportNavigation.City.ToLower().Contains(destLower) ||
-                         fl.DepartureAirportNavigation.AirportName.ToLower().Contains(destLower)) &&
-                        (fl.ArrivalAirport.ToLower().Contains(originLower) ||
-                         fl.ArrivalAirportNavigation.City.ToLower().Contains(originLower) ||
-                         fl.ArrivalAirportNavigation.AirportName.ToLower().Contains(originLower)))
-                    .ToListAsync();
-
-                ReturnResults = returnLegs.Select(fl => new FlightResultItem
-                {
-                    FlightId = fl.FlightId,
-                    FlightNumber = fl.Flight.FlightNumber,
-                    DepartureCode = fl.DepartureAirport,
-                    DepartureCity = fl.DepartureAirportNavigation.City,
-                    ArrivalCode = fl.ArrivalAirport,
-                    ArrivalCity = fl.ArrivalAirportNavigation.City,
-                    DepartureTime = fl.DepartureTime,
-                    ArrivalTime = fl.ArrivalTime,
-                    BasePrice = fl.Flight.BasePrice
-                }).ToList();
-            }
 
             PageStep = "results";
         }
+
     }
 
     public class FlightResultItem
@@ -123,5 +107,6 @@ namespace CAAMSAirlineWebApp.Pages
         public DateTime DepartureTime { get; set; }
         public DateTime ArrivalTime { get; set; }
         public decimal BasePrice { get; set; }
+        public bool IsFull { get; set; }
     }
 }

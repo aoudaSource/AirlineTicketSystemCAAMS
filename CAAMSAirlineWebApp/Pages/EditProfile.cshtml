@@ -1,0 +1,128 @@
+﻿@page
+@model CAAMSAirlineWebApp.Pages.EditProfileModel
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<style>
+    
+    .profile-header { 
+        font-family: 'Geologica', sans-serif; 
+        color: #0c206d; 
+        text-transform: uppercase; 
+        font-weight: 700; 
+    }
+
+    .card-profile { 
+        border: 2px solid #0c206d; 
+        border-radius: 12px; 
+        background-color: #0c206d; 
+        color: white; 
+    }
+
+    .form-label { 
+        font-weight: 600; 
+        color: #ffffff; 
+        font-size: 0.9rem; 
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+    }
+
+    .btn-airline-white { 
+        background-color: #ffffff; 
+        color: #0c206d; 
+        font-weight: 700; 
+        padding: 10px 30px; 
+        border-radius: 8px; 
+        transition: 0.3s;
+        border: none;
+    }
+
+    .btn-airline-white:hover { 
+        background-color: #e2e8f0; 
+        color: #0c206d;
+        transform: translateY(-1px); 
+    }
+
+    .text-light-muted {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+    }
+</style>
+
+<div class="container mt-5 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="profile-header mb-4 text-center">Profile Information</h2>
+
+            @if (Model.SuccessMessage != null)
+            {
+                <div class="alert alert-success border-0 shadow-sm mb-4">
+                    <i class="bi bi-check-circle-fill me-2"></i> @Model.SuccessMessage
+                </div>
+            }
+
+            <div class="card card-profile shadow-sm"> 
+                <div class="card-body p-4 p-md-5">
+                    <form method="post">
+                        <input type="hidden" asp-for="CustomerInfo.CustomerId" />
+                        <input type="hidden" asp-for="CustomerInfo.Username" />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="CustomerInfo.FirstName" class="form-label">First Name</label>
+                                <input asp-for="CustomerInfo.FirstName" class="form-control" />
+                                <span asp-validation-for="CustomerInfo.FirstName" class="text-warning small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CustomerInfo.LastName" class="form-label">Last Name</label>
+                                <input asp-for="CustomerInfo.LastName" class="form-control" />
+                                <span asp-validation-for="CustomerInfo.LastName" class="text-warning small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="CustomerInfo.Email" class="form-label">Email Address</label>
+                                <input asp-for="CustomerInfo.Email" type="email" class="form-control" />
+                                <span asp-validation-for="CustomerInfo.Email" class="text-warning small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="CustomerInfo.Phone" class="form-label">Phone Number (9 Digits)</label>
+                                <input asp-for="CustomerInfo.Phone" 
+                                       class="form-control" 
+                                       placeholder="e.g. 123456789" 
+                                       maxlength="9" 
+                                       type="tel" 
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+                                <span asp-validation-for="CustomerInfo.Phone" class="text-warning small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="CustomerInfo.DOB" class="form-label">Date of Birth</label>
+                                <input asp-for="CustomerInfo.DOB" type="date" class="form-control" />
+                                <span asp-validation-for="CustomerInfo.DOB" class="text-warning small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 text-center">
+                            <button type="submit" class="btn btn-airline-white w-100 mb-3">
+                                Update My Profile
+                            </button>
+                            <a asp-page="/Index" class="text-light-muted text-decoration-none">
+                                <i class="bi bi-arrow-left"></i> Return to Homepage
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

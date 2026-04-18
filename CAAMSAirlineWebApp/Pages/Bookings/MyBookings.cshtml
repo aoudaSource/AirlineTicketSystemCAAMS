@@ -44,11 +44,28 @@
         font-family: 'Geologica', sans-serif;
     }
 
+    .leg-card {
+        border: 1px solid #e4edf7;
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-top: 12px;
+        background: #f8faff;
+    }
+
+    .leg-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #3c81bd;
+        font-family: 'Geologica', sans-serif;
+        margin-bottom: 8px;
+    }
+
     .flight-row {
         display: flex;
         align-items: center;
         gap: 16px;
-        margin: 10px 0;
         flex-wrap: wrap;
     }
 
@@ -99,19 +116,13 @@
     .booking-meta {
         font-size: 0.82rem;
         color: #777;
-        margin-top: 10px;
+        margin-top: 12px;
     }
 
     .total-price {
         font-size: 1rem;
         font-weight: 700;
         color: #1a3a5c;
-    }
-
-    .leg-divider {
-        border: none;
-        border-top: 1px dashed #cde;
-        margin: 10px 0;
     }
 
     .no-bookings {
@@ -138,13 +149,6 @@
         font-weight: 600;
     }
 
-    .passenger-names {
-        font-size: 0.8rem;
-        color: #555;
-        margin-top: 6px;
-        font-family: 'Geologica', sans-serif;
-    }
-
     .btn-cancel {
         background: none;
         border: 1px solid #e53e3e;
@@ -163,11 +167,17 @@
             color: white;
         }
 
+    .pax-section {
+        margin-top: 8px;
+        border-top: 1px solid #e4edf7;
+        padding-top: 8px;
+    }
+
     .pax-row {
         display: flex;
         gap: 16px;
         align-items: center;
-        padding: 4px 0;
+        padding: 3px 0;
         font-size: 0.82rem;
         color: #444;
         font-family: 'Geologica', sans-serif;
@@ -185,12 +195,6 @@
         font-size: 0.75rem;
         color: #3c81bd;
         font-weight: 600;
-    }
-
-    .pax-section {
-        margin-top: 6px;
-        padding: 8px 0 4px;
-        border-top: 1px solid #eef1f7;
     }
 
     .btn-see-more {
@@ -223,8 +227,9 @@ else
         var passengers = booking.Passengers.ToList();
         var uniqueId = $"pax-{booking.BookingId}";
 
-        var legs = booking.Tickets
-            .GroupBy(t => t.LegId)
+        @* Group by FlightId first to separate outbound and return *@
+        var flightGroups = booking.Tickets
+            .GroupBy(t => t.FlightLeg.FlightId)
             .OrderBy(g => g.Min(t => t.FlightLeg.DepartureTime))
             .ToList();
 
@@ -243,44 +248,78 @@ else
                 </div>
             </div>
 
-            @foreach (var legGroup in legs)
+            @{
+                int flightIndex = 0;
+            }
+            @foreach (var flightGroup in flightGroups)
             {
-                var leg = legGroup.First().FlightLeg;
+                flightIndex++;
+                var flightLabel = flightGroups.Count > 1 ? (flightIndex == 1 ? "Outbound Flight" : "Return Flight") : "Flight";
 
-                <hr class="leg-divider" />
-                <div class="flight-row">
-                    <span class="flight-number-badge">@leg.Flight.FlightNumber</span>
-                    <div class="text-center">
-                        <div class="airport-code">@leg.DepartureAirport</div>
-                        <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
-                        <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
-                    </div>
-                    <div class="flight-arrow">→</div>
-                    <div class="text-center">
-                        <div class="airport-code">@leg.ArrivalAirport</div>
-                        <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
-                        <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
-                    </div>
-                    <span class="badge-class">@legGroup.First().TicketClass</span>
+                @* Get legs within this flight, ordered by leg number *@
+                var legsInFlight = flightGroup
+                    .GroupBy(t => t.LegId)
+                    .OrderBy(g => g.Min(t => t.FlightLeg.DepartureTime))
+                    .ToList();
+
+                var flightNumber = legsInFlight.First().First().FlightLeg.Flight.FlightNumber;
+                var legUniqueId = $"{uniqueId}-f{flightIndex}";
+
+                @* Flight header *@
+                <div class="mt-3 d-flex align-items-center gap-2">
+                    <span class="flight-number-badge">@flightNumber</span>
+                    <span style="font-size:0.78rem; font-weight:700; color:#3c81bd; font-family:'Geologica',sans-serif; text-transform:uppercase; letter-spacing:0.05em;">@flightLabel</span>
+                    @if (legsInFlight.Count > 1)
+                    {
+                        <span style="font-size:0.72rem; color:#888;">@legsInFlight.Count legs</span>
+                    }
                 </div>
 
-                <div class="pax-section">
-                    @for (int i = 0; i < passengers.Count; i++)
-                    {
-                        var pax = passengers[i];
-                        var paxTicket = legGroup.FirstOrDefault(t => t.PassengerId == pax.PassengerId);
-                        <div class="pax-row @(i > 0 ? $"d-none pax-extra-{uniqueId}" : "")">
-                            <span class="pax-name">@pax.FirstName @pax.LastName</span>
-                            <span class="pax-seat">Seat @(paxTicket?.Seat?.SeatNumber ?? "—")</span>
+                @* Each leg as its own labeled card *@
+                int legIndex = 0;
+                @foreach (var legGroup in legsInFlight)
+                {
+                    legIndex++;
+                    var leg = legGroup.First().FlightLeg;
+                    var legLabel = legsInFlight.Count > 1 ? $"Leg {legIndex}" : "Direct";
+
+                    <div class="leg-card">
+                        <div class="leg-label">@legLabel — @leg.DepartureAirport → @leg.ArrivalAirport</div>
+                        <div class="flight-row">
+                            <div class="text-center">
+                                <div class="airport-code">@leg.DepartureAirport</div>
+                                <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
+                            </div>
+                            <div class="flight-arrow">→</div>
+                            <div class="text-center">
+                                <div class="airport-code">@leg.ArrivalAirport</div>
+                                <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
+                            </div>
+                            <span class="badge-class">@legGroup.First().TicketClass</span>
                         </div>
-                    }
-                    @if (passengers.Count > 1)
-                    {
-                        <button class="btn-see-more" onclick="togglePax('@uniqueId', this)">
-                            See @(passengers.Count - 1) more traveler@(passengers.Count - 1 > 1 ? "s" : "")
-                        </button>
-                    }
-                </div>
+
+                        @* Passengers for this leg *@
+                        <div class="pax-section">
+                            @for (int i = 0; i < passengers.Count; i++)
+                            {
+                                var pax = passengers[i];
+                                var paxTicket = legGroup.FirstOrDefault(t => t.PassengerId == pax.PassengerId);
+                                <div class="pax-row @(i > 0 ? $"d-none pax-extra-{legUniqueId}" : "")">
+                                    <span class="pax-name">@pax.FirstName @pax.LastName</span>
+                                    <span class="pax-seat">Seat @(paxTicket?.Seat?.SeatNumber ?? "—")</span>
+                                </div>
+                            }
+                            @if (passengers.Count > 1)
+                            {
+                                <button class="btn-see-more" onclick="togglePax('@legUniqueId', this)">
+                                    See @(passengers.Count - 1) more traveler@(passengers.Count - 1 > 1 ? "s" : "")
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
             }
 
             <div class="booking-meta">
@@ -304,8 +343,8 @@ else
         var passengers = booking.Passengers.ToList();
         var uniqueId = $"pax-past-{booking.BookingId}";
 
-        var legs = booking.Tickets
-            .GroupBy(t => t.LegId)
+        var flightGroups = booking.Tickets
+            .GroupBy(t => t.FlightLeg.FlightId)
             .OrderBy(g => g.Min(t => t.FlightLeg.DepartureTime))
             .ToList();
 
@@ -318,44 +357,74 @@ else
                 <span class="total-price">USD @booking.TotalPrice.ToString("N2")</span>
             </div>
 
-            @foreach (var legGroup in legs)
+            @{
+                int flightIndex2 = 0;
+            }
+            @foreach (var flightGroup in flightGroups)
             {
-                var leg = legGroup.First().FlightLeg;
+                flightIndex2++;
+                var flightLabel = flightGroups.Count > 1 ? (flightIndex2 == 1 ? "Outbound Flight" : "Return Flight") : "Flight";
 
-                <hr class="leg-divider" />
-                <div class="flight-row">
-                    <span class="flight-number-badge">@leg.Flight.FlightNumber</span>
-                    <div class="text-center">
-                        <div class="airport-code">@leg.DepartureAirport</div>
-                        <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
-                        <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
-                    </div>
-                    <div class="flight-arrow">→</div>
-                    <div class="text-center">
-                        <div class="airport-code">@leg.ArrivalAirport</div>
-                        <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
-                        <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
-                    </div>
-                    <span class="badge-class">@legGroup.First().TicketClass</span>
+                var legsInFlight = flightGroup
+                    .GroupBy(t => t.LegId)
+                    .OrderBy(g => g.Min(t => t.FlightLeg.DepartureTime))
+                    .ToList();
+
+                var flightNumber = legsInFlight.First().First().FlightLeg.Flight.FlightNumber;
+                var legUniqueId = $"{uniqueId}-f{flightIndex2}";
+
+                <div class="mt-3 d-flex align-items-center gap-2">
+                    <span class="flight-number-badge">@flightNumber</span>
+                    <span style="font-size:0.78rem; font-weight:700; color:#3c81bd; font-family:'Geologica',sans-serif; text-transform:uppercase; letter-spacing:0.05em;">@flightLabel</span>
+                    @if (legsInFlight.Count > 1)
+                    {
+                        <span style="font-size:0.72rem; color:#888;">@legsInFlight.Count legs</span>
+                    }
                 </div>
 
-                <div class="pax-section">
-                    @for (int i = 0; i < passengers.Count; i++)
-                    {
-                        var pax = passengers[i];
-                        var paxTicket = legGroup.FirstOrDefault(t => t.PassengerId == pax.PassengerId);
-                        <div class="pax-row @(i > 0 ? $"d-none pax-extra-{uniqueId}" : "")">
-                            <span class="pax-name">@pax.FirstName @pax.LastName</span>
-                            <span class="pax-seat">Seat @(paxTicket?.Seat?.SeatNumber ?? "—")</span>
+                int legIndex2 = 0;
+                @foreach (var legGroup in legsInFlight)
+                {
+                    legIndex2++;
+                    var leg = legGroup.First().FlightLeg;
+                    var legLabel = legsInFlight.Count > 1 ? $"Leg {legIndex2}" : "Direct";
+
+                    <div class="leg-card">
+                        <div class="leg-label">@legLabel — @leg.DepartureAirport → @leg.ArrivalAirport</div>
+                        <div class="flight-row">
+                            <div class="text-center">
+                                <div class="airport-code">@leg.DepartureAirport</div>
+                                <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
+                            </div>
+                            <div class="flight-arrow">→</div>
+                            <div class="text-center">
+                                <div class="airport-code">@leg.ArrivalAirport</div>
+                                <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM yyyy HH:mm")</div>
+                            </div>
+                            <span class="badge-class">@legGroup.First().TicketClass</span>
                         </div>
-                    }
-                    @if (passengers.Count > 1)
-                    {
-                        <button class="btn-see-more" onclick="togglePax('@uniqueId', this)">
-                            See @(passengers.Count - 1) more traveler@(passengers.Count - 1 > 1 ? "s" : "")
-                        </button>
-                    }
-                </div>
+
+                        <div class="pax-section">
+                            @for (int i = 0; i < passengers.Count; i++)
+                            {
+                                var pax = passengers[i];
+                                var paxTicket = legGroup.FirstOrDefault(t => t.PassengerId == pax.PassengerId);
+                                <div class="pax-row @(i > 0 ? $"d-none pax-extra-{legUniqueId}" : "")">
+                                    <span class="pax-name">@pax.FirstName @pax.LastName</span>
+                                    <span class="pax-seat">Seat @(paxTicket?.Seat?.SeatNumber ?? "—")</span>
+                                </div>
+                            }
+                            @if (passengers.Count > 1)
+                            {
+                                <button class="btn-see-more" onclick="togglePax('@legUniqueId', this)">
+                                    See @(passengers.Count - 1) more traveler@(passengers.Count - 1 > 1 ? "s" : "")
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
             }
 
             <div class="booking-meta">
@@ -368,12 +437,11 @@ else
 
 <script>
     function togglePax(id, btn) {
-        const rows = document.querySelectorAll('.pax-extra-' + id);
-        const hidden = rows[0]?.classList.contains('d-none');
-        rows.forEach(r => r.classList.toggle('d-none', !hidden));
-        const count = rows.length;
-        btn.textContent = hidden
-            ? 'Hide travelers'
-            : 'See ' + count + ' more traveler' + (count > 1 ? 's' : '');
+    const rows = document.querySelectorAll('.pax-extra-' + id);
+    const hidden = rows[0]?.classList.contains('d-none');
+    rows.forEach(r => r.classList.toggle('d-none', !hidden));
+    const count = rows.length;
+    btn.textContent = hidden
+    ? 'Hide travelers'
+    : 'See ' + count + ' more traveler' + (count > 1 ? 's' : '');
     }
-</script>

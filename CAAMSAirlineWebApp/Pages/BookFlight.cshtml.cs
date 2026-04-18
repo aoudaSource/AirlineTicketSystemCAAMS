@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using CAAMSAirlineWebApp.Models;
 
 namespace CAAMSAirlineWebApp.Pages
 {
@@ -23,6 +24,7 @@ namespace CAAMSAirlineWebApp.Pages
 
         public List<FlightResultItem> SearchResults { get; set; } = new();
         public List<FlightResultItem> ReturnResults { get; set; } = new();
+        public List<Airport> Airports { get; set; } = new();
 
         [BindProperty(SupportsGet = true)]
         public int? SelectedOutboundFlightId { get; set; }
@@ -32,6 +34,8 @@ namespace CAAMSAirlineWebApp.Pages
 
         public async Task OnGetAsync()
         {
+            Airports = await _context.Airports.ToListAsync();
+            var cutoff = DateTime.Now;
             bool hasSearch = !string.IsNullOrWhiteSpace(Search.Origin)
                           && !string.IsNullOrWhiteSpace(Search.Destination);
 
@@ -49,12 +53,14 @@ namespace CAAMSAirlineWebApp.Pages
                 .Include(fl => fl.DepartureAirportNavigation)
                 .Include(fl => fl.ArrivalAirportNavigation)
                 .Where(fl =>
+                    fl.DepartureTime > cutoff &&
                     (fl.DepartureAirport.ToLower().Contains(originLower) ||
                      fl.DepartureAirportNavigation.City.ToLower().Contains(originLower) ||
                      fl.DepartureAirportNavigation.AirportName.ToLower().Contains(originLower)) &&
                     (fl.ArrivalAirport.ToLower().Contains(destLower) ||
                      fl.ArrivalAirportNavigation.City.ToLower().Contains(destLower) ||
                      fl.ArrivalAirportNavigation.AirportName.ToLower().Contains(destLower)));
+
 
             if (Search.DepartureDate.HasValue)
             {
@@ -86,6 +92,7 @@ namespace CAAMSAirlineWebApp.Pages
                     .Include(fl => fl.DepartureAirportNavigation)
                     .Include(fl => fl.ArrivalAirportNavigation)
                     .Where(fl =>
+                        fl.DepartureTime > cutoff &&
                         (fl.DepartureAirport.ToLower().Contains(destLower) ||
                          fl.DepartureAirportNavigation.City.ToLower().Contains(destLower) ||
                          fl.DepartureAirportNavigation.AirportName.ToLower().Contains(destLower)) &&
@@ -134,4 +141,3 @@ namespace CAAMSAirlineWebApp.Pages
         }
     }
 }
-

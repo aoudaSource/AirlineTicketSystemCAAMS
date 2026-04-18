@@ -9,23 +9,109 @@
         font-family: 'Geologica', sans-serif;
         color: #0c206d;
     }
-    .geologica-text { font-family: 'Geologica', sans-serif; }
-    .search-card { border-radius: 15px; background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%); border: 1px solid #eef1f7; }
-    .form-control:focus, .form-select:focus { border-color: #3c81bd; box-shadow: 0 0 0 0.25rem rgba(60,129,189,0.15); }
-    .btn-airline-search { background-color: #0c206d !important; border-color: #0c206d !important; color: white !important; font-weight: 600; padding: 12px; transition: 0.3s; }
-    .btn-airline-search:hover { background-color: #08164d !important; transform: translateY(-2px); }
-    .flight-card { border-radius: 12px; transition: 0.3s ease; border: 1px solid transparent; }
-    .flight-card:hover { border-color: #3c81bd; transform: scale(1.01); box-shadow: 0 10px 20px rgba(12,32,109,0.08) !important; }
-    .flight-card.selected-outbound { border-color: #3c81bd; background: #f0f7ff; }
-    .airport-code { font-size: 1.5rem; font-weight: 800; color: #0c206d; line-height: 1; }
-    .flight-path { position: relative; color: #cbd5e0; font-size: 1.2rem; }
-    .price-tag { color: #0c206d; font-size: 1.4rem; font-weight: 800; }
-    .btn-book-now { background-color: #0c206d; color: white; border-radius: 50px; font-weight: 600; padding: 8px 25px; transition: 0.3s; border: none; cursor: pointer; }
-    .btn-book-now:hover { background-color: #3c81bd; color: white; }
-    .btn-book-now.selected { background-color: #3c81bd; }
-    .search-title { border-left: 5px solid #0c206d; padding-left: 15px; font-weight: 800; }
-    .section-divider { border: none; border-top: 2px solid #3c81bd; margin: 30px 0 20px; opacity: 0.3; }
-    .return-locked { opacity: 0.4; pointer-events: none; }
+
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
+
+    .search-card {
+        border-radius: 15px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+        border: 1px solid #eef1f7;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #3c81bd;
+        box-shadow: 0 0 0 0.25rem rgba(60,129,189,0.15);
+    }
+
+    .btn-airline-search {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        font-weight: 600;
+        padding: 12px;
+        transition: 0.3s;
+    }
+
+        .btn-airline-search:hover {
+            background-color: #08164d !important;
+            transform: translateY(-2px);
+        }
+
+    .flight-card {
+        border-radius: 12px;
+        transition: 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+        .flight-card:hover {
+            border-color: #3c81bd;
+            transform: scale(1.01);
+            box-shadow: 0 10px 20px rgba(12,32,109,0.08) !important;
+        }
+
+        .flight-card.selected-outbound {
+            border-color: #3c81bd;
+            background: #f0f7ff;
+        }
+
+    .airport-code {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0c206d;
+        line-height: 1;
+    }
+
+    .flight-path {
+        position: relative;
+        color: #cbd5e0;
+        font-size: 1.2rem;
+    }
+
+    .price-tag {
+        color: #0c206d;
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+
+    .btn-book-now {
+        background-color: #0c206d;
+        color: white;
+        border-radius: 50px;
+        font-weight: 600;
+        padding: 8px 25px;
+        transition: 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+
+        .btn-book-now:hover {
+            background-color: #3c81bd;
+            color: white;
+        }
+
+        .btn-book-now.selected {
+            background-color: #3c81bd;
+        }
+
+    .search-title {
+        border-left: 5px solid #0c206d;
+        padding-left: 15px;
+        font-weight: 800;
+    }
+
+    .section-divider {
+        border: none;
+        border-top: 2px solid #3c81bd;
+        margin: 30px 0 20px;
+        opacity: 0.3;
+    }
+
+    .return-locked {
+        opacity: 0.4;
+        pointer-events: none;
+    }
 
     /* Scrollable flight box */
     .flights-scroll-box {
@@ -39,9 +125,70 @@
         padding: 12px;
         background: #fafcff;
     }
-    .flights-scroll-box::-webkit-scrollbar { width: 6px; }
-    .flights-scroll-box::-webkit-scrollbar-track { background: #f0f4f8; border-radius: 10px; }
-    .flights-scroll-box::-webkit-scrollbar-thumb { background: #3c81bd; border-radius: 10px; }
+
+        .flights-scroll-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .flights-scroll-box::-webkit-scrollbar-track {
+            background: #f0f4f8;
+            border-radius: 10px;
+        }
+
+        .flights-scroll-box::-webkit-scrollbar-thumb {
+            background: #3c81bd;
+            border-radius: 10px;
+        }
+
+    /* Autocomplete */
+    .autocomplete-wrapper {
+        position: relative;
+        flex: 1;
+    }
+
+    .autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #dce6f0;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(12,32,109,0.1);
+        z-index: 9999;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .autocomplete-item {
+        padding: 8px 14px;
+        cursor: pointer;
+        font-family: 'Geologica', sans-serif;
+        font-size: 0.85rem;
+        color: #1a3a5c;
+        border-bottom: 1px solid #f0f4f8;
+    }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover {
+            background: #f0f7ff;
+        }
+
+        .autocomplete-item .code {
+            font-weight: 700;
+            color: #3c81bd;
+            margin-right: 6px;
+        }
+
+        .autocomplete-item .country {
+            font-size: 0.75rem;
+            color: #999;
+            margin-left: 4px;
+        }
 </style>
 
 <div class="container mt-5 pb-5">
@@ -65,14 +212,30 @@
                         <label class="form-label fw-bold small text-uppercase">Departure City</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-geo-alt text-primary"></i></span>
-                            <input asp-for="Search.Origin" class="form-control border-start-0 geologica-text" placeholder="e.g. KUL" />
+                            <div class="autocomplete-wrapper">
+                                <input asp-for="Search.Origin" id="originInput"
+                                       class="form-control border-start-0 geologica-text"
+                                       placeholder="e.g. KUL or Kuala Lumpur"
+                                       autocomplete="off"
+                                       oninput="showSuggestions('originInput', 'originDropdown')"
+                                       onblur="hideSuggestions('originDropdown')" />
+                                <div class="autocomplete-dropdown" id="originDropdown"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-bold small text-uppercase">Arrival City</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-airplane-engines text-primary"></i></span>
-                            <input asp-for="Search.Destination" class="form-control border-start-0 geologica-text" placeholder="e.g. SIN" />
+                            <div class="autocomplete-wrapper">
+                                <input asp-for="Search.Destination" id="destInput"
+                                       class="form-control border-start-0 geologica-text"
+                                       placeholder="e.g. SIN or Singapore"
+                                       autocomplete="off"
+                                       oninput="showSuggestions('destInput', 'destDropdown')"
+                                       onblur="hideSuggestions('destDropdown')" />
+                                <div class="autocomplete-dropdown" id="destDropdown"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -121,7 +284,10 @@
         @* OUTBOUND *@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="geologica-text fw-bold mb-0">
-                @if (isRoundTrip) { <span>Outbound — </span> }
+                @if (isRoundTrip)
+                {
+                    <span>Outbound — </span>
+                }
                 <span class="text-primary">@Model.SearchResults.Count</span> flights
             </h5>
             <span class="text-muted small">Scroll to see more</span>
@@ -173,7 +339,7 @@
                                     </div>
                                     <div class="col-md-3 text-center border-start border-end">
                                         <div class="text-muted small text-uppercase fw-bold">Best Price</div>
-                                        <div class="price-tag"><small class="fs-6 fw-normal">USD</small> @flight.BasePrice.ToString("N2")</div>
+                                        <div class="price-tag"><small class="fs-6 fw-normal">MYR</small> @flight.BasePrice.ToString("N2")</div>
                                         <div class="text-success small"><i class="bi bi-lightning-charge-fill"></i> Instant Booking</div>
                                     </div>
                                     <div class="col-md-2 text-center">
@@ -247,7 +413,7 @@
                                     </div>
                                     <div class="col-md-3 text-center border-start border-end">
                                         <div class="text-muted small text-uppercase fw-bold">Best Price</div>
-                                        <div class="price-tag"><small class="fs-6 fw-normal">USD</small> @flight.BasePrice.ToString("N2")</div>
+                                        <div class="price-tag"><small class="fs-6 fw-normal">MYR</small> @flight.BasePrice.ToString("N2")</div>
                                         <div class="text-success small"><i class="bi bi-lightning-charge-fill"></i> Instant Booking</div>
                                     </div>
                                     <div class="col-md-2 text-center">
@@ -267,58 +433,111 @@
 </div>
 
 @section Scripts {
-<script>
-    // Trip type toggle
-    const tripTypeSelect = document.getElementById('tripTypeSelect');
-    const returnDateGroup = document.getElementById('returnDateGroup');
-    function toggleReturnDate() {
-        if (tripTypeSelect && returnDateGroup)
-            returnDateGroup.style.display = tripTypeSelect.value === 'RoundTrip' ? '' : 'none';
-    }
-    if (tripTypeSelect) { tripTypeSelect.addEventListener('change', toggleReturnDate); toggleReturnDate(); }
+    <script>
+        // Airport data from server
+        const airports = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                                    Model.Airports.Select(a => new
+                                    {
+                                                code = a.AirportCode,
+                                                city = a.City,
+                                                name = a.AirportName,
+                                                country = a.Country
+                                    })
+                    ));
 
-    // Live date filter — type "25" matches any 25th, "04" matches April, "2026-04-25" exact
-    function filterByDate(containerId, value) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        const val = value.trim();
-        container.querySelectorAll('.card').forEach(card => {
-            const date = card.dataset.date || '';
-            card.style.display = (!val || date.includes(val)) ? '' : 'none';
-        });
-    }
+        // Show autocomplete suggestions
+        function showSuggestions(inputId, dropdownId) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            const val = input.value.trim().toLowerCase();
 
-    // One-way
-    function selectOneWay(flightId, date, passengerCount) {
-        const dep = document.getElementById('departureDateInput');
-        if (dep) dep.value = date;
-        window.location.href = '/BookingForm?flightId=' + flightId + '&passengerCount=' + passengerCount;
-    }
+            if (val.length < 1) { dropdown.style.display = 'none'; return; }
 
-    // Round trip step 1
-    var selectedOutboundId = null;
-    function selectOutbound(flightId, date, btn) {
-        selectedOutboundId = flightId;
-        const dep = document.getElementById('departureDateInput');
-        if (dep) dep.value = date;
-        document.querySelectorAll('.outbound-item').forEach(c => c.classList.remove('selected-outbound'));
-        btn.closest('.card').classList.add('selected-outbound');
-        btn.textContent = 'Selected';
-        btn.classList.add('selected');
-        const returnSection = document.getElementById('return-cards');
-        if (returnSection) returnSection.classList.remove('return-locked');
-        const hint = document.getElementById('returnHint');
-        if (hint) hint.textContent = 'Now select your return flight';
-        const divider = document.querySelector('.section-divider');
-        if (divider) divider.scrollIntoView({ behavior: 'smooth' });
-    }
+            const matches = airports.filter(a =>
+                a.code.toLowerCase().includes(val) ||
+                a.city.toLowerCase().includes(val) ||
+                a.name.toLowerCase().includes(val) ||
+                a.country.toLowerCase().includes(val)
+            ).slice(0, 6);
 
-    // Round trip step 2
-    function selectReturn(returnFlightId, date, passengerCount) {
-        if (!selectedOutboundId) { alert('Please select an outbound flight first.'); return; }
-        const ret = document.getElementById('returnDateInput');
-        if (ret) ret.value = date;
-        window.location.href = '/BookingForm?flightId=' + selectedOutboundId + '&returnFlightId=' + returnFlightId + '&passengerCount=' + passengerCount;
-    }
-</script>
+            if (matches.length === 0) { dropdown.style.display = 'none'; return; }
+
+            dropdown.innerHTML = matches.map(a => `
+                <div class="autocomplete-item" onmousedown="selectSuggestion('${inputId}', '${dropdownId}', '${a.code}')">
+                    <span class="code">${a.code}</span>
+                    ${a.city}
+                    <span class="country">${a.country}</span>
+                </div>
+            `).join('');
+
+            dropdown.style.display = 'block';
+        }
+
+        // Select a suggestion
+        function selectSuggestion(inputId, dropdownId, code) {
+            document.getElementById(inputId).value = code;
+            document.getElementById(dropdownId).style.display = 'none';
+        }
+
+        // Hide dropdown on blur (small delay so click registers first)
+        function hideSuggestions(dropdownId) {
+            setTimeout(() => {
+                const dropdown = document.getElementById(dropdownId);
+                if (dropdown) dropdown.style.display = 'none';
+            }, 150);
+        }
+
+        // Trip type toggle
+        const tripTypeSelect = document.getElementById('tripTypeSelect');
+        const returnDateGroup = document.getElementById('returnDateGroup');
+        function toggleReturnDate() {
+            if (tripTypeSelect && returnDateGroup)
+                returnDateGroup.style.display = tripTypeSelect.value === 'RoundTrip' ? '' : 'none';
+        }
+        if (tripTypeSelect) { tripTypeSelect.addEventListener('change', toggleReturnDate); toggleReturnDate(); }
+
+        // Live date filter
+        function filterByDate(containerId, value) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const val = value.trim();
+            container.querySelectorAll('.card').forEach(card => {
+                const date = card.dataset.date || '';
+                card.style.display = (!val || date.includes(val)) ? '' : 'none';
+            });
+        }
+
+        // One-way
+        function selectOneWay(flightId, date, passengerCount) {
+            const dep = document.getElementById('departureDateInput');
+            if (dep) dep.value = date;
+            window.location.href = '/BookingForm?flightId=' + flightId + '&passengerCount=' + passengerCount;
+        }
+
+        // Round trip step 1
+        var selectedOutboundId = null;
+        function selectOutbound(flightId, date, btn) {
+            selectedOutboundId = flightId;
+            const dep = document.getElementById('departureDateInput');
+            if (dep) dep.value = date;
+            document.querySelectorAll('.outbound-item').forEach(c => c.classList.remove('selected-outbound'));
+            btn.closest('.card').classList.add('selected-outbound');
+            btn.textContent = 'Selected';
+            btn.classList.add('selected');
+            const returnSection = document.getElementById('return-cards');
+            if (returnSection) returnSection.classList.remove('return-locked');
+            const hint = document.getElementById('returnHint');
+            if (hint) hint.textContent = 'Now select your return flight';
+            const divider = document.querySelector('.section-divider');
+            if (divider) divider.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Round trip step 2
+        function selectReturn(returnFlightId, date, passengerCount) {
+            if (!selectedOutboundId) { alert('Please select an outbound flight first.'); return; }
+            const ret = document.getElementById('returnDateInput');
+            if (ret) ret.value = date;
+            window.location.href = '/BookingForm?flightId=' + selectedOutboundId + '&returnFlightId=' + returnFlightId + '&passengerCount=' + passengerCount;
+        }
+    </script>
 }

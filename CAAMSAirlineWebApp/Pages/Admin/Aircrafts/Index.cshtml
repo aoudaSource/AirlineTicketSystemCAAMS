@@ -109,6 +109,7 @@
                     <th>Manufacturer</th>
                     <th class="text-center">Seat Capacity</th>
                     <th class="text-center">Operations</th>
+                    <th class="text-center">Maintenance Status</th>
                 </tr>
             </thead>
             <tbody class="geologica-text">
@@ -124,6 +125,11 @@
                             <span class="capacity-badge">
                                 <i class="bi bi-people-fill me-1"></i> @a.Capacity Seats
                             </span>
+                            <td class="text-center">
+                                <span class="badge @(a.MaintenanceStatus == "In Maintenance" ? "bg-danger" : "bg-success")">
+                                    @a.MaintenanceStatus
+                                </span>
+                         
                         </td>
                         <td class="text-center">
                             <div class="btn-group" role="group">

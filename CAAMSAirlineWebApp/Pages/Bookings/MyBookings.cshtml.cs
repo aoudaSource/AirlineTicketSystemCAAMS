@@ -47,8 +47,8 @@ namespace CAAMSAirlineWebApp.Pages.Bookings
             var now = DateTime.Now;
 
             UpcomingBookings = allBookings
-                .Where(b => b.Tickets.Any(t => t.FlightLeg.DepartureTime > now))
-                .ToList();
+      .Where(b => b.Status != "Canceled" && b.Tickets.Any(t => t.FlightLeg.DepartureTime > now))
+      .ToList();
 
             PastBookings = allBookings
                 .Where(b => b.Tickets.All(t => t.FlightLeg.DepartureTime <= now))

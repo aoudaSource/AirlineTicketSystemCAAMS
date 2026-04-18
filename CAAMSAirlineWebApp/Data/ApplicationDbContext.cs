@@ -25,6 +25,7 @@ namespace CAAMSAirlineWebApp.Data
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Baggage> Baggages { get; set; }
+        public DbSet<FlightNotification> FlightNotifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -159,7 +160,7 @@ namespace CAAMSAirlineWebApp.Data
 
             modelBuilder.Entity<Aircraft>(entity =>
             {
-                entity.ToTable("Aircrafts");
+                entity.ToTable("Aircrafts", tb => tb.UseSqlOutputClause(false));
 
                 entity.HasKey(e => e.AircraftId);
 
@@ -175,6 +176,9 @@ namespace CAAMSAirlineWebApp.Data
 
                 entity.Property(e => e.Capacity)
                     .IsRequired();
+                entity.Property(e => e.MaintenanceStatus)
+      .HasColumnName("Maintenance_status").HasMaxLength(50)
+      .IsRequired();
             });
 
             modelBuilder.Entity<Flight>(entity =>
@@ -578,6 +582,19 @@ namespace CAAMSAirlineWebApp.Data
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Baggage_Ticket");
             });
+            modelBuilder.Entity<FlightNotification>(entity =>
+            {
+                entity.ToTable("FlightNotifications");
+                entity.HasKey(e => e.NotificationId);
+                entity.Property(e => e.NotificationId).HasColumnName("Notification_id");
+                entity.Property(e => e.CustomerId).HasColumnName("Customer_id").IsRequired();
+                entity.Property(e => e.FlightId).HasColumnName("Flight_id").IsRequired();
+                entity.Property(e => e.Message).IsRequired();
+                entity.Property(e => e.CreatedAt).HasColumnName("Created_at").HasColumnType("datetime");
+                entity.Property(e => e.IsRead).HasColumnName("Is_read");
+                entity.HasOne(e => e.Customer).WithMany().HasForeignKey(e => e.CustomerId).OnDelete(DeleteBehavior.Cascade);
+            });
+
         }
     }
 }

@@ -117,6 +117,7 @@ namespace CAAMSAirlineWebApp.Data
                     .HasPrincipalKey<AppUser>(u => u.Username)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_Customers_AppUsers");
+
             });
 
             modelBuilder.Entity<Staff>(entity =>
@@ -376,6 +377,7 @@ namespace CAAMSAirlineWebApp.Data
                     .HasColumnType("decimal(10,2)")
                     .IsRequired();
 
+                
                 entity.HasOne(e => e.Customer)
                     .WithMany(c => c.Bookings)
                     .HasForeignKey(e => e.CustomerId)

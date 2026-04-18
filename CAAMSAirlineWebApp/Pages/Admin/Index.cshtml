@@ -1,48 +1,45 @@
 @page
 @model CAAMSAirlineWebApp.Pages.Admin.IndexModel
 @{
-    // This changes the tab name in the browser
     string roleName = User.IsInRole("Admin") ? "Admin" : "Staff";
     ViewData["Title"] = $"{roleName} Dashboard";
 }
 
 <style>
-    /* Premium Branding Typography */
     .admin-header, .card-title, .section-title {
         font-family: 'Geologica', sans-serif;
-        color: #0c206d; /* Your Dark Blue */
         font-weight: 800;
+        color: #0c206d;
     }
 
-    /* Top Stats Cards - Unified Color */
     .card-custom-stats {
-        background-color: #00a4a4 !important; /* Change this hex to your preferred color */
+        background-color: #00a4a4 !important;
         color: white !important;
         border: none;
         border-radius: 10px;
         transition: 0.3s;
     }
 
-    /* List Group Buttons - Unified Gray */
     .list-group-item-custom {
-        background-color: #f0f0f0 !important; /* Your Gray - change later as needed */
+        background-color: #f0f0f0 !important;
         color: #0c206d !important;
         font-family: 'Geologica', sans-serif;
         font-weight: 500;
         border: 1px solid #ddd !important;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
         border-radius: 8px !important;
         transition: 0.3s;
+        text-decoration: none;
     }
 
         .list-group-item-custom:hover {
             background-color: #e2e2e2 !important;
             transform: translateX(5px);
+            color: #0c206d !important;
         }
 
-    /* Spacing for the bottom of the page */
     .admin-container {
-        padding-bottom: 60px; /* Ensures space above the footer */
+        padding-bottom: 60px;
     }
 </style>
 
@@ -52,6 +49,7 @@
         <span class="text-muted">Logged in as: <strong>@User.Identity!.Name</strong></span>
     </div>
 
+    @* STATS SECTION *@
     <div class="row g-4 mb-5">
         <div class="col-sm-6 col-md-4 col-lg-3">
             <div class="card card-custom-stats h-100 shadow-sm">
@@ -88,6 +86,7 @@
     </div>
 
     <div class="row g-5">
+        @* LEFT COLUMN: Operations *@
         <div class="col-md-6">
             <h4 class="section-title mb-3">Bookings</h4>
             <div class="list-group mb-4">
@@ -123,7 +122,19 @@
             }
         </div>
 
+        @* RIGHT COLUMN: Admin Tools & Reports *@
         <div class="col-md-6">
+            @* YOUR PART: User & Staff Management (Admin Only) *@
+            @if (User.IsInRole("Admin"))
+            {
+                <h4 class="section-title mb-3">User &amp; Staff Management</h4>
+                <div class="list-group mb-4">
+                    <a asp-page="/Admin/AddStaff" class="list-group-item list-group-item-action list-group-item-custom">
+                        <i class="bi bi-person-plus-fill me-2"></i> Register New Staff Member
+                    </a>
+                </div>
+            }
+
             <h4 class="section-title mb-3">Reports &amp; Analytics</h4>
             <div class="list-group">
                 <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action list-group-item-custom">
@@ -134,6 +145,24 @@
                 </a>
                 <a asp-page="/Admin/Reports/DailyRevenue" class="list-group-item list-group-item-action list-group-item-custom">
                     Daily Revenue (Last 24h)
+                </a>
+            </div>
+                <h4 class="section-title mb-3">Reports &amp; Analytics</h4>
+                <div class="list-group">
+                    <a asp-page="/Admin/Reports/TotalRevenue" class="list-group-item list-group-item-action list-group-item-custom">
+                        Total Revenue
+                    </a>
+                    <a asp-page="/Admin/Reports/DailyRevenue" class="list-group-item list-group-item-action list-group-item-custom">
+                        Daily Revenue (Last 24h)
+                    </a>
+                    <a asp-page="/Admin/Reports/RouteProfitability" class="list-group-item list-group-item-action list-group-item-custom">
+                        Route Profitability
+                    </a>
+                }
+
+                @* Both Admin and Staff can see Loyalty *@
+                <a asp-page="/Admin/Reports/CustomerLoyalty" class="list-group-item list-group-item-action list-group-item-custom">
+                    Customer Loyalty (Top 10%)
                 </a>
             </div>
         </div>

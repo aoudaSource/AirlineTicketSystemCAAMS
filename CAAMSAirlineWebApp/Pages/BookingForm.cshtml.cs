@@ -21,7 +21,7 @@ namespace CAAMSAirlineWebApp.Pages
             _bookingService = bookingService;
         }
 
-        // Flight summary loaded on GET, re-loaded on POST
+        // Display Properties
         public string FlightNumber { get; set; } = "";
         public string DepartureCode { get; set; } = "";
         public string DepartureCity { get; set; } = "";
@@ -30,11 +30,31 @@ namespace CAAMSAirlineWebApp.Pages
         public DateTime DepartureTime { get; set; }
         public DateTime ArrivalTime { get; set; }
         public decimal BasePrice { get; set; }
-
         public decimal EstimatedTotal { get; set; }
 
         [BindProperty]
         public CreateBookingRequest Input { get; set; } = new();
+
+        [BindProperty]
+        public string SelectedSeats { get; set; } = "";
+
+        [BindProperty]
+        public string PaymentMethod { get; set; } = "";
+
+        [BindProperty]
+        public string? CardHolderName { get; set; }
+
+        [BindProperty]
+        public string? CardNumber { get; set; }
+
+        [BindProperty]
+        public string? ExpiryDate { get; set; }
+
+        [BindProperty]
+        public string? CVV { get; set; }
+
+        [BindProperty]
+        public string? PayPalEmail { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int flightId, int passengerCount, string cabinClass = "Economy")
         {
@@ -64,48 +84,79 @@ namespace CAAMSAirlineWebApp.Pages
             if (!await LoadFlightAsync(Input.FlightId))
                 return NotFound();
 
-            // Calculate estimated total
+            // 1. Recalculate Total
             var multiplier = Input.TicketClass switch
             {
                 "Business" => 1.5m,
                 "First" => 2m,
                 _ => 1m
             };
-            EstimatedTotal = Input.PassengerCount * 1 * BasePrice * multiplier;
+            EstimatedTotal = Input.PassengerCount * BasePrice * multiplier;
 
             if (!ModelState.IsValid)
                 return Page();
 
-            // Check if any minor (≤14) exists without an accompanying adult
+            // 2. Validate Passenger Data
             var today = DateTime.Today;
-            static int CalcAge(DateTime dob)
+            static int CalcAge(DateTime dob, DateTime today)
             {
-                var today = DateTime.Today;
-                int age = today.Year - dob.Year;
+                var age = today.Year - dob.Year;
                 if (dob > today.AddYears(-age)) age--;
                 return age;
             }
 
-            bool hasAdult = Input.Passengers.Any(p => p.DOB.HasValue && CalcAge(p.DOB.Value) > 14);
-            bool hasMinor = Input.Passengers.Any(p => p.DOB.HasValue && CalcAge(p.DOB.Value) <= 14);
+            bool hasAdult = Input.Passengers.Any(p => p.DOB.HasValue && CalcAge(p.DOB.Value, today) > 14);
+            bool hasMinor = Input.Passengers.Any(p => p.DOB.HasValue && CalcAge(p.DOB.Value, today) <= 14);
 
             if (hasMinor && !hasAdult)
             {
-                ModelState.AddModelError(string.Empty, "Passengers aged 14 or under must be accompanied by an adult. Please add an adult passenger to complete this booking.");
+                ModelState.AddModelError(string.Empty, "Passengers aged 14 or under must be accompanied by an adult.");
                 return Page();
             }
 
-            // Check for duplicate passport numbers within this booking
             var passports = Input.Passengers.Select(p => p.PassportNumber?.Trim().ToUpper()).ToList();
             if (passports.Count != passports.Distinct().Count())
             {
-                ModelState.AddModelError(string.Empty, "Each passenger must have a unique passport number.");
+                ModelState.AddModelError(string.Empty, "Duplicate passport numbers detected.");
                 return Page();
             }
 
+            if (string.IsNullOrEmpty(SelectedSeats))
+            {
+                ModelState.AddModelError(string.Empty, "Please select seats.");
+                return Page();
+            }
+
+            var seatList = SelectedSeats.Split(',').Select(s => s.Trim()).ToList();
+            if (seatList.Count != Input.PassengerCount)
+            {
+                ModelState.AddModelError(string.Empty, $"You must select exactly {Input.PassengerCount} seat(s).");
+                return Page();
+            }
+
+            // 4. Validate Payment Method
+            if (string.IsNullOrEmpty(PaymentMethod))
+            {
+                ModelState.AddModelError(string.Empty, "Please select a payment method.");
+                return Page();
+            }
+
+            if (PaymentMethod == "PayPal" && string.IsNullOrEmpty(PayPalEmail))
+            {
+                ModelState.AddModelError(string.Empty, "PayPal email is required.");
+                return Page();
+            }
+
+            if ((PaymentMethod == "Credit Card" || PaymentMethod == "Debit Card") && 
+                (string.IsNullOrEmpty(CardNumber) || string.IsNullOrEmpty(CVV)))
+            {
+                ModelState.AddModelError(string.Empty, "Card details are required.");
+                return Page();
+            }
+
+            // 5. Get Customer
             var username = User.Identity?.Name;
             var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Username == username);
-
             if (customer == null)
             {
                 ModelState.AddModelError(string.Empty, "Customer not found.");
@@ -114,10 +165,25 @@ namespace CAAMSAirlineWebApp.Pages
 
             Input.CustomerId = customer.CustomerId;
 
+            // 6. Create Booking with Manual Seats
             try
             {
-                var bookingId = await _bookingService.CreateBookingAsync(Input);
-                return RedirectToPage("/Payment", new { bookingId });
+                var bookingId = await _bookingService.CreateBookingWithManualSeatsAsync(Input, seatList);
+                
+                // 7. Create Payment Record
+                var payment = new Models.Payment
+                {
+                    BookingId = bookingId,
+                    Amount = EstimatedTotal,
+                    PaymentMethod = PaymentMethod,
+                    PaymentDate = DateTime.Now
+                };
+                
+                
+                _context.Payments.Add(payment);
+                await _context.SaveChangesAsync();
+
+                return RedirectToPage("/BookingConfirmation", new { bookingId });
             }
             catch (Exception ex)
             {

@@ -1,0 +1,591 @@
+﻿@page
+@model CAAMSAirlineWebApp.Pages.Bookings.MyBookingsModel
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<style>
+    .bookings-header {
+        font-family: 'Geologica', sans-serif;
+        font-weight: 700;
+        color: #1a3a5c;
+        margin: 30px 0 10px;
+    }
+
+    .section-label {
+        font-family: 'Geologica', sans-serif;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #3c81bd;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 30px 0 12px;
+        border-bottom: 2px solid #3c81bd;
+        padding-bottom: 6px;
+    }
+
+    .booking-group {
+        margin-bottom: 30px;
+    }
+
+    .booking-card {
+        border: 1px solid #dce6f0;
+        border-radius: 12px;
+        padding: 20px 24px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(60,129,189,0.07);
+    }
+
+    .booking-card.past {
+        background: #f8f9fa;
+        border-color: #e0e0e0;
+    }
+
+    .connector-line {
+        width: 2px;
+        height: 30px;
+        background: #3c81bd;
+        margin: 0 auto;
+        opacity: 0.4;
+    }
+
+    .connector-line {
+        width: 2px;
+        height: 30px;
+        background: #3c81bd;
+        margin: 0 auto;
+        opacity: 0.4;
+    }
+
+    .booking-id {
+        font-size: 0.8rem;
+        color: #888;
+        font-family: 'Geologica', sans-serif;
+    }
+
+    .flight-direction-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #3c81bd;
+        font-family: 'Geologica', sans-serif;
+        margin-bottom: 8px;
+    }
+
+    .flight-summary-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        flex-wrap: wrap;
+    }
+
+    .flight-summary-airports {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+    }
+
+    .leg-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        flex-wrap: wrap;
+    }
+
+    .leg-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        flex-wrap: wrap;
+    }
+
+    .leg-airports {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+    }
+
+    .airport-block {
+        text-align: center;
+        min-width: 60px;
+    }
+
+    .airport-code {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1a3a5c;
+        font-family: 'Geologica', sans-serif;
+        line-height: 1;
+    }
+
+    .airport-name {
+        font-size: 0.7rem;
+        color: #888;
+    }
+
+    .flight-time {
+        font-size: 0.78rem;
+        color: #555;
+        font-family: 'Geologica', sans-serif;
+        margin-top: 2px;
+    }
+
+    .leg-arrow {
+        color: #3c81bd;
+        font-size: 1rem;
+    }
+
+    .leg-divider {
+        border: none;
+        border-top: 1px dashed #e2e8f0;
+        margin: 4px 0;
+    }
+
+    .flight-number-badge {
+        background: #3c81bd;
+        color: white;
+        border-radius: 6px;
+        padding: 2px 10px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+        white-space: nowrap;
+    }
+
+    .badge-class {
+        background: #e8f0fb;
+        color: #3c81bd;
+        border-radius: 6px;
+        padding: 2px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .badge-stops {
+        background: #fff3cd;
+        color: #856404;
+        border-radius: 6px;
+        padding: 2px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .badge-direct {
+        background: #d4edda;
+        color: #155724;
+        border-radius: 6px;
+        padding: 2px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .btn-toggle-stops {
+        background: none;
+        border: 1px solid #3c81bd;
+        color: #3c81bd;
+        border-radius: 20px;
+        padding: 2px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-toggle-stops:hover {
+            background: #3c81bd;
+            color: white;
+        }
+
+    .stops-detail {
+        border-top: 1px dashed #dce6f0;
+        margin-top: 8px;
+        padding-top: 8px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .booking-meta {
+        font-size: 0.82rem;
+        color: #777;
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid #eef1f7;
+    }
+
+    .total-price {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a3a5c;
+    }
+
+    .no-bookings {
+        color: #aaa;
+        font-style: italic;
+        padding: 10px 0;
+    }
+
+    .status-upcoming {
+        background: #d4edda;
+        color: #155724;
+        border-radius: 20px;
+        padding: 2px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-past {
+        background: #e2e3e5;
+        color: #555;
+        border-radius: 20px;
+        padding: 2px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .passenger-names {
+        font-size: 0.8rem;
+        color: #555;
+        margin-top: 6px;
+        font-family: 'Geologica', sans-serif;
+    }
+
+    .btn-cancel {
+        background: none;
+        border: 1px solid #e53e3e;
+        color: #e53e3e;
+        border-radius: 20px;
+        padding: 2px 14px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        font-family: 'Geologica', sans-serif;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-cancel:hover {
+            background: #e53e3e;
+            color: white;
+        }
+    .btn-cancel:hover {
+        background: #e53e3e;
+        color: white;
+    }
+
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<h2 class="bookings-header">My Bookings</h2>
+
+<div class="section-label">Upcoming</div>
+
+@if (!Model.UpcomingBookings.Any())
+{
+    <p class="no-bookings">No upcoming bookings.</p>
+}
+else
+{
+    @foreach (var booking in Model.UpcomingBookings)
+    {
+        var flightGroups = booking.Tickets
+            .GroupBy(t => t.FlightLeg.FlightId)
+            .OrderBy(g => g.Min(t => t.FlightLeg.DepartureTime))
+            .ToList();
+        bool isRoundTrip = flightGroups.Count > 1;
+
+        <div class="booking-group">
+            @for (int f = 0; f < flightGroups.Count; f++)
+            {
+                var flightTickets = flightGroups[f];
+                var flightLegs = flightTickets
+                    .GroupBy(t => t.LegId)
+                    .Select(g => g.First())
+                    .OrderBy(t => t.FlightLeg.DepartureTime)
+                    .ToList();
+
+                var firstLeg = flightLegs.First().FlightLeg;
+                var lastLeg = flightLegs.Last().FlightLeg;
+                var flightNumber = firstLeg.Flight.FlightNumber;
+                var ticketClass = flightTickets.First().TicketClass;
+                var stopCount = flightLegs.Count - 1;
+                var uniqueId = $"stops-{booking.BookingId}-{f}";
+
+                <div class="booking-card">
+                    <div class="card-header-row">
+                        <div>
+                            <span class="booking-id">Booking #@booking.BookingId</span> &nbsp;
+                            <span class="status-upcoming">Upcoming</span> &nbsp;
+                            @if (isRoundTrip)
+                            {
+                                <span class="flight-direction-label">@(f == 0 ? "Outbound" : "Return")</span>
+                            }
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            @if (f == 0)
+                            {
+                                <span class="total-price">MYR @booking.TotalPrice.ToString("N2")</span>
+                                <form method="post" asp-page-handler="Cancel" onsubmit="return confirm('Are you sure you want to cancel this entire booking?');">
+                                    <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                    <button type="submit" class="btn-cancel">Cancel</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+
+                    @if (f == 0)
+                    {
+                        <div class="passenger-names">
+                            Passengers: @string.Join(", ", booking.Passengers.Select(p => p.FirstName + " " + p.LastName))
+                        </div>
+                    }
+
+                    <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                        <span class="flight-number-badge">@flightNumber</span>
+                        <span class="badge-class">@ticketClass</span>
+                        @if (stopCount == 0)
+                        {
+                            <span class="badge-direct">Direct</span>
+                        }
+                        else
+                        {
+                            <span class="badge-stops">@stopCount Stop@(stopCount > 1 ? "s" : "")</span>
+                        }
+                    </div>
+
+                    @* Flight summary — always visible *@
+                    <div class="flight-summary-row">
+                        <div class="flight-summary-airports">
+                            <div class="airport-block">
+                                <div class="airport-code">@firstLeg.DepartureAirport</div>
+                                <div class="airport-name">@firstLeg.DepartureAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@firstLeg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
+                            </div>
+                            <div class="leg-arrow">→</div>
+                            <div class="airport-block">
+                                <div class="airport-code">@lastLeg.ArrivalAirport</div>
+                                <div class="airport-name">@lastLeg.ArrivalAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@lastLeg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
+                            </div>
+                        </div>
+                        @if (stopCount > 0)
+                        {
+                            <button class="btn-toggle-stops" onclick="toggleStops('@uniqueId', this)">
+                                View Stops
+                            </button>
+                        }
+                    </div>
+
+                    @* Stops detail — hidden by default, only shows if multiple legs *@
+                    @if (stopCount > 0)
+                    {
+                        <div id="@uniqueId" class="stops-detail" style="display:none;">
+                            @foreach (var ticket in flightLegs)
+                            {
+                                var leg = ticket.FlightLeg;
+                                <div class="leg-row">
+                                    <div class="leg-airports">
+                                        <div class="airport-block">
+                                            <div class="airport-code">@leg.DepartureAirport</div>
+                                            <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
+                                            <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
+                                        </div>
+                                        <div class="leg-arrow">→</div>
+                                        <div class="airport-block">
+                                            <div class="airport-code">@leg.ArrivalAirport</div>
+                                            <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
+                                            <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (ticket != flightLegs.Last())
+                                {
+                                    <hr class="leg-divider" />
+                                }
+                            }
+                        </div>
+                    }
+
+                    @if (f == 0)
+                    {
+                        <div class="booking-meta">
+                            Booked on @booking.BookingDate.ToString("dd MMM yyyy") &nbsp;|&nbsp;
+                            @booking.Passengers.Count passenger(s)
+                        </div>
+                    }
+                </div>
+
+                @if (isRoundTrip && f == 0)
+                {
+                    <div class="connector-line"></div>
+                }
+            }
+        </div>
+    }
+}
+
+<div class="section-label">Past</div>
+
+@if (!Model.PastBookings.Any())
+{
+    <p class="no-bookings">No past bookings.</p>
+}
+else
+{
+    @foreach (var booking in Model.PastBookings)
+    {
+        var pastFlightGroups = booking.Tickets
+            .GroupBy(t => t.FlightLeg.FlightId)
+            .OrderBy(g => g.Min(t => t.FlightLeg.DepartureTime))
+            .ToList();
+        bool isPastRoundTrip = pastFlightGroups.Count > 1;
+
+        <div class="booking-group">
+            @for (int f = 0; f < pastFlightGroups.Count; f++)
+            {
+                var flightTickets = pastFlightGroups[f];
+                var flightLegs = flightTickets
+                    .GroupBy(t => t.LegId)
+                    .Select(g => g.First())
+                    .OrderBy(t => t.FlightLeg.DepartureTime)
+                    .ToList();
+
+                var firstLeg = flightLegs.First().FlightLeg;
+                var lastLeg = flightLegs.Last().FlightLeg;
+                var flightNumber = firstLeg.Flight.FlightNumber;
+                var ticketClass = flightTickets.First().TicketClass;
+                var stopCount = flightLegs.Count - 1;
+                var uniqueId = $"past-stops-{booking.BookingId}-{f}";
+
+                <div class="booking-card past">
+                    <div class="card-header-row">
+                        <div>
+                            <span class="booking-id">Booking #@booking.BookingId</span> &nbsp;
+                            <span class="status-past">Completed</span> &nbsp;
+                            @if (isPastRoundTrip)
+                            {
+                                <span class="flight-direction-label">@(f == 0 ? "Outbound" : "Return")</span>
+                            }
+                        </div>
+                        @if (f == 0)
+                        {
+                            <span class="total-price">MYR @booking.TotalPrice.ToString("N2")</span>
+                        }
+                    </div>
+
+                    @if (f == 0)
+                    {
+                        <div class="passenger-names">
+                            Passengers: @string.Join(", ", booking.Passengers.Select(p => p.FirstName + " " + p.LastName))
+                        </div>
+                    }
+
+                    <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                        <span class="flight-number-badge">@flightNumber</span>
+                        <span class="badge-class">@ticketClass</span>
+                        @if (stopCount == 0)
+                        {
+                            <span class="badge-direct">Direct</span>
+                        }
+                        else
+                        {
+                            <span class="badge-stops">@stopCount Stop@(stopCount > 1 ? "s" : "")</span>
+                        }
+                    </div>
+
+                    <div class="flight-summary-row">
+                        <div class="flight-summary-airports">
+                            <div class="airport-block">
+                                <div class="airport-code">@firstLeg.DepartureAirport</div>
+                                <div class="airport-name">@firstLeg.DepartureAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@firstLeg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
+                            </div>
+                            <div class="leg-arrow">→</div>
+                            <div class="airport-block">
+                                <div class="airport-code">@lastLeg.ArrivalAirport</div>
+                                <div class="airport-name">@lastLeg.ArrivalAirportNavigation?.AirportName</div>
+                                <div class="flight-time">@lastLeg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
+                            </div>
+                        </div>
+                        @if (stopCount > 0)
+                        {
+                            <button class="btn-toggle-stops" onclick="toggleStops('@uniqueId', this)">
+                                View Stops
+                            </button>
+                        }
+                    </div>
+
+                    @if (stopCount > 0)
+                    {
+                        <div id="@uniqueId" class="stops-detail" style="display:none;">
+                            @foreach (var ticket in flightLegs)
+                            {
+                                var leg = ticket.FlightLeg;
+                                <div class="leg-row">
+                                    <div class="leg-airports">
+                                        <div class="airport-block">
+                                            <div class="airport-code">@leg.DepartureAirport</div>
+                                            <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
+                                            <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
+                                        </div>
+                                        <div class="leg-arrow">→</div>
+                                        <div class="airport-block">
+                                            <div class="airport-code">@leg.ArrivalAirport</div>
+                                            <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
+                                            <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (ticket != flightLegs.Last())
+                                {
+                                    <hr class="leg-divider" />
+                                }
+                            }
+                        </div>
+                    }
+
+                    @if (f == 0)
+                    {
+                        <div class="booking-meta">
+                            Booked on @booking.BookingDate.ToString("dd MMM yyyy") &nbsp;|&nbsp;
+                            @booking.Passengers.Count passenger(s)
+                        </div>
+                    }
+                </div>
+
+                @if (isPastRoundTrip && f == 0)
+                {
+                    <div class="connector-line"></div>
+                }
+            }
+        </div>
+    }
+}
+
+<script>
+    function toggleStops(id, btn) {
+        const el = document.getElementById(id);
+        if (el.style.display === 'none') {
+            el.style.display = 'block';
+            btn.textContent = 'Hide Stops';
+        } else {
+            el.style.display = 'none';
+            btn.textContent = 'View Stops';
+        }
+    }
+</script>

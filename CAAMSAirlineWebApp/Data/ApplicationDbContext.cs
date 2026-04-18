@@ -327,6 +327,9 @@ namespace CAAMSAirlineWebApp.Data
                     .HasForeignKey(e => e.ArrivalAirport)
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_FlightLeg_ArrivalAirport");
+                entity.Property(e => e.AvailableSeats)
+     .HasColumnName("Available_seats")
+     .IsRequired();
             });
 
             modelBuilder.Entity<FlightStatus>(entity =>

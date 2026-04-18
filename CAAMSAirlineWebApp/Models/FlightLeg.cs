@@ -12,6 +12,7 @@ namespace CAAMSAirlineWebApp.Models
         public string ArrivalAirport { get; set; } = null!;
         public DateTime DepartureTime { get; set; }
         public DateTime ArrivalTime { get; set; }
+        public int AvailableSeats { get; set; }
 
         // Navigation properties
         public Flight Flight { get; set; } = null!;

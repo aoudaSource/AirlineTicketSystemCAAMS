@@ -148,7 +148,18 @@
                                 <div class="fw-bold">@f.ArrivalTime.ToString("HH:mm")</div>
                             </td>
                             <td class="fw-bold">USD @f.BasePrice.ToString("N2")</td>
-                       
+                            <td>
+                                @if (f.MaintenanceStatus == "In Maintenance")
+                                {
+                                     <span class="badge bg-danger shadow-sm">In Maintenance</span>
+                                }
+                                else
+                                {
+                                     <span class="badge bg-success shadow-sm">Active</span>
+                                }
+                            </td>
+                            
+                            @* Action buttons only rendered for Admins *@
                             @if (User.IsInRole("Admin"))
                             {
                                 <td class="text-center">

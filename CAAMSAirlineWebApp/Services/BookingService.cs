@@ -123,8 +123,7 @@ public class BookingService
         };
     }
 
-
-public async Task<int> CreateBookingWithManualSeatsAsync(
+    public async Task<int> CreateBookingWithManualSeatsAsync(
     CreateBookingRequest request, 
     List<string> selectedSeatNumbers)
 {

@@ -49,7 +49,8 @@ namespace CAAMSAirlineWebApp.Pages
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.GivenName, $"{user.FirstName} {user.LastName}")
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

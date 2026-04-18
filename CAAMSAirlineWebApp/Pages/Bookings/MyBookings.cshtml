@@ -325,8 +325,6 @@ else
                 var ticketClass = flightTickets.First().TicketClass;
                 var stopCount = flightLegs.Count - 1;
                 var uniqueId = $"stops-{booking.BookingId}-{f}";
-                var flightNumber = firstLeg.Flight.FlightNumber;
-                var ticketClass = flightTickets.First().TicketClass;
 
                 <div class="booking-card">
                     <div class="card-header-row">
@@ -421,33 +419,6 @@ else
                                 }
                             }
                         </div>
-                    <div class="mt-2">
-                        <span class="flight-number-badge">@flightNumber</span>
-                        <span class="badge-class ms-2">@ticketClass</span>
-                    </div>
-
-                    @foreach (var ticket in flightLegs)
-                    {
-                        var leg = ticket.FlightLeg;
-                        <div class="leg-row">
-                            <div class="leg-airports">
-                                <div class="airport-block">
-                                    <div class="airport-code">@leg.DepartureAirport</div>
-                                    <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
-                                    <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
-                                </div>
-                                <div class="leg-arrow">→</div>
-                                <div class="airport-block">
-                                    <div class="airport-code">@leg.ArrivalAirport</div>
-                                    <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
-                                    <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
-                                </div>
-                            </div>
-                        </div>
-                        @if (ticket != flightLegs.Last())
-                        {
-                            <hr class="leg-divider" />
-                        }
                     }
 
                     @if (f == 0)
@@ -500,8 +471,6 @@ else
                 var ticketClass = flightTickets.First().TicketClass;
                 var stopCount = flightLegs.Count - 1;
                 var uniqueId = $"past-stops-{booking.BookingId}-{f}";
-                var flightNumber = firstLeg.Flight.FlightNumber;
-                var ticketClass = flightTickets.First().TicketClass;
 
                 <div class="booking-card past">
                     <div class="card-header-row">
@@ -588,33 +557,6 @@ else
                                 }
                             }
                         </div>
-                    <div class="mt-2">
-                        <span class="flight-number-badge">@flightNumber</span>
-                        <span class="badge-class ms-2">@ticketClass</span>
-                    </div>
-
-                    @foreach (var ticket in flightLegs)
-                    {
-                        var leg = ticket.FlightLeg;
-                        <div class="leg-row">
-                            <div class="leg-airports">
-                                <div class="airport-block">
-                                    <div class="airport-code">@leg.DepartureAirport</div>
-                                    <div class="airport-name">@leg.DepartureAirportNavigation?.AirportName</div>
-                                    <div class="flight-time">@leg.DepartureTime.ToString("ddd, dd MMM HH:mm")</div>
-                                </div>
-                                <div class="leg-arrow">→</div>
-                                <div class="airport-block">
-                                    <div class="airport-code">@leg.ArrivalAirport</div>
-                                    <div class="airport-name">@leg.ArrivalAirportNavigation?.AirportName</div>
-                                    <div class="flight-time">@leg.ArrivalTime.ToString("ddd, dd MMM HH:mm")</div>
-                                </div>
-                            </div>
-                        </div>
-                        @if (ticket != flightLegs.Last())
-                        {
-                            <hr class="leg-divider" />
-                        }
                     }
 
                     @if (f == 0)

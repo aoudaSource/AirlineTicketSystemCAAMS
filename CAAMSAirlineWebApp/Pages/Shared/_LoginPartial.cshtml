@@ -2,7 +2,7 @@
     @if (User.Identity?.IsAuthenticated == true)
     {
         <li class="nav-item">
-            <span class="nav-link text-white mx-3">Hello, @User.Identity.Name</span>
+            <span class="nav-link text-white mx-3">Hello, @(User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value ?? User.Identity.Name)</span>
         </li>
         <li class="nav-item">
             @* This is a simple GET link that matches your C# OnGetAsync *@

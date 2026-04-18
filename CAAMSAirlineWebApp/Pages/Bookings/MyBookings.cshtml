@@ -235,7 +235,7 @@ else
                     <span class="status-upcoming">Upcoming</span>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <span class="total-price">MYR @booking.TotalPrice.ToString("N2")</span>
+                    <span class="total-price">USD @booking.TotalPrice.ToString("N2")</span>
                     <form method="post" asp-page-handler="Cancel" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
                         <input type="hidden" name="bookingId" value="@booking.BookingId" />
                         <button type="submit" class="btn-cancel">Cancel</button>
@@ -264,7 +264,6 @@ else
                     <span class="badge-class">@legGroup.First().TicketClass</span>
                 </div>
 
-                @* Passenger rows with seat numbers *@
                 <div class="pax-section">
                     @for (int i = 0; i < passengers.Count; i++)
                     {
@@ -316,7 +315,7 @@ else
                     <span class="booking-id">Booking #@booking.BookingId</span> &nbsp;
                     <span class="status-past">Completed</span>
                 </div>
-                <span class="total-price">MYR @booking.TotalPrice.ToString("N2")</span>
+                <span class="total-price">USD @booking.TotalPrice.ToString("N2")</span>
             </div>
 
             @foreach (var legGroup in legs)
@@ -340,7 +339,6 @@ else
                     <span class="badge-class">@legGroup.First().TicketClass</span>
                 </div>
 
-                @* Passenger rows with seat numbers *@
                 <div class="pax-section">
                     @for (int i = 0; i < passengers.Count; i++)
                     {

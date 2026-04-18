@@ -68,7 +68,7 @@
 <div class="container mt-5 pb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="report-header text-uppercase mb-0">Flight Management</h2>
-        @* Only Admins see the Create button *@
+
         @if (User.IsInRole("Admin"))
         {
             <a asp-page="/Admin/Flights/Create" class="btn btn-airline-add">+ Add New Flight</a>
@@ -120,7 +120,7 @@
                         <th>Departure</th>
                         <th>Arrival</th>
                         <th>Price</th>
-                        @* Action header only visible to Admins *@
+        
                         @if (User.IsInRole("Admin"))
                         {
                             <th class="text-center">Actions</th>
@@ -148,8 +148,7 @@
                                 <div class="fw-bold">@f.ArrivalTime.ToString("HH:mm")</div>
                             </td>
                             <td class="fw-bold">USD @f.BasePrice.ToString("N2")</td>
-                            
-                            @* Action buttons only rendered for Admins *@
+                       
                             @if (User.IsInRole("Admin"))
                             {
                                 <td class="text-center">

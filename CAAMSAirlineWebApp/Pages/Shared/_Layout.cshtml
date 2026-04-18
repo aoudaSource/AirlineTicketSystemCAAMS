@@ -99,11 +99,11 @@
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-white mx-3" asp-area="" asp-page="/Index">Home</a>
-                        </li>
                         @if (User.Identity.IsAuthenticated && !User.IsInRole("Admin") && !User.IsInRole("Staff"))
                         {
+                            <li class="nav-item">
+                                <a class="nav-link text-white mx-3" asp-area="" asp-page="/Index">Home</a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link text-white mx-3" asp-page="/EditProfile"> My Profile</a>
                             </li>
@@ -130,7 +130,6 @@
                         @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
                         {
                             <li class="nav-item">
-                                @*<a class="nav-link text-white fw-semibold mx-3" asp-area="" asp-page="/Admin/Index">Admin Panel</a>*@
                                 <a class="nav-link text-white mx-3" asp-page="/Admin/Index">
                                     @(User.IsInRole("Admin") ? "Admin Panel" : "Staff Panel")
                                 </a>

@@ -62,7 +62,6 @@
     </a>
 
     <div class="filter-section mb-4 shadow-sm">
-        @* Use GET for filtering, but we will handle the POST for export via formmethod *@
         <form method="get" class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label class="filter-label small text-uppercase mb-1 d-block">Spending Tier</label>
@@ -80,10 +79,6 @@
             <div class="col-md-7 d-flex gap-2">
                 <button type="submit" class="btn btn-airline geologica-text flex-grow-1">Apply Filters</button>
                 
-                @* CRITICAL FIX: 
-                   1. Use formmethod="post" to trigger the OnPost handler.
-                   2. Use asp-page-handler="Export" to tell Razor which method to run.
-                *@
                 <button type="submit" 
                         formmethod="post" 
                         asp-page-handler="Export" 
@@ -97,7 +92,6 @@
         </form>
     </div>
 
-    @* ... (Rest of the stats and table remains the same as your original) ... *@
     <div class="row g-3 mb-5">
         <div class="col-sm-4">
             <div class="card card-loyalty-stats shadow-sm">

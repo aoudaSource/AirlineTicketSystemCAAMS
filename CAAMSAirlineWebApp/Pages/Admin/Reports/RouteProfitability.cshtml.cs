@@ -29,6 +29,9 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Reports
         [BindProperty(SupportsGet = true)]
         public string AircraftModel { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string SeatClass { get; set; }
+
         public SelectList Airports { get; set; }
         public List<string> AircraftModels { get; set; }
 
@@ -51,11 +54,11 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Reports
             if (!Routes.Any()) return Page();
 
             var csvBuilder = new StringBuilder();
-            csvBuilder.AppendLine("Origin,Destination,Flights,Load Factor %,Revenue (USD),Cost (USD),Net Profit (USD)");
+            csvBuilder.AppendLine("Origin,Destination,Flights,Tickets Sold,Capacity,Occupancy %,Revenue,Cost,Net Profit");
 
             foreach (var r in Routes)
             {
-                csvBuilder.AppendLine($"{r.DepartureCode},{r.ArrivalCode},{r.TotalLegs},{r.LoadFactor:F1},{r.TotalRevenue:F2},{r.TotalCost:F2},{r.NetProfit:F2}");
+                csvBuilder.AppendLine($"{r.DepartureCode},{r.ArrivalCode},{r.TotalLegs},{r.TicketsSold},{r.TotalSeatsAvailable},{r.NumBookings:F1},{r.TotalRevenue:F2},{r.TotalCost:F2},{r.NetProfit:F2}");
             }
 
             var fileName = $"RouteProfitability_{DateTime.Now:yyyyMMdd}.csv";
@@ -64,7 +67,7 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Reports
 
         private async Task LoadDataAsync()
         {
-            // 1. Populate Dropdowns (Always needed for the page)
+            // 1. Setup Dropdowns
             var airportList = await _context.Airports
                 .Select(a => new { a.AirportCode, Display = $"{a.AirportCode} - {a.City}" })
                 .OrderBy(a => a.AirportCode)
@@ -77,7 +80,7 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Reports
                 .OrderBy(m => m)
                 .ToListAsync();
 
-            // 2. Build Base Query
+            // 2. Build Query
             IQueryable<CAAMSAirlineWebApp.Models.FlightLeg> query = _context.FlightLegs
                 .Include(fl => fl.DepartureAirportNavigation)
                 .Include(fl => fl.ArrivalAirportNavigation)
@@ -96,18 +99,26 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Reports
 
             var legs = await query.ToListAsync();
 
-            // 4. Group and Calculate
+            // 4. Group by Route and Calculate
             Routes = legs
                 .GroupBy(fl => new { fl.DepartureAirport, fl.ArrivalAirport })
                 .Select(g =>
                 {
                     var first = g.First();
                     int totalSeats = g.Sum(fl => fl.Flight.Aircraft.Capacity);
-                    int ticketsSold = g.Sum(fl => fl.Tickets.Count);
-                    decimal revenue = g.Sum(fl => fl.Tickets.Sum(t => t.Price));
-                    decimal totalCost = g.Count() * 2000; // Your placeholder cost
 
-                    double loadFactor = totalSeats > 0
+                    // Filter tickets based on the TicketClass attribute in Ticket.cs
+                    var ticketQuery = g.SelectMany(fl => fl.Tickets);
+                    if (!string.IsNullOrEmpty(SeatClass))
+                    {
+                        ticketQuery = ticketQuery.Where(t => t.TicketClass == SeatClass);
+                    }
+
+                    int ticketsSold = ticketQuery.Count();
+                    decimal revenue = ticketQuery.Sum(t => t.Price);
+                    decimal totalCost = g.Count() * 2000;
+
+                    double numBookings = totalSeats > 0
                         ? Math.Round((double)ticketsSold / totalSeats * 100, 1)
                         : 0;
 
@@ -120,7 +131,7 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Reports
                         TotalLegs = g.Count(),
                         TotalSeatsAvailable = totalSeats,
                         TicketsSold = ticketsSold,
-                        LoadFactor = loadFactor,
+                        NumBookings = numBookings,
                         TotalRevenue = revenue,
                         TotalCost = totalCost
                     };
@@ -157,11 +168,11 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Reports
         public int TotalLegs { get; set; }
         public int TotalSeatsAvailable { get; set; }
         public int TicketsSold { get; set; }
-        public double LoadFactor { get; set; }
+        public double NumBookings { get; set; }
         public decimal TotalRevenue { get; set; }
         public decimal TotalCost { get; set; }
 
         public decimal NetProfit => TotalRevenue - TotalCost;
-        public string LoadFactorBadge => LoadFactor >= 70 ? "success" : LoadFactor >= 40 ? "warning" : "danger";
+        public string NumBookingsBadge => NumBookings >= 70 ? "success" : NumBookings >= 40 ? "warning" : "danger";
     }
 }

@@ -79,17 +79,7 @@
             <div class="col-md-2">
                 <label class="filter-label small text-uppercase mb-1 d-block">End</label>
                 <input type="date" asp-for="EndDate" class="form-control geologica-text" />
-            </div>
-            <div class="col-md-2">
-                <label class="filter-label small text-uppercase mb-1 d-block">Payment Method</label>
-                <select asp-for="PaymentMethod" class="form-select geologica-text">
-                    <option value="">All Methods</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Debit Card">Debit Card</option>
-                    <option value="PayPal">PayPal</option>
-                </select>
-            </div>
-            
+            </div>            
             <div class="col-md-4 d-flex gap-2">
                 <button type="submit" class="btn btn-airline geologica-text flex-grow-1">Apply Filters</button>
                 
@@ -102,7 +92,7 @@
         </form>
     </div>
 
-    @* Stat Cards Section *@
+    @*Stat Cards Section *@
     <div class="row g-3 mb-5">
         <div class="col-md-3">
             <div class="card card-revenue-stats shadow-sm">
@@ -203,7 +193,30 @@
             },
             options: { 
                 responsive: true, 
-                plugins: { legend: { display: false } } 
+                plugins: 
+                { legend: { display: false },
+                    title: 
+                    {
+                        display: true,
+                        text: 'Revenue Overview',
+                        font: { size: 18 }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Day of the Month'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Revenue (USD)'
+                        },
+                        beginAtZero: true
+                    }
+                }
             }
         });
     </script>

@@ -1,0 +1,27 @@
+﻿
+@page                                                                                                                                                                                                                                            
+@model CAAMSAirlineWebApp.Pages.NotificationsModel
+@{
+      ViewData["Title"] = "Notifications";
+  }
+
+  <h2 class="mt-4 mb-3">My Notifications</h2>
+
+  @if (!Model.Notifications.Any())
+  {
+      <div class="alert alert-info">You have no notifications.</div>
+  }
+  else
+  {
+      <div class="list-group">
+          @foreach (var n in Model.Notifications)
+          {
+              <div class="list-group-item @(!n.IsRead ? "list-group-item-warning" : "")">
+                  <div class="d-flex justify-content-between align-items-start">
+                      <p class="mb-1">@n.Message</p>
+                    <small class="text-muted ms-3 text-nowrap"><strong>@n.CreatedAt.ToString("MMM dd, yyyy")</strong></small>
+                  </div>
+              </div>
+          }
+      </div>
+  }

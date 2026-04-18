@@ -24,8 +24,10 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Aircrafts
             var aircraft = await _context.Aircrafts.FindAsync(aircraftId);
             if (aircraft == null) return NotFound();
 
-            Input = new AircraftEditInput
+            Input = new AircraftEditInput 
+
             {
+                MaintenanceStatus = aircraft.MaintenanceStatus,
                 AircraftId = aircraft.AircraftId,
                 Model = aircraft.Model,
                 Manufacturer = aircraft.Manufacturer,
@@ -47,7 +49,7 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Aircrafts
             aircraft.Manufacturer = string.IsNullOrWhiteSpace(Input.Manufacturer)
                 ? null : Input.Manufacturer.Trim();
             aircraft.Capacity = Input.Capacity;
-
+            aircraft.MaintenanceStatus = Input.MaintenanceStatus;
             await _context.SaveChangesAsync();
             return RedirectToPage("/Admin/Aircrafts/Index", new { success = "updated" });
         }
@@ -70,5 +72,8 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Aircrafts
         [Range(1, 1000, ErrorMessage = "Capacity must be between 1 and 1000.")]
         [Display(Name = "Seat Capacity")]
         public int Capacity { get; set; }
+        [Required]
+        [Display(Name = "Maintenance Status")]
+        public string MaintenanceStatus { get; set; } = "Active";
     }
 }

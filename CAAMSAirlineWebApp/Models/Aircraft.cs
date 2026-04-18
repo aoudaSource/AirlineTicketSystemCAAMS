@@ -8,6 +8,7 @@ namespace CAAMSAirlineWebApp.Models
         public string Model { get; set; } = null!;
         public string? Manufacturer { get; set; }
         public int Capacity { get; set; }
+        public string MaintenanceStatus { get; set; } = "Active";
 
         // Navigation properties
         public ICollection<Flight> Flights { get; set; } = new List<Flight>();

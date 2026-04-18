@@ -97,6 +97,14 @@
                         </div>
                         <span asp-validation-for="Input.Capacity" class="text-danger small"></span>
                     </div>
+                    <div class="col-12">
+                        <label asp-for="Input.MaintenanceStatus" class="form-label">Maintenance Status</label>
+                        <select asp-for="Input.MaintenanceStatus" class="form-select geologica-text">
+                            <option value="Active">Active</option>
+                            <option value="In Maintenance">In Maintenance</option>
+                        </select>
+                        <span asp-validation-for="Input.MaintenanceStatus" class="text-danger small"></span>
+                    </div>
                 </div>
 
                 <div class="mt-5 d-flex gap-3">

@@ -9,7 +9,8 @@ namespace CAAMSAirlineWebApp.Models
         public int CustomerId { get; set; }
         public DateTime BookingDate { get; set; }
         public decimal TotalPrice { get; set; }
-        
+        public string Status { get; set; } = "Confirmed";
+
         // Navigation properties
         public Customer Customer { get; set; } = null!;
         public ICollection<Passenger> Passengers { get; set; } = new List<Passenger>();

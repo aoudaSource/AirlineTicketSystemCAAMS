@@ -62,12 +62,16 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Flights
                 .ToListAsync();
 
             // Map the results to your FlightListItem DTO
+
             Flights = legs.Select(fl => new FlightListItem
             {
                 FlightId = fl.FlightId,
                 LegId = fl.LegId,
                 FlightNumber = fl.Flight.FlightNumber,
                 Aircraft = $"{fl.Flight.Aircraft.Manufacturer} {fl.Flight.Aircraft.Model}",
+
+                MaintenanceStatus = fl.Flight.Aircraft.MaintenanceStatus ?? "Active",
+
                 Route = $"{fl.DepartureAirport} → {fl.ArrivalAirport}",
                 DepartureCity = fl.DepartureAirportNavigation.City,
                 ArrivalCity = fl.ArrivalAirportNavigation.City,
@@ -104,5 +108,6 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Flights
         public DateTime DepartureTime { get; set; }
         public DateTime ArrivalTime { get; set; }
         public decimal BasePrice { get; set; }
+        public string MaintenanceStatus { get; set; } = "Active";
     }
 }

@@ -130,7 +130,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small fw-bold">Passport Number</label>
-                                    <input asp-for="Input.Passengers[i].PassportNumber" class="form-control font-monospace text-uppercase" placeholder="A12345678" />
+                                    <input asp-for="Input.Passengers[i].PassportNumber" class="form-control font-monospace text-uppercase" placeholder="A12345678" maxlength="9"/>
                                     <span asp-validation-for="Input.Passengers[i].PassportNumber" class="text-danger small"></span>
                                 </div>
                                 <div class="col-md-6">

@@ -52,22 +52,26 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Flights
                 return Page();
             }
 
+            var aircraft = await _context.Aircrafts.FindAsync(Input.AircraftId);
+            if (aircraft == null) return NotFound();
+
             var flight = new Flight
             {
                 FlightNumber = Input.FlightNumber.Trim().ToUpper(),
                 AircraftId = Input.AircraftId,
                 BasePrice = Input.BasePrice,
                 FlightLegs = new List<FlightLeg>
-                {
-                    new FlightLeg
-                    {
-                        LegNumber = 1,
-                        DepartureAirport = Input.DepartureAirport,
-                        ArrivalAirport = Input.ArrivalAirport,
-                        DepartureTime = Input.DepartureTime,
-                        ArrivalTime = Input.ArrivalTime
-                    }
-                }
+      {
+          new FlightLeg
+          {
+              LegNumber = 1,
+              DepartureAirport = Input.DepartureAirport,
+              ArrivalAirport = Input.ArrivalAirport,
+              DepartureTime = Input.DepartureTime,
+              ArrivalTime = Input.ArrivalTime,
+              AvailableSeats = aircraft.Capacity
+          }
+      }
             };
 
             _context.Flights.Add(flight);

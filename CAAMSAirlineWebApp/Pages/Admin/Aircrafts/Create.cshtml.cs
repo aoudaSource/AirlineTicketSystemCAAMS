@@ -35,6 +35,36 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Aircrafts
                 Capacity = Input.Capacity
             });
 
+            var aircraft = new Aircraft
+            {
+                Model = Input.Model.Trim(),
+                Manufacturer = string.IsNullOrWhiteSpace(Input.Manufacturer)
+          ? null : Input.Manufacturer.Trim(),
+                Capacity = Input.Capacity
+            };
+
+            _context.Aircrafts.Add(aircraft);
+            await _context.SaveChangesAsync();
+
+            // Generate seats
+            var seatLetters = new[] { "A", "B", "C", "D", "E", "F" };
+            int businessRows = Math.Max(1, Input.Capacity / 10 / 6); // ~10% business
+            int totalRows = (int)Math.Ceiling(Input.Capacity / 6.0);
+
+            for (int row = 1; row <= totalRows; row++)
+            {
+                string seatClass = row <= businessRows ? "Business" : "Economy";
+                foreach (var letter in seatLetters)
+                {
+                    _context.Seats.Add(new Seat
+                    {
+                        AircraftId = aircraft.AircraftId,
+                        SeatNumber = $"{row}{letter}",
+                        SeatClass = seatClass
+                    });
+                }
+            }
+
             await _context.SaveChangesAsync();
             return RedirectToPage("/Admin/Aircrafts/Index", new { success = "created" });
         }

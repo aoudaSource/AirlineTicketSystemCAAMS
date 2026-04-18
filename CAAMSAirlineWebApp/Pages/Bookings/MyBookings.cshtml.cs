@@ -42,6 +42,8 @@ namespace CAAMSAirlineWebApp.Pages.Bookings
                         .ThenInclude(fl => fl.ArrivalAirportNavigation)
                 .Include(b => b.Passengers)
                 .OrderByDescending(b => b.BookingDate)
+                .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Seat)
                 .ToListAsync();
 
             var now = DateTime.Now;

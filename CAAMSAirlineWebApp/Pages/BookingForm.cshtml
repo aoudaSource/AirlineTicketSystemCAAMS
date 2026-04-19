@@ -5,54 +5,196 @@
 }
 
 <style>
-    .booking-header, .form-label, .btn-airline-confirm, .passenger-title {
-        font-family: 'Geologica', sans-serif; color: #0c206d;
+    /* Typography & Colors */
+    .booking-header,
+    .form-label,
+    .btn-airline-confirm,
+    .passenger-title {
+        font-family: 'Geologica', sans-serif;
+        color: #0c206d;
     }
-    .geologica-text { font-family: 'Geologica', sans-serif; }
-    .ticket-summary { border: none; border-left: 8px solid #0c206d; border-radius: 12px; background-color: #f8faff; }
-    .passenger-section { background: white; border: 1px solid #eef1f7; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-    .passenger-number { background: #0c206d; color: white; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.8rem; margin-right: 10px; }
-    .price-checkout-box { background-color: #0c206d; color: white; border-radius: 12px; padding: 25px; }
-    .minor-warning-box { background-color: #fff5f5; border: 1px solid #feb2b2; color: #c53030; padding: 10px; border-radius: 6px; font-size: 0.85rem; margin-top: 10px; }
-    .btn-airline-confirm { background-color: #0c206d !important; border-color: #0c206d !important; color: white !important; font-weight: 600; transition: 0.3s; }
-    .btn-airline-confirm:hover { background-color: #08164d !important; transform: translateY(-2px); }
 
+    .geologica-text {
+        font-family: 'Geologica', sans-serif;
+    }
+
+    /* Ticket & Cards */
+    .ticket-summary {
+        border: none;
+        border-left: 8px solid #0c206d;
+        border-radius: 12px;
+        background-color: #f8faff;
+    }
+
+    .passenger-section {
+        background: white;
+        border: 1px solid #eef1f7;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .passenger-number {
+        background: #0c206d;
+        color: white;
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 0.8rem;
+        margin-right: 10px;
+    }
+
+    .price-checkout-box {
+        background-color: #0c206d;
+        color: white;
+        border-radius: 12px;
+        padding: 25px;
+    }
+
+    /* Alerts */
+    .minor-warning-box {
+        background-color: #fff5f5;
+        border: 1px solid #feb2b2;
+        color: #c53030;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+
+    .btn-airline-confirm {
+        background-color: #0c206d !important;
+        border-color: #0c206d !important;
+        color: white !important;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+        .btn-airline-confirm:hover {
+            background-color: #08164d !important;
+            transform: translateY(-2px);
+        }
+
+    /* Seat Grid */
     .seat-grid-container {
-        background: #f8f9fa; padding: 20px; border-radius: 12px; margin: 20px 0;
-        display: flex; flex-direction: column; align-items: center;
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
-    .seat-row { display: flex; gap: 10px; margin-bottom: 10px; }
+
+    .seat-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
     .seat {
-        width: 40px; height: 40px; border-radius: 6px; border: 1px solid #ccc;
-        background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        font-weight: bold; font-size: 0.85rem; transition: 0.2s;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.85rem;
+        transition: 0.2s;
     }
-    .seat:hover:not(.occupied):not(.selected) { background: #e3f2fd; border-color: #2196f3; transform: scale(1.1); }
-    .seat.selected { background: #2196f3; color: white; border-color: #1976d2; box-shadow: 0 0 8px rgba(33, 150, 243, 0.4); }
-    .seat.occupied { background: #e0e0e0; color: #9e9e9e; cursor: not-allowed; border-color: #bdbdbd; }
-    .seat.legend { width: 15px; height: 15px; border-radius: 3px; display: inline-block; margin-right: 5px; }
-    .legend-available { background: white; border: 1px solid #ccc; }
-    .legend-selected { background: #2196f3; }
-    .legend-occupied { background: #e0e0e0; }
-    
+
+        .seat:hover:not(.occupied):not(.selected) {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: scale(1.1);
+        }
+
+        .seat.selected {
+            background: #2196f3;
+            color: white;
+            border-color: #1976d2;
+            box-shadow: 0 0 8px rgba(33, 150, 243, 0.4);
+        }
+
+        .seat.occupied {
+            background: #e0e0e0;
+            color: #9e9e9e;
+            cursor: not-allowed;
+            border-color: #bdbdbd;
+        }
+
+        /* Legend */
+        .seat.legend {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+    .legend-available {
+        background: white;
+        border: 1px solid #ccc;
+    }
+
+    .legend-selected {
+        background: #2196f3;
+    }
+
+    .legend-occupied {
+        background: #e0e0e0;
+    }
+
+    /* Payment */
     .payment-method-card {
-        border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; cursor: pointer;
-        background: white; transition: 0.2s; display: flex; align-items: center; justify-content: center;
-        width: 100%; margin-bottom: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        cursor: pointer;
+        background: white;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 10px;
     }
-    .payment-method-card.active { border-color: #0c206d; background-color: #f0f4ff; font-weight: bold; }
-    .payment-fields { background: #f8f9fa; padding: 20px; border-radius: 8px; display: none; }
-    .payment-fields.active { display: block; }
+
+        .payment-method-card.active {
+            border-color: #0c206d;
+            background-color: #f0f4ff;
+            font-weight: bold;
+        }
+
+    .payment-fields {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        display: none;
+    }
+
+        .payment-fields.active {
+            display: block;
+        }
 </style>
 
 <div class="container mt-5 pb-5">
     <h2 class="booking-header text-uppercase mb-4">Complete Your Booking</h2>
 
+    <!-- OUTBOUND FLIGHT SUMMARY -->
     <div class="card ticket-summary mb-5 shadow-sm">
         <div class="card-body py-4">
             <div class="row align-items-center">
                 <div class="col-md-2 border-end">
-                    <div class="text-muted small text-uppercase fw-bold">Flight</div>
+                    <div class="text-muted small text-uppercase fw-bold">Outbound Flight</div>
                     <span class="fs-4 fw-bold" style="color:#0c206d;">@Model.FlightNumber</span>
                 </div>
                 <div class="col-md-7 px-4">
@@ -83,6 +225,45 @@
         </div>
     </div>
 
+    <!-- RETURN FLIGHT SUMMARY (Only if Round Trip) -->
+    @if (Model.IsRoundTrip)
+    {
+        <div class="card ticket-summary mb-5 shadow-sm">
+            <div class="card-body py-4">
+                <div class="row align-items-center">
+                    <div class="col-md-2 border-end">
+                        <div class="text-muted small text-uppercase fw-bold">Return Flight</div>
+                        <span class="fs-4 fw-bold" style="color:#0c206d;">@Model.ReturnFlightNumber</span>
+                    </div>
+                    <div class="col-md-7 px-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="text-center">
+                                <div class="fs-4 fw-800" style="color:#0c206d;">@Model.ReturnDepartureCode</div>
+                                <div class="text-muted small">@Model.ReturnDepartureCity</div>
+                                <div class="fw-bold text-primary">@Model.ReturnDepartureTime.ToString("HH:mm")</div>
+                            </div>
+                            <div class="flex-grow-1 mx-4 text-center">
+                                <div class="text-muted small mb-1">@Model.ReturnDepartureTime.ToString("ddd, dd MMM yyyy")</div>
+                                <div style="position:relative;">
+                                    <hr class="m-0" style="border-top: 2px dashed #cbd5e0;">
+                                    <i class="bi bi-airplane-fill position-absolute top-50 start-50 translate-middle bg-light px-2 text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="fs-4 fw-800" style="color:#0c206d;">@Model.ReturnArrivalCode</div>
+                                <div class="text-muted small">@Model.ReturnArrivalCity</div>
+                                <div class="fw-bold text-primary">@Model.ReturnArrivalTime.ToString("HH:mm")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="bi bi-check2-circle me-1"></i> Ready to Book</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <form method="post" id="mainBookingForm" novalidate>
         <input type="hidden" asp-for="Input.FlightId" />
         <input type="hidden" asp-for="Input.PassengerCount" />
@@ -94,12 +275,14 @@
         <input type="hidden" asp-for="CVV" id="cvv-input" />
         <input type="hidden" asp-for="PayPalEmail" id="paypal-email-input" />
 
+
         <div class="row">
             <div class="col-lg-8">
-                
+
+                <!-- STEP 1: PASSENGER INFO -->
                 <div id="step-1" class="step-section">
                     <h4 class="passenger-title text-uppercase mb-3">1. Traveler Information</h4>
-                    
+
                     <div class="mb-4">
                         <label class="form-label fw-bold text-uppercase small">Select Cabin Class</label>
                         <select asp-for="Input.TicketClass" class="form-select form-select-lg geologica-text" id="ticketClassSelect" style="max-width:350px;" onchange="updateTotal(); loadSeats();">
@@ -114,9 +297,26 @@
                     @for (int i = 0; i < Model.Input.PassengerCount; i++)
                     {
                         <div class="passenger-section shadow-sm">
-                            <h5 class="geologica-text fw-bold mb-4">
-                                <span class="passenger-number">@(i + 1)</span> Traveler @(i + 1)
-                            </h5>
+                            <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+                                <h5 class="geologica-text fw-bold mb-0">
+                                    <span class="passenger-number">@(i + 1)</span> Traveler @(i + 1)
+                                </h5>
+                                @if (i == 0 && !string.IsNullOrEmpty(Model.CustomerFirstName))
+                                {
+                                    <div class="d-flex gap-2" id="autofill-toggle">
+                                        <span class="small text-muted geologica-text" style="align-self:center;">Booking for:</span>
+                                        <button type="button" id="btn-myself" onclick="autofillMyself()"
+                                                style="background:none; border:none; color:#3c81bd; font-size:0.82rem; font-family:'Geologica',sans-serif; font-weight:600; cursor:pointer; text-decoration:underline;">
+                                            Myself
+                                        </button>
+                                        <span style="color:#ccc;">|</span>
+                                        <button type="button" id="btn-someone" onclick="clearAutofill()"
+                                                style="background:none; border:none; color:#aaa; font-size:0.82rem; font-family:'Geologica',sans-serif; font-weight:600; cursor:pointer;">
+                                            Someone Else
+                                        </button>
+                                    </div>
+                                }
+                            </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label small fw-bold">First Name</label>
@@ -130,7 +330,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small fw-bold">Passport Number</label>
-                                    <input asp-for="Input.Passengers[i].PassportNumber" class="form-control font-monospace text-uppercase" placeholder="A12345678" maxlength="9"/>
+                                    <input asp-for="Input.Passengers[i].PassportNumber" class="form-control font-monospace text-uppercase" placeholder="A12345678" maxlength="9" />
                                     <span asp-validation-for="Input.Passengers[i].PassportNumber" class="text-danger small"></span>
                                 </div>
                                 <div class="col-md-6">
@@ -148,10 +348,11 @@
                     <button type="button" class="btn btn-primary w-100 mt-3" onclick="goToStep(2)">Next: Select Seats</button>
                 </div>
 
+                <!-- STEP 2: OUTBOUND SEATS -->
                 <div id="step-2" class="step-section d-none">
-                    <h4 class="passenger-title text-uppercase mb-3">2. Choose Your Seats</h4>
+                    <h4 class="passenger-title text-uppercase mb-3">2. Select Outbound Seats</h4>
                     <div class="alert alert-info small">
-                        <i class="bi bi-info-circle me-2"></i> Please select <strong>@Model.Input.PassengerCount</strong> seat(s).
+                        <i class="bi bi-info-circle me-2"></i> Please select <strong>@Model.Input.PassengerCount</strong> seat(s) for the outbound flight.
                     </div>
 
                     <div id="seat-grid-loader" class="text-center py-4">
@@ -172,13 +373,45 @@
 
                     <div class="d-flex justify-content-between mt-4">
                         <button type="button" class="btn btn-secondary" onclick="goToStep(1)">Back</button>
-                        <button type="button" class="btn btn-primary" onclick="validateAndGoToPayment()">Next: Payment</button>
+                        <button type="button" class="btn btn-primary" onclick="validateAndProceed()">
+                            @(Model.IsRoundTrip ? "Next: Select Return Seats" : "Next: Payment")
+                        </button>
                     </div>
                 </div>
 
+                <!-- STEP 3: RETURN SEATS (Only if Round Trip) -->
                 <div id="step-3" class="step-section d-none">
-                    <h4 class="passenger-title text-uppercase mb-3">3. Payment Details</h4>
-                    
+                    <h4 class="passenger-title text-uppercase mb-3">3. Select Return Seats</h4>
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle me-2"></i> Please select <strong>@Model.Input.PassengerCount</strong> seat(s) for the return flight.
+                    </div>
+
+                    <div id="return-seat-loader" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p>Loading return seat map...</p>
+                    </div>
+
+                    <div id="return-seat-container" class="seat-grid-container d-none">
+                        <div class="mb-3 text-center">
+                            <span><span class="seat legend legend-available"></span> Available</span>
+                            <span class="mx-2"><span class="seat legend legend-selected"></span> Selected</span>
+                            <span><span class="seat legend legend-occupied"></span> Occupied</span>
+                        </div>
+                        <div id="return-seat-grid"></div>
+                    </div>
+
+                    <div id="return-seat-error" class="alert alert-danger d-none mt-3"></div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-secondary" onclick="goToStep(2)">Back</button>
+                        <button type="button" class="btn btn-primary" onclick="validateAndProceed()">Next: Payment</button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: PAYMENT -->
+                <div id="step-4" class="step-section d-none">
+                    <h4 class="passenger-title text-uppercase mb-3">4. Payment Details</h4>
+
                     <div class="mb-4">
                         <label class="form-label fw-bold small text-uppercase">Payment Method</label>
                         <div class="row g-2">
@@ -224,7 +457,7 @@
                     <div id="payment-error" class="alert alert-danger d-none mt-3"></div>
 
                     <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-secondary" onclick="goToStep(2)">Back</button>
+                        <button type="button" class="btn btn-secondary" onclick="goToStep(@(Model.IsRoundTrip ? 3 : 2))">Back</button>
                         <button type="submit" class="btn btn-success btn-lg">CONFIRM & PAY $@Model.EstimatedTotal</button>
                     </div>
                 </div>
@@ -238,6 +471,13 @@
                         <span>Base Fare (@Model.Input.PassengerCount ×)</span>
                         <span>USD @((Model.BasePrice * Model.Input.PassengerCount).ToString("N2"))</span>
                     </div>
+                    @if (Model.IsRoundTrip)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Return Base Fare (@Model.Input.PassengerCount ×)</span>
+                            <span>USD @((Model.ReturnBasePrice * Model.Input.PassengerCount).ToString("N2"))</span>
+                        </div>
+                    }
                     <div id="classSurchargeRow" class="d-flex justify-content-between mb-4 small text-info" style="display:none !important;">
                         <span>Cabin Upgrade</span>
                         <span id="surchargeAmount">+ USD 0.00</span>
@@ -260,28 +500,78 @@
 @section Scripts {
     <script>
         const flightId = @Model.Input.FlightId;
+        const returnFlightId = @(Model.ReturnFlightId.HasValue ? Model.ReturnFlightId.Value.ToString() : "null");
         const passengerCount = @Model.Input.PassengerCount;
         const basePrice = @Model.BasePrice;
-        let selectedSeats = [];
-        let allSeats = [];
-        let occupiedSeats = [];
+        const returnBasePrice = @Model.ReturnBasePrice;
+        const isRoundTrip = @Model.IsRoundTrip.ToString().ToLower();
+
+        // Customer info for autofill
+        const customerInfo = {
+            firstName:  "@Html.Raw(Model.CustomerFirstName.Replace("\"", "\\\""))",
+            lastName:   "@Html.Raw(Model.CustomerLastName.Replace("\"", "\\\""))",
+            passport:   "@Html.Raw(Model.CustomerPassportNumber.Replace("\"", "\\\""))",
+            dob:        "@(Model.CustomerDOB.HasValue ? Model.CustomerDOB.Value.ToString("yyyy-MM-dd") : "")"
+        };
+
+        function autofillMyself() {
+            // Fill the first passenger's fields
+            const section = document.querySelector('#step-1');
+            section.querySelector('input[name="Input.Passengers[0].FirstName"]').value = customerInfo.firstName;
+            section.querySelector('input[name="Input.Passengers[0].LastName"]').value  = customerInfo.lastName;
+            section.querySelector('input[name="Input.Passengers[0].PassportNumber"]').value = customerInfo.passport.toUpperCase();
+            const dobInput = section.querySelector('input[name="Input.Passengers[0].DOB"]');
+            if (dobInput && customerInfo.dob) dobInput.value = customerInfo.dob;
+            updateMinorWarnings();
+
+            // Toggle button styles
+            document.getElementById('btn-myself').classList.replace('btn-outline-primary', 'btn-primary');
+            document.getElementById('btn-someone').classList.replace('btn-secondary', 'btn-outline-secondary');
+        }
+
+        function clearAutofill() {
+            const section = document.querySelector('#step-1');
+            section.querySelector('input[name="Input.Passengers[0].FirstName"]').value = '';
+            section.querySelector('input[name="Input.Passengers[0].LastName"]').value  = '';
+            section.querySelector('input[name="Input.Passengers[0].PassportNumber"]').value = '';
+            const dobInput = section.querySelector('input[name="Input.Passengers[0].DOB"]');
+            if (dobInput) dobInput.value = '';
+            updateMinorWarnings();
+
+            // Toggle button styles
+            document.getElementById('btn-myself').classList.replace('btn-primary', 'btn-outline-primary');
+            document.getElementById('btn-someone').classList.replace('btn-outline-secondary', 'btn-secondary');
+        }
+
+        // Separate state per flight — shared globals caused return seats to overwrite outbound
+        let outboundAllSeats = [], outboundOccupied = [], outboundSelected = [];
+        let returnAllSeats  = [], returnOccupied  = [], returnSelected  = [];
+        let currentStep = 1;
 
         function goToStep(step) {
-            // Clear errors when moving steps
             document.querySelectorAll('.alert-danger').forEach(el => el.classList.add('d-none'));
-            
             document.querySelectorAll('.step-section').forEach(el => el.classList.add('d-none'));
-            document.getElementById(`step-${step}`).classList.remove('d-none');
+            const target = document.getElementById(`step-${step}`);
+            if(target) target.classList.remove('d-none');
             window.scrollTo(0, 0);
+            currentStep = step;
+
+            // Re-render outbound grid when navigating back to step 2
+            if (step === 2 && outboundAllSeats.length > 0) {
+                renderGrid(false, document.getElementById('seat-grid'), outboundAllSeats, outboundOccupied, outboundSelected);
+                document.getElementById('seat-grid-container').classList.remove('d-none');
+                document.getElementById('seat-grid-loader').classList.add('d-none');
+            }
         }
 
         function updateTotal() {
             const cls = document.getElementById('ticketClassSelect').value;
             const multipliers = { 'Economy': 1, 'Business': 1.5, 'First': 2 };
             const multiplier = multipliers[cls] || 1;
-            const total = passengerCount * basePrice * multiplier;
+            const outboundTotal = passengerCount * basePrice * multiplier;
+            const returnTotal = isRoundTrip === 'true' ? passengerCount * returnBasePrice * multiplier : 0;
+            const total = outboundTotal + returnTotal;
             const surcharge = total - (passengerCount * basePrice);
-
             document.getElementById('liveTotalDisplay').innerText = 'USD ' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
             const surchargeRow = document.getElementById('classSurchargeRow');
             if (surcharge > 0) {
@@ -292,14 +582,15 @@
             }
         }
 
-        // Minor Warning Logic
         function calcAge(dob) {
-            const today = new Date(); const birthDate = new Date(dob);
+            const today = new Date();
+            const birthDate = new Date(dob);
             let age = today.getFullYear() - birthDate.getFullYear();
             const m = today.getMonth() - birthDate.getMonth();
             if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
             return age;
         }
+
         function updateMinorWarnings() {
             const inputs = Array.from(document.querySelectorAll('.dob-input'));
             const ages = inputs.map(i => i.value ? calcAge(i.value) : null);
@@ -310,51 +601,57 @@
                 warning.style.display = (age !== null && age <= 14 && !hasAdult) ? 'block' : 'none';
             });
         }
+
         document.querySelectorAll('.dob-input').forEach(input => input.addEventListener('change', updateMinorWarnings));
 
-        async function loadSeats() {
+        async function loadSeats(forReturn = false) {
             const cabinClass = document.getElementById('ticketClassSelect').value;
-            const errorEl = document.getElementById('seat-error');
-            const loaderEl = document.getElementById('seat-grid-loader');
-            const containerEl = document.getElementById('seat-grid-container');
+            const errorEl = forReturn ? document.getElementById('return-seat-error') : document.getElementById('seat-error');
+            const loaderEl = forReturn ? document.getElementById('return-seat-loader') : document.getElementById('seat-grid-loader');
+            const containerEl = forReturn ? document.getElementById('return-seat-container') : document.getElementById('seat-grid-container');
+            const gridEl = forReturn ? document.getElementById('return-seat-grid') : document.getElementById('seat-grid');
 
-            // Reset UI
             errorEl.classList.add('d-none');
             containerEl.classList.add('d-none');
             loaderEl.classList.remove('d-none');
 
-            // 1. Validate Class Selection
             if (!cabinClass) {
                 loaderEl.classList.add('d-none');
-                errorEl.innerText = "Please select a cabin class before viewing seats.";
+                errorEl.innerText = "Please select a cabin class first.";
                 errorEl.classList.remove('d-none');
                 return;
             }
 
             try {
-                // 2. Fetch Seats Filtered by Class
+                const targetFlightId = forReturn ? returnFlightId : flightId;
                 const [seatsRes, occupiedRes] = await Promise.all([
-                    fetch(`/api/seats/flight/${flightId}?class=${encodeURIComponent(cabinClass)}`),
-                    fetch(`/api/seats/occupied/${flightId}`)
+                    fetch(`/api/seats/flight/${targetFlightId}?class=${encodeURIComponent(cabinClass)}`),
+                    fetch(`/api/seats/occupied/${targetFlightId}`)
                 ]);
 
-                if (!seatsRes.ok) {
-                    throw new Error("Failed to load seat data.");
+                if (!seatsRes.ok) throw new Error("Failed to load seat data.");
+
+                const seats = await seatsRes.json();
+                const occupied = await occupiedRes.json();
+
+                // Store in the correct flight's variables — never overwrite the other
+                if (forReturn) {
+                    returnAllSeats = seats;
+                    returnOccupied = occupied;
+                } else {
+                    outboundAllSeats = seats;
+                    outboundOccupied = occupied;
                 }
 
-                allSeats = await seatsRes.json();
-                occupiedSeats = await occupiedRes.json();
-
-                // 3. Handle Empty Results
-                if (allSeats.length === 0) {
+                if (seats.length === 0) {
                     loaderEl.classList.add('d-none');
-                    errorEl.innerText = `No seats available in ${cabinClass} class for this flight.`;
+                    errorEl.innerText = `No seats available in ${cabinClass} class.`;
                     errorEl.classList.remove('d-none');
                     return;
                 }
 
-                renderGrid();
-
+                const selected = forReturn ? returnSelected : outboundSelected;
+                renderGrid(forReturn, gridEl, seats, occupied, selected);
             } catch (err) {
                 console.error(err);
                 loaderEl.classList.add('d-none');
@@ -363,15 +660,12 @@
             }
         }
 
-        function renderGrid() {
-            const container = document.getElementById('seat-grid');
+        function renderGrid(forReturn, gridContainer, seats, occupied, selected) {
+            const container = gridContainer;
             container.innerHTML = '';
-            
-            const selectedClass = document.getElementById('ticketClassSelect').value;
-            
             const rows = {};
-            allSeats.forEach(seat => {
 
+            seats.forEach(seat => {
                 const match = seat.seatNumber.match(/^(\d+)([A-Z]+)$/);
                 if (match) {
                     const row = match[1];
@@ -380,67 +674,96 @@
                 }
             });
 
-            // Render rows
             Object.keys(rows).sort((a,b) => parseInt(a) - parseInt(b)).forEach(rowNum => {
                 const rowDiv = document.createElement('div');
                 rowDiv.className = 'seat-row';
-                
                 rows[rowNum].sort((a,b) => a.seatNumber.localeCompare(b.seatNumber)).forEach(seat => {
-                    const isOccupied = occupiedSeats.includes(seat.seatNumber);
-                    const isSelected = selectedSeats.includes(seat.seatNumber);
-                    
+                    const isOccupied = occupied.includes(seat.seatNumber);
+                    const isSelected = selected.includes(seat.seatNumber);
                     const seatDiv = document.createElement('div');
-                    seatDiv.className = `seat ${seat.seatClass.toLowerCase()} ${isOccupied ? 'occupied' : ''} ${isSelected ? 'selected' : ''}`;
+
+                    let className = 'seat ' + seat.seatClass.toLowerCase();
+                    if(isOccupied) className += ' occupied';
+                    if(isSelected) className += ' selected';
+
+                    seatDiv.className = className;
                     seatDiv.innerText = seat.seatNumber;
-                    
+
                     if (!isOccupied) {
-                        seatDiv.onclick = () => toggleSeat(seat.seatNumber);
+                        seatDiv.onclick = () => toggleSeat(seat.seatNumber, forReturn);
                     }
                     rowDiv.appendChild(seatDiv);
                 });
                 container.appendChild(rowDiv);
             });
 
-            document.getElementById('seat-grid-loader').classList.add('d-none');
-            document.getElementById('seat-grid-container').classList.remove('d-none');
+            document.getElementById(forReturn ? 'return-seat-loader' : 'seat-grid-loader').classList.add('d-none');
+            document.getElementById(forReturn ? 'return-seat-container' : 'seat-grid-container').classList.remove('d-none');
         }
 
-        function toggleSeat(seatNumber) {
-            const idx = selectedSeats.indexOf(seatNumber);
+        function toggleSeat(seatNumber, forReturn) {
+            const selected = forReturn ? returnSelected : outboundSelected;
+            const seats    = forReturn ? returnAllSeats  : outboundAllSeats;
+            const occupied = forReturn ? returnOccupied  : outboundOccupied;
+            const gridEl   = forReturn ? document.getElementById('return-seat-grid') : document.getElementById('seat-grid');
+
+            const idx = selected.indexOf(seatNumber);
             if (idx > -1) {
-                selectedSeats.splice(idx, 1);
+                selected.splice(idx, 1);
             } else {
-                if (selectedSeats.length < passengerCount) {
-                    selectedSeats.push(seatNumber);
+                if (selected.length < passengerCount) {
+                    selected.push(seatNumber);
                 } else {
                     return;
                 }
             }
-            renderGrid();
+            renderGrid(forReturn, gridEl, seats, occupied, selected);
         }
 
-        function validateAndGoToPayment() {
-            const errorEl = document.getElementById('seat-error');
-            if (selectedSeats.length !== passengerCount) {
-                errorEl.innerText = `You must select exactly ${passengerCount} seat(s). Currently: ${selectedSeats.length}`;
+        function validateAndProceed() {
+            const forReturn = currentStep === 3;
+            const errorEl   = forReturn ? document.getElementById('return-seat-error') : document.getElementById('seat-error');
+            const selected  = forReturn ? returnSelected : outboundSelected;
+
+            if (selected.length !== passengerCount) {
+                errorEl.innerText = `You must select exactly ${passengerCount} seat(s). Currently: ${selected.length}`;
                 errorEl.classList.remove('d-none');
                 return;
             }
+
             errorEl.classList.add('d-none');
-            document.getElementById('selected-seats-input').value = selectedSeats.join(',');
-            goToStep(3);
+
+            if (currentStep === 2) {
+                if (isRoundTrip === 'true') {
+                    goToStep(3);
+                    // If return seats were already loaded (e.g. user went back), re-render instantly
+                    if (returnAllSeats.length > 0) {
+                        renderGrid(true, document.getElementById('return-seat-grid'), returnAllSeats, returnOccupied, returnSelected);
+                        document.getElementById('return-seat-container').classList.remove('d-none');
+                        document.getElementById('return-seat-loader').classList.add('d-none');
+                    } else {
+                        loadSeats(true);
+                    }
+                } else {
+                    document.getElementById('selected-seats-input').value = outboundSelected.join(',');
+                    goToStep(4);
+                }
+            }
+            else if (currentStep === 3) {
+                // Combine outbound + return — order matters for server-side split
+                document.getElementById('selected-seats-input').value = [...outboundSelected, ...returnSelected].join(',');
+                goToStep(4);
+            }
         }
 
-        //PAYMENT
         function selectPaymentMethod(method) {
             document.querySelectorAll('.payment-method-card').forEach(el => el.classList.remove('active'));
             event.currentTarget.classList.add('active');
-            
             document.getElementById('payment-method-input').value = method;
-            
+
             const cardFields = document.getElementById('cardFields');
             const paypalFields = document.getElementById('paypalFields');
-            
+
             if (method === 'PayPal') {
                 cardFields.classList.remove('active');
                 paypalFields.classList.add('active');
@@ -450,18 +773,19 @@
             }
         }
 
-        // Formatting
+        // Card Formatting
         document.getElementById('cardNumberInput')?.addEventListener('input', function(e) {
             let v = e.target.value.replace(/\D/g,'').substring(0,16);
-            e.target.value = v.match(/.{1,4}/g)?.join(' ') ?? v;
+            e.target.value = (v.match(/.{1,4}/g) || [v]).join(' ');
         });
+
         document.getElementById('expiryInput')?.addEventListener('input', function(e) {
             let v = e.target.value.replace(/\D/g,'').substring(0,4);
             if(v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
             e.target.value = v;
         });
 
-        // Sync hidden inputs before submit
+        // Form Submit Hook
         document.getElementById('mainBookingForm').addEventListener('submit', function(e) {
             document.getElementById('card-holder-input').value = document.getElementById('cardHolderInput').value;
             document.getElementById('card-number-input').value = document.getElementById('cardNumberInput').value;
@@ -470,8 +794,8 @@
             document.getElementById('paypal-email-input').value = document.getElementById('paypalEmailInput').value;
         });
 
-        if(document.getElementById('step-2')) {
-             loadSeats();
-        }
+        // Pre-load outbound seat map in the background on page load
+        loadSeats(false);
     </script>
 }
+

@@ -18,12 +18,36 @@ namespace CAAMSAirlineWebApp.Pages
         }
 
         public Booking Booking { get; set; } = null!;
+        public Booking? ReturnBooking { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int bookingId)
+
+
+        public async Task<IActionResult> OnGetAsync(int bookingId, int? returnBookingId = null)
         {
             var username = User.Identity?.Name;
 
-            var booking = await _context.Bookings
+            var booking = await LoadBookingAsync(bookingId);
+
+            if (booking == null)
+                return NotFound();
+
+            if (booking.Customer.Username != username)
+                return Forbid();
+
+            Booking = booking;
+
+            if (returnBookingId.HasValue)
+            {
+                var returnBooking = await LoadBookingAsync(returnBookingId.Value);
+                if (returnBooking != null && returnBooking.Customer.Username == username)
+                    ReturnBooking = returnBooking;
+            }
+
+            return Page();
+        }                                    
+private async Task<Booking?> LoadBookingAsync(int id)
+        {
+            return await _context.Bookings
                 .Include(b => b.Customer)
                 .Include(b => b.Passengers)
                     .ThenInclude(p => p.Tickets)
@@ -40,16 +64,12 @@ namespace CAAMSAirlineWebApp.Pages
                 .Include(b => b.Passengers)
                     .ThenInclude(p => p.Tickets)
                         .ThenInclude(t => t.Seat)
-                .FirstOrDefaultAsync(b => b.BookingId == bookingId);
-
-            if (booking == null)
-                return NotFound();
-
-            if (booking.Customer.Username != username)
-                return Forbid();
-
-            Booking = booking;
-            return Page();
+                .FirstOrDefaultAsync(b => b.BookingId == id);
         }
     }
-}
+    
+
+} 
+
+
+    

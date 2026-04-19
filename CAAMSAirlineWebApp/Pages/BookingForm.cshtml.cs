@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace CAAMSAirlineWebApp.Pages
 {
@@ -32,6 +33,40 @@ namespace CAAMSAirlineWebApp.Pages
         public decimal BasePrice { get; set; }
         public decimal EstimatedTotal { get; set; }
 
+
+        //for return bc it kept using the same variable
+
+        public string ReturnFlightNumber { get; set; } = "";
+
+        public string ReturnDepartureCode { get; set; } = "";
+
+        public string ReturnDepartureCity { get; set; } = "";
+
+        public string ReturnArrivalCode { get; set; } = "";
+
+        public string ReturnArrivalCity { get; set; } = "";
+
+        public DateTime ReturnDepartureTime { get; set; } 
+
+        public DateTime ReturnArrivalTime { get; set; }
+        
+        public decimal ReturnBasePrice { get; set; }
+
+        public bool IsRoundTrip => ReturnFlightId.HasValue;
+
+        //autofill, should grab customers last first and passport #
+
+        public string CustomerFirstName { get; set; } = "";
+
+        public string CustomerLastName { get; set; } = "";
+
+        public string CustomerPassportNumber { get; set; } = "";
+
+        public DateTime? CustomerDOB { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int? ReturnFlightId { get; set; }
+
         [BindProperty]
         public CreateBookingRequest Input { get; set; } = new();
 
@@ -56,7 +91,8 @@ namespace CAAMSAirlineWebApp.Pages
         [BindProperty]
         public string? PayPalEmail { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int flightId, int passengerCount, string cabinClass = "Economy")
+        public async Task<IActionResult> OnGetAsync(int flightId, int passengerCount, string cabinClass = "Economy", int? returnFlightId = null)
+
         {
             if (!await LoadFlightAsync(flightId))
                 return NotFound();
@@ -64,6 +100,26 @@ namespace CAAMSAirlineWebApp.Pages
             Input.FlightId = flightId;
             Input.PassengerCount = passengerCount;
             Input.TicketClass = cabinClass;
+
+            ReturnFlightId = returnFlightId;
+
+            //return for roundtrip
+            if (returnFlightId.HasValue)
+            {
+                if (!await LoadReturnFlightAsync(returnFlightId.Value))
+                    return NotFound();
+                Input.ReturnFlightId = returnFlightId;
+            }
+
+            var username = User.Identity!.Name;
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Username == username);
+            if (customer != null)
+            {
+                CustomerFirstName = customer.FirstName ?? "";
+                CustomerLastName = customer.LastName ?? "";
+                CustomerPassportNumber =  "";
+                CustomerDOB = customer.DOB;
+            }
 
             for (int i = 0; i < passengerCount; i++)
                 Input.Passengers.Add(new PassengerInput());
@@ -74,7 +130,10 @@ namespace CAAMSAirlineWebApp.Pages
                 "First" => 2m,
                 _ => 1m
             };
-            EstimatedTotal = passengerCount * BasePrice * multiplier;
+
+            decimal outboundTotal = passengerCount * BasePrice * multiplier;
+            decimal returnTotal = IsRoundTrip ? passengerCount * ReturnBasePrice * multiplier : 0;
+            EstimatedTotal = outboundTotal + returnTotal;
 
             return Page();
         }
@@ -84,19 +143,19 @@ namespace CAAMSAirlineWebApp.Pages
             if (!await LoadFlightAsync(Input.FlightId))
                 return NotFound();
 
-            // 1. Recalculate Total
             var multiplier = Input.TicketClass switch
             {
                 "Business" => 1.5m,
                 "First" => 2m,
                 _ => 1m
             };
-            EstimatedTotal = Input.PassengerCount * BasePrice * multiplier;
+            decimal outboundTotal = Input.PassengerCount * BasePrice * multiplier;
+            decimal returnTotal = IsRoundTrip ? Input.PassengerCount * ReturnBasePrice * multiplier : 0;
+            EstimatedTotal = outboundTotal + returnTotal;
 
             if (!ModelState.IsValid)
                 return Page();
 
-            // 2. Validate Passenger Data
             var today = DateTime.Today;
             static int CalcAge(DateTime dob, DateTime today)
             {
@@ -128,13 +187,13 @@ namespace CAAMSAirlineWebApp.Pages
             }
 
             var seatList = SelectedSeats.Split(',').Select(s => s.Trim()).ToList();
-            if (seatList.Count != Input.PassengerCount)
+            int expectedSeats = IsRoundTrip ? Input.PassengerCount * 2 : Input.PassengerCount;
+            if (seatList.Count != expectedSeats)
             {
-                ModelState.AddModelError(string.Empty, $"You must select exactly {Input.PassengerCount} seat(s).");
+                ModelState.AddModelError(string.Empty, $"You must select exactly {expectedSeats} seat(s).");
                 return Page();
             }
 
-            // 4. Validate Payment Method
             if (string.IsNullOrEmpty(PaymentMethod))
             {
                 ModelState.AddModelError(string.Empty, "Please select a payment method.");
@@ -147,14 +206,13 @@ namespace CAAMSAirlineWebApp.Pages
                 return Page();
             }
 
-            if ((PaymentMethod == "Credit Card" || PaymentMethod == "Debit Card") && 
+            if ((PaymentMethod == "Credit Card" || PaymentMethod == "Debit Card") &&
                 (string.IsNullOrEmpty(CardNumber) || string.IsNullOrEmpty(CVV)))
             {
                 ModelState.AddModelError(string.Empty, "Card details are required.");
                 return Page();
             }
 
-            // 5. Get Customer
             var username = User.Identity?.Name;
             var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Username == username);
             if (customer == null)
@@ -165,25 +223,46 @@ namespace CAAMSAirlineWebApp.Pages
 
             Input.CustomerId = customer.CustomerId;
 
-            // 6. Create Booking with Manual Seats
             try
             {
-                var bookingId = await _bookingService.CreateBookingWithManualSeatsAsync(Input, seatList);
-                
-                // 7. Create Payment Record
-                var payment = new Models.Payment
+                var outboundSeats = seatList.Take(Input.PassengerCount).ToList();
+                var returnSeats = IsRoundTrip ? seatList.Skip(Input.PassengerCount).ToList() : new List<string>();
+
+                var outboundBookingId = await _bookingService.CreateBookingWithManualSeatsAsync(Input, outboundSeats);
+                _context.Payments.Add(new Models.Payment
                 {
-                    BookingId = bookingId,
-                    Amount = EstimatedTotal,
+                    BookingId = outboundBookingId,
+                    Amount = outboundTotal,
                     PaymentMethod = PaymentMethod,
                     PaymentDate = DateTime.Now
-                };
-                
-                
-                _context.Payments.Add(payment);
+                });
+
+                int? returnBookingId = null;
+                if (IsRoundTrip && ReturnFlightId.HasValue)
+                {
+                    var returnRequest = new CreateBookingRequest
+                    {
+                        CustomerId = Input.CustomerId,
+                        FlightId = ReturnFlightId.Value,
+                        TicketClass = Input.TicketClass,
+                        PassengerCount = Input.PassengerCount,
+                        Passengers = Input.Passengers
+                    };
+                    returnBookingId = await _bookingService.CreateBookingWithManualSeatsAsync(returnRequest, returnSeats);
+                    _context.Payments.Add(new Models.Payment
+                    {
+                        BookingId = returnBookingId.Value,
+                        Amount = returnTotal,
+                        PaymentMethod = PaymentMethod,
+                        PaymentDate = DateTime.Now
+                    });
+                }
+
                 await _context.SaveChangesAsync();
 
-                return RedirectToPage("/BookingConfirmation", new { bookingId });
+                return IsRoundTrip && returnBookingId.HasValue
+                    ? RedirectToPage("/BookingConfirmation", new { bookingId = outboundBookingId, returnBookingId = returnBookingId.Value })
+                    : RedirectToPage("/BookingConfirmation", new { bookingId = outboundBookingId });
             }
             catch (Exception ex)
             {
@@ -192,8 +271,18 @@ namespace CAAMSAirlineWebApp.Pages
             }
         }
 
+        
+        
         private async Task<bool> LoadFlightAsync(int flightId)
-        {
+        { 
+
+            
+        
+     
+
+        
+
+       
             var flight = await _context.Flights
                 .Include(f => f.FlightLegs.OrderBy(l => l.LegNumber))
                     .ThenInclude(fl => fl.DepartureAirportNavigation)
@@ -217,5 +306,33 @@ namespace CAAMSAirlineWebApp.Pages
 
             return true;
         }
+
+        private async Task<bool> LoadReturnFlightAsync(int flightId)
+        {
+            var flight = await _context.Flights
+                .Include(f => f.FlightLegs)
+                    .ThenInclude(fl => fl.DepartureAirportNavigation)
+                .Include(f => f.FlightLegs)
+                    .ThenInclude(fl => fl.ArrivalAirportNavigation)
+                .FirstOrDefaultAsync(f => f.FlightId == flightId);
+
+            if (flight == null) return false;
+
+            var sortedLegs = flight.FlightLegs.OrderBy(l => l.LegNumber).ToList();
+            var first = sortedLegs.First();
+            var last = sortedLegs.Last();
+
+            ReturnFlightNumber = flight.FlightNumber;
+            ReturnDepartureCode = first.DepartureAirport;
+            ReturnDepartureCity = first.DepartureAirportNavigation.City;
+            ReturnArrivalCode = last.ArrivalAirport;
+            ReturnArrivalCity = last.ArrivalAirportNavigation.City;
+            ReturnDepartureTime = first.DepartureTime;
+            ReturnArrivalTime = last.ArrivalTime;
+            ReturnBasePrice = flight.BasePrice;
+
+            return true;
+        }
+
     }
 }

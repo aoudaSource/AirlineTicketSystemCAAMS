@@ -58,7 +58,7 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Flights
 
             // Execute the query with sorting
             var legs = await legsQuery
-                .OrderBy(fl => fl.DepartureTime)
+                .OrderByDescending(fl => fl.DepartureTime)
                 .ToListAsync();
 
             // Map the results to your FlightListItem DTO

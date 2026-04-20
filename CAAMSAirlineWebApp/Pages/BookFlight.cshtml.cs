@@ -50,10 +50,11 @@ namespace CAAMSAirlineWebApp.Pages
 
             var outboundQuery = _context.FlightLegs
                 .Include(fl => fl.Flight)
+                .ThenInclude(f => f.Aircraft)
                 .Include(fl => fl.DepartureAirportNavigation)
                 .Include(fl => fl.ArrivalAirportNavigation)
                 .Where(fl =>
-                    fl.DepartureTime > cutoff &&
+                    fl.DepartureTime > cutoff && fl.Flight.Aircraft.MaintenanceStatus == "Active" &&
                     (fl.DepartureAirport.ToLower().Contains(originLower) ||
                      fl.DepartureAirportNavigation.City.ToLower().Contains(originLower) ||
                      fl.DepartureAirportNavigation.AirportName.ToLower().Contains(originLower)) &&
@@ -89,10 +90,11 @@ namespace CAAMSAirlineWebApp.Pages
             {
                 var returnQuery = _context.FlightLegs
                     .Include(fl => fl.Flight)
+                    .ThenInclude(f => f.Aircraft)
                     .Include(fl => fl.DepartureAirportNavigation)
                     .Include(fl => fl.ArrivalAirportNavigation)
                     .Where(fl =>
-                        fl.DepartureTime > cutoff &&
+                        fl.DepartureTime > cutoff && fl.Flight.Aircraft.MaintenanceStatus == "Active" &&
                         (fl.DepartureAirport.ToLower().Contains(destLower) ||
                          fl.DepartureAirportNavigation.City.ToLower().Contains(destLower) ||
                          fl.DepartureAirportNavigation.AirportName.ToLower().Contains(destLower)) &&

@@ -226,7 +226,30 @@
         </div>
     }
 }
+@if (Model.ReturnBooking != null)
+{
+    <hr class="my-4" />
+    <div class="confirmation-banner d-flex align-items-center justify-content-between flex-wrap gap-3"><div><div class="fs-5 fw-bold"> Return Flight</div><div class="opacity-75 small">Booking reference <strong>#@Model.ReturnBooking.BookingId.ToString("D6")</strong></div></div><div><div class="opacity-75 small">Total Paid</div><div class="fw-bold fs-5">$@Model.ReturnBooking.TotalPrice.ToString("F2")</div></div></div>
+    @foreach (var passenger in Model.ReturnBooking.Passengers.OrderBy(p => p.PassengerId))
+    {
+        <div class="passenger-name-header">
+            &#128100; @passenger.FirstName @passenger.LastName
 
+            <span class="text-muted fw-normal small ms-3">Passport: @passenger.PassportNumber &nbsp;|&nbsp; DOB: @passenger.DOB.ToString("MMM dd, yyyy")</span>
+        </div>
+        @foreach (var ticket in passenger.Tickets.OrderBy(t => t.FlightLeg.LegNumber))
+        {
+            var leg = ticket.FlightLeg;
+
+            var dep = leg.DepartureAirportNavigation;
+
+            var arr = leg.ArrivalAirportNavigation;
+
+
+            <div class="boarding-pass"><div class="boarding-pass-main"><div class="notch notch-right"></div><div class="d-flex justify-content-between align-items-start mb-3"><div class="airline-label">CAAMS AIRLINES</div><span class="badge bg-secondary">@ticket.TicketClass</span></div><div class="d-flex align-items-center mb-4"><div><div class="airport-code">@leg.DepartureAirport</div><div class="airport-city">@dep.City</div><div class="fw-semibold mt-1">@leg.DepartureTime.ToString("hh:mm tt")</div></div><div class="flight-arrow px-3"></div><div><div class="airport-code">@leg.ArrivalAirport</div><div class="airport-city">@arr.City</div><div class="fw-semibold mt-1">@leg.ArrivalTime.ToString("hh:mm tt")</div></div></div><div class="row g-3"><div class="col-auto"><div class="bp-label">Date</div><div class="bp-value">@leg.DepartureTime.ToString("MMM dd, yyyy")</div></div><div class="col-auto"><div class="bp-label">Flight</div><div class="bp-value">@leg.Flight.FlightNumber</div></div><div class="col-auto"><div class="bp-label">Seat</div><div class="bp-value">@(ticket.Seat != null ? ticket.Seat.SeatNumber : "TBA")</div></div><div class="col-auto"><div class="bp-label">Ticket</div><div class="bp-value">#@ticket.TicketId.ToString("D6")</div></div><div class="col-auto"><div class="bp-label">Passenger</div><div class="bp-value">@passenger.FirstName @passenger.LastName</div></div></div></div><div class="boarding-pass-stub"><div><div class="stub-label">Flight</div><div class="stub-value">@leg.Flight.FlightNumber</div></div><div><div class="stub-label">From</div><div class="stub-value">@leg.DepartureAirport</div></div><div><div class="stub-label">To</div><div class="stub-value">@leg.ArrivalAirport</div></div><div><div class="stub-label">Seat</div><div class="stub-value">@(ticket.Seat != null ? ticket.Seat.SeatNumber : "TBA")</div></div><div><div class="stub-label">Price</div><div class="stub-value">$@ticket.Price.ToString("F2")</div></div></div></div>
+        }
+    }
+}
 <div class="mt-3 d-flex gap-2">
     <a asp-page="/BookFlight" class="btn btn-primary">Book Another Flight</a>
     <a asp-page="/Index" class="btn btn-outline-secondary">Home</a>

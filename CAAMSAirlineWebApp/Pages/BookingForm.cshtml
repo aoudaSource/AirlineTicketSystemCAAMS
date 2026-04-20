@@ -267,6 +267,7 @@
     <form method="post" id="mainBookingForm" novalidate>
         <input type="hidden" asp-for="Input.FlightId" />
         <input type="hidden" asp-for="Input.PassengerCount" />
+        <input type="hidden" asp-for="ReturnFlightId" />
         <input type="hidden" asp-for="SelectedSeats" id="selected-seats-input" />
         <input type="hidden" asp-for="PaymentMethod" id="payment-method-input" />
         <input type="hidden" asp-for="CardHolderName" id="card-holder-input" />
@@ -345,7 +346,7 @@
                             </div>
                         </div>
                     }
-                    <button type="button" class="btn btn-primary w-100 mt-3" onclick="goToStep(2)">Next: Select Seats</button>
+                    <button type="button" class="btn btn-primary w-100 mt-3" onclick="validateStep1()">Next: Select Seats</button>
                 </div>
 
                 <!-- STEP 2: OUTBOUND SEATS -->
@@ -557,11 +558,20 @@
             currentStep = step;
 
             // Re-render outbound grid when navigating back to step 2
-            if (step === 2 && outboundAllSeats.length > 0) {
+            // if (step === 2 && outboundAllSeats.length > 0) {
+            //     renderGrid(false, document.getElementById('seat-grid'), outboundAllSeats, outboundOccupied, outboundSelected);
+            //     document.getElementById('seat-grid-container').classList.remove('d-none');
+            //     document.getElementById('seat-grid-loader').classList.add('d-none');
+            // }
+                  if (step === 2) {
+            if (outboundAllSeats.length > 0) {
                 renderGrid(false, document.getElementById('seat-grid'), outboundAllSeats, outboundOccupied, outboundSelected);
                 document.getElementById('seat-grid-container').classList.remove('d-none');
                 document.getElementById('seat-grid-loader').classList.add('d-none');
+            } else {
+                loadSeats(false);
             }
+        }
         }
 
         function updateTotal() {
@@ -570,6 +580,7 @@
             const multiplier = multipliers[cls] || 1;
             const outboundTotal = passengerCount * basePrice * multiplier;
             const returnTotal = isRoundTrip === 'true' ? passengerCount * returnBasePrice * multiplier : 0;
+             
             const total = outboundTotal + returnTotal;
             const surcharge = total - (passengerCount * basePrice);
             document.getElementById('liveTotalDisplay').innerText = 'USD ' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
@@ -603,7 +614,41 @@
         }
 
         document.querySelectorAll('.dob-input').forEach(input => input.addEventListener('change', updateMinorWarnings));
+              function validateStep1() {
+            const errors = [];
 
+            for (let i = 0; i < passengerCount; i++) {
+                const firstName = document.querySelector(`input[name="Input.Passengers[${i}].FirstName"]`);
+                const lastName  = document.querySelector(`input[name="Input.Passengers[${i}].LastName"]`);
+                const passport  = document.querySelector(`input[name="Input.Passengers[${i}].PassportNumber"]`);
+                const dob       = document.querySelector(`input[name="Input.Passengers[${i}].DOB"]`);
+
+                if (!firstName?.value.trim()) errors.push(`Traveler ${i + 1}: First name is required.`);
+                if (!lastName?.value.trim())  errors.push(`Traveler ${i + 1}: Last name is required.`);
+                if (!passport?.value.trim())  errors.push(`Traveler ${i + 1}: Passport number is required.`);
+                if (!dob?.value)              errors.push(`Traveler ${i + 1}: Date of birth is required.`);
+            }
+
+            if (errors.length > 0) {
+                // Show first error near the button
+                let errorBox = document.getElementById('step1-error');
+                if (!errorBox) {
+                    errorBox = document.createElement('div');
+                    errorBox.id = 'step1-error';
+                    errorBox.className = 'alert alert-danger mt-3';
+                    document.querySelector('#step-1 .btn').before(errorBox);
+                }
+                errorBox.innerText = errors[0];
+                errorBox.classList.remove('d-none');
+                return;
+            }
+
+            // Clear any previous error and proceed
+            const errorBox = document.getElementById('step1-error');
+            if (errorBox) errorBox.classList.add('d-none');
+
+            goToStep(2);
+        }
         async function loadSeats(forReturn = false) {
             const cabinClass = document.getElementById('ticketClassSelect').value;
             const errorEl = forReturn ? document.getElementById('return-seat-error') : document.getElementById('seat-error');
@@ -734,7 +779,8 @@
             errorEl.classList.add('d-none');
 
             if (currentStep === 2) {
-                if (isRoundTrip === 'true') {
+                if (isRoundTrip === true || isRoundTrip === 'true') {
+                
                     goToStep(3);
                     // If return seats were already loaded (e.g. user went back), re-render instantly
                     if (returnAllSeats.length > 0) {

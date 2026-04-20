@@ -112,6 +112,10 @@ namespace CAAMSAirlineWebApp.Data
                     .HasColumnType("date")
                     .IsRequired();
 
+                entity.Property(e => e.LoyaltyStatus)
+      .HasColumnName("Loyalty_status")
+      .HasMaxLength(50);
+
                 entity.HasOne(e => e.AppUser)
                     .WithOne(u => u.Customer)
                     .HasForeignKey<Customer>(e => e.Username)
@@ -527,7 +531,7 @@ namespace CAAMSAirlineWebApp.Data
 
             modelBuilder.Entity<Payment>(entity =>
             {
-                entity.ToTable("Payments");
+                entity.ToTable("Payments", tb => tb.UseSqlOutputClause(false));
 
                 entity.HasKey(e => e.PaymentId);
 
@@ -591,7 +595,7 @@ namespace CAAMSAirlineWebApp.Data
                 entity.HasKey(e => e.NotificationId);
                 entity.Property(e => e.NotificationId).HasColumnName("Notification_id");
                 entity.Property(e => e.CustomerId).HasColumnName("Customer_id").IsRequired();
-                entity.Property(e => e.FlightId).HasColumnName("Flight_id").IsRequired();
+                entity.Property(e => e.FlightId).HasColumnName("Flight_id");
                 entity.Property(e => e.Message).IsRequired();
                 entity.Property(e => e.CreatedAt).HasColumnName("Created_at").HasColumnType("datetime");
                 entity.Property(e => e.IsRead).HasColumnName("Is_read");

@@ -27,13 +27,7 @@ namespace CAAMSAirlineWebApp.Pages.Admin.Aircrafts
             if (!ModelState.IsValid)
                 return Page();
 
-            _context.Aircrafts.Add(new Aircraft
-            {
-                Model = Input.Model.Trim(),
-                Manufacturer = string.IsNullOrWhiteSpace(Input.Manufacturer)
-                    ? null : Input.Manufacturer.Trim(),
-                Capacity = Input.Capacity
-            });
+          
 
             var aircraft = new Aircraft
             {

@@ -12,6 +12,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
 builder.Services.AddSession();
 builder.Services.AddDistributedMemoryCache();
 

@@ -12,6 +12,7 @@ namespace CAAMSAirlineWebApp.Models
         public string Email { get; set; } = null!;
         public string? Phone { get; set; }
         public DateTime DOB { get; set; }
+        public string? LoyaltyStatus { get; set; }
 
         // Navigation properties
         public AppUser AppUser { get; set; } = null!;
